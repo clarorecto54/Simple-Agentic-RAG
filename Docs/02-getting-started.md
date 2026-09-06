@@ -17,10 +17,11 @@ dotnet build "Embedding Console.csproj"
 
 ```bash
 # Basic usage
-dotnet run -- <input.json>
+dotnet run -- embed <input.json>
 
 # With explicit output path
-dotnet run -- <input.json> <output.json>
+dotnet run -- embed <input.json> <output.json>
+dotnet run -- embed <input.json> -o <output.json>
 ```
 
 If no output path is given, the app auto-generates `<input>.embedded.json` in the same directory.
@@ -51,12 +52,12 @@ $env:LLAMA_CPP_URL="http://localhost:4000"
 
 ```bash
 # Auto-detect dimension, use default server
-dotnet run -- "./Reference/Chunked Data.json"
+dotnet run -- embed "./Reference/Chunked Data.json"
 
 # Fixed 4096 dimensions on custom server with named output
 export LLAMA_CPP_URL=http://my-server:4000
 export EMBEDDING_DIMENSION=4096
-dotnet run -- "./Reference/Chunked Data.json" "./output/embedded.json"
+dotnet run -- embed "./Reference/Chunked Data.json" "./output/embedded.json"
 ```
 
 ## Run Tests

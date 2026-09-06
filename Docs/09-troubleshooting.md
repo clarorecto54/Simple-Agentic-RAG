@@ -49,7 +49,7 @@ cd "Tests" && dotnet run
 **Cause:** The C# app auto-appends `.embedded.json` to the input filename, but `setup_qdrant.py` reads a hardcoded path: `/home/clarorecto/.../output.json`. These are different files.
 
 **Fix:** Either:
-- Pass explicit output path: `dotnet run -- "input.json" "./output.json"`
+- Pass explicit output path: `dotnet run -- embed "input.json" "./output.json"`
 - Or supply the same path to the upsert command: `python3 setup_qdrant.py upsert -j ./your_path.json`
 
 ### 5. HTTP Timeout on Large Chunks
@@ -95,7 +95,7 @@ If chunks are nested under a different key, the fallback logic scans root values
 
 | Error | Where Caught | Message Format |
 |-------|-------------|----------------|
-| Missing input arg | Program.cs L14-23 | `Usage: dotnet run -- <input.json> [output.json]` |
+| Missing input arg | Program.cs L10-23 | `Usage: dotnet run -- <command> [options]` |
 | File not found | Program.cs L27-31 | `Error: Input file not found: {path}` |
 | Can't read file | Program.cs L58-66 | `Error: Could not read input file: {message}` |
 | Invalid JSON | Program.cs L69-77 | `Error: Invalid JSON in input file: {message}` |

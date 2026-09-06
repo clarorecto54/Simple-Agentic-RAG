@@ -32,9 +32,22 @@ The test project (`Tests/Tests.csproj`) references the main project via `<Projec
 
 ## Running the App
 
+The app uses a command dispatch system. Currently one command is available: `embed`.
+
 ```bash
-dotnet run -- <input.json> [output.json]
+# General usage
+dotnet run -- --help
+
+# Embed command
+dotnet run -- embed <input.json> [output.json]
+dotnet run -- embed <input.json> -o <output.json>
+dotnet run -- embed --help
 ```
+
+The `embed` subcommand accepts:
+- `<input.json>` — Required. Path to the JSON file with chunks to embed.
+- `[output.json]` — Optional. Alternative output path (auto-generated to `<input>.embedded.json` if omitted).
+- `-o <path>` / `--output <path>` — Alternative flag for explicit output path.
 
 Required env vars:
 | Var | Default | Purpose |

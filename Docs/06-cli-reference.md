@@ -1,21 +1,39 @@
 # CLI Reference
 
-## Command Syntax
+## Command Dispatch
+
+The app uses a command dispatch system. List available commands:
 
 ```bash
-dotnet run -- <input.json> [output.json]
+dotnet run -- --help
 ```
 
-## Arguments
+Currently one command is available:
+
+```bash
+dotnet run -- embed <input.json> [output.json]
+dotnet run -- embed --help
+```
+
+### Subcommand Arguments
 
 | Argument | Required | Description |
 |----------|----------|-------------|
 | `<input.json>` | Yes | Path to the JSON file containing chunks (must exist) |
 | `[output.json]` | No | Optional path for the enriched output file |
 
+### Alternative Output Flag
+
+You can also use `--output` / `-o` instead of positional second argument:
+
+```bash
+dotnet run -- embed <input.json> -o <output.json>
+dotnet run -- embed <input.json> --output <output.json>
+```
+
 ## Output Path Behavior
 
-If the output path is **not provided**, the app auto-generates it by appending `.embedded.json` to the input filename:
+If the output path is **not provided** (and `-o` is not used), the app auto-generates it by appending `.embedded.json` to the input filename:
 
 | Input Path | Auto-Generated Output |
 |------------|----------------------|
