@@ -75,13 +75,17 @@ cd "Tests" && dotnet run
 
 ## Setup Qdrant
 
-After generating embedded output:
+The script uses two subcommands — run them in sequence:
 
 ```bash
-python3 setup_qdrant.py
-```
+# Step 1: Create the collection (queries llama.cpp for model dimension, or use --dimension)
+python3 setup_qdrant.py create --llama-url http://localhost:4000
+# Or with manual dimension:
+python3 setup_qdrant.py create --dimension 4096
 
-This creates the `Coding Knowledge` Qdrant collection, upserts all points from `output.json`, and runs a self-search verification.
+# Step 2: Upsert points from the JSON output file
+python3 setup_qdrant.py upsert -j ./output.json
+```
 
 ### Python Dependencies
 

@@ -50,7 +50,7 @@ cd "Tests" && dotnet run
 
 **Fix:** Either:
 - Pass explicit output path: `dotnet run -- "input.json" "./output.json"`
-- Or update `INPUT_FILE` in `setup_qdrant.py` to point to the actual `.embedded.json` file
+- Or supply the same path to the upsert command: `python3 setup_qdrant.py upsert -j ./your_path.json`
 
 ### 5. HTTP Timeout on Large Chunks
 
