@@ -7,7 +7,7 @@ from qdrant_client import QdrantClient, models
 CLIENT_URL = "http://localhost:6333"
 COLLECTION_NAME = "Coding Knowledge"
 VECTOR_SIZE = 4096
-INPUT_FILE = "/home/clarorecto/My Projects/RAG/Embedding Console/output.json"
+INPUT_FILE = "./output.json"
 
 
 def create_collection(client: QdrantClient):
