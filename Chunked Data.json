@@ -1,0 +1,1355 @@
+{
+  "chunks": [
+    {
+      "id": "build-options-build-target-001",
+      "content": "## build.target\n\n- **Type:** `string | string[]`\n- **Default:** `'baseline-widely-available'`\n- **Related:** [Browser Compatibility](/guide/build#browser-compatibility)\n\nBrowser compatibility target for the final bundle. The default value is a Vite special value, `'baseline-widely-available'`, which targets the minimum browser versions compatible with [Baseline](https://web-platform-dx.github.io/baseline/) Widely Available as of a date fixed for each major release ([2026-01-01 for this major](https://web-platform-dx.github.io/supported-browsers/?widelyAvailableOnDate=2026-01-01)). Specifically, it is `['chrome111', 'edge111', 'firefox114', 'safari16.4', 'ios16.4']`.\n\nAnother special value is `'esnext'` - which assumes native dynamic imports support and will only perform minimal transpiling.\n\nThe transform is performed with Oxc Transformer and the value should be a valid [Oxc Transformer target option](https://oxc.rs/docs/guide/usage/transformer/lowering#target). Custom targets can either be an ES version (e.g. `es2015`), a browser with version (e.g. `chrome58`), or an array of multiple target strings.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.target",
+        "heading_path": [
+          "Build Options",
+          "build.target"
+        ],
+        "topic": "Browser compatibility target for the final bundle",
+        "summary": "Configures the minimum browser versions targeted by the build output via Oxc Transformer, with special values baseline-widely-available and esnext.",
+        "keywords": [
+          "build.target",
+          "browser compatibility",
+          "Oxc",
+          "transpilation",
+          "baseline-widely-available",
+          "esnext"
+        ],
+        "entities": [
+          "Vite",
+          "Oxc Transformer",
+          "Baseline Widely Available",
+          "chrome111",
+          "edge111",
+          "firefox114",
+          "safari16.4",
+          "ios16.4"
+        ],
+        "technologies": [
+          "Vite",
+          "Oxc"
+        ],
+        "concepts": [
+          "browser compatibility targeting",
+          "ES version lowering",
+          "browser-specific targets"
+        ],
+        "retrieval_queries": [
+          "how to set browser target for Vite build",
+          "what is baseline-widely-available in Vite",
+          "how to configure Oxc transformer target",
+          "Vite build.target esnext meaning"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      }
+    },
+    {
+      "id": "build-options-build-module-preload-002",
+      "content": "## build.modulePreload\n\n- **Type:** `boolean | { polyfill?: boolean, resolveDependencies?: ResolveModulePreloadDependenciesFn }`\n- **Default:** `{ polyfill: true }`\n\nBy default, a [module preload polyfill](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill) is automatically injected. The polyfill is auto injected into the proxy module of each `index.html` entry. If the build is configured to use a non-HTML custom entry via `build.rolldownOptions.input`, then it is necessary to manually import the polyfill in your custom entry:\n\n```js\nimport 'vite/modulepreload-polyfill'\n```\n\nNote: the polyfill does **not** apply to [Library Mode](/guide/build#library-mode). If you need to support browsers without native dynamic import, you should probably avoid using it in your library.\n\nThe polyfill can be disabled using `{ polyfill: false }`.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.modulePreload",
+        "heading_path": [
+          "Build Options",
+          "build.modulePreload"
+        ],
+        "topic": "Module preload polyfill and dependency resolution",
+        "summary": "Controls automatic injection of module preload polyfill for dynamic import optimization. Defaults to enabled with polyfill true.",
+        "keywords": [
+          "module preload",
+          "polyfill",
+          "dynamic imports",
+          "chunk preloading",
+          "modulepreload-polyfill"
+        ],
+        "entities": [
+          "Vite",
+          "modulepreload-polyfill",
+          "library mode"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "module preloading",
+          "dynamic import optimization",
+          "asset path resolution"
+        ],
+        "retrieval_queries": [
+          "how to configure module preload polyfill in Vite",
+          "when to manually import modulepreload-polyfill",
+          "does module preload polyfill work with library mode"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 2
+      }
+    },
+    {
+      "id": "build-options-build-module-preload-003",
+      "content": "There is experimental support for fine grained control over the dependencies list and their paths using the `resolveDependencies` function. It expects a function of type `ResolveModulePreloadDependenciesFn`:\n\n```ts\ntype ResolveModulePreloadDependenciesFn = (\n  url: string,\n  deps: string[],\n  context: {\n    hostId: string\n    hostType: 'html' | 'js'\n  },\n) => string[]\n```\n\nThe `resolveDependencies` function will be called for each dynamic import with a list of the chunks it depends on. A new dependencies array can be returned with these filtered or more dependencies injected, and their paths modified.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.modulePreload (resolveDependencies)",
+        "heading_path": [
+          "Build Options",
+          "build.modulePreload"
+        ],
+        "topic": "Fine-grained control over chunk preload dependencies",
+        "summary": "Provides resolveDependencies function for filtering and modifying chunk preload dependency lists.",
+        "keywords": [
+          "resolveDependencies",
+          "ResolveModulePreloadDependenciesFn",
+          "chunk dependencies",
+          "preload filtering"
+        ],
+        "entities": [
+          "Vite",
+          "ResolveModulePreloadDependenciesFn"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "fine-grained preload control",
+          "dependency filtering"
+        ],
+        "retrieval_queries": [
+          "how to use resolveDependencies in build.modulePreload",
+          "customizing chunk preload dependencies in Vite",
+          "ResolveModulePreloadDependenciesFn callback signature"
+        ],
+        "code_languages": [
+          "TypeScript"
+        ],
+        "chunk_index": 3
+      }
+    },
+    {
+      "id": "build-options-build-polyfill-module-preload-004",
+      "content": "## build.polyfillModulePreload\n\n- **Type:** `boolean`\n- **Default:** `true`\n- **Deprecated** use `build.modulePreload.polyfill` instead\n\nWhether to automatically inject a [module preload polyfill](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill).",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.polyfillModulePreload",
+        "heading_path": [
+          "Build Options",
+          "build.polyfillModulePreload"
+        ],
+        "topic": "Deprecated module preload polyfill toggle",
+        "summary": "Deprecated boolean option that controls automatic injection of the module preload polyfill. Use build.modulePreload.polyfill instead.",
+        "keywords": [
+          "polyfillModulePreload",
+          "deprecated",
+          "module preload",
+          "boolean"
+        ],
+        "entities": [
+          "Vite",
+          "module preload polyfill"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "legacy configuration options"
+        ],
+        "retrieval_queries": [
+          "what is build.polyfillModulePreload in Vite",
+          "how to disable module preload polyfill"
+        ],
+        "code_languages": [],
+        "chunk_index": 4
+      }
+    },
+    {
+      "id": "build-options-build-out-dir-005",
+      "content": "## build.outDir\n\n- **Type:** `string`\n- **Default:** `dist`\n\nSpecify the output directory (relative to [project root](/guide/#index-html-and-project-root)).",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.outDir",
+        "heading_path": [
+          "Build Options",
+          "build.outDir"
+        ],
+        "topic": "Output directory configuration",
+        "summary": "Specifies the directory where build output files are written, relative to the project root.",
+        "keywords": [
+          "outDir",
+          "output directory",
+          "dist"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "build output location"
+        ],
+        "retrieval_queries": [
+          "how to change Vite build output directory",
+          "configuring build.outDir"
+        ],
+        "code_languages": [],
+        "chunk_index": 5
+      }
+    },
+    {
+      "id": "build-options-build-assets-dir-006",
+      "content": "## build.assetsDir\n\n- **Type:** `string`\n- **Default:** `assets`\n\nSpecify the directory to nest generated assets under (relative to `build.outDir`). This is not used in [Library Mode](/guide/build#library-mode).",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.assetsDir",
+        "heading_path": [
+          "Build Options",
+          "build.assetsDir"
+        ],
+        "topic": "Assets directory nesting under output directory",
+        "summary": "Specifies the subdirectory under outDir where generated assets (JS, CSS files) are nested. Not used in Library Mode.",
+        "keywords": [
+          "assetsDir",
+          "assets directory",
+          "nesting",
+          "library mode"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "asset organization",
+          "library mode differences"
+        ],
+        "retrieval_queries": [
+          "how to configure Vite assets output subdirectory",
+          "why are assets nested in a folder by default"
+        ],
+        "code_languages": [],
+        "chunk_index": 6
+      }
+    },
+    {
+      "id": "build-options-build-assets-inline-limit-007",
+      "content": "## build.assetsInlineLimit\n\n- **Type:** `number` | `((filePath: string, content: Buffer) => boolean | undefined)`\n- **Default:** `4096` (4 KiB)\n\nImported or referenced assets that are smaller than this threshold will be inlined as base64 URLs to avoid extra http requests. Set to `0` to disable inlining altogether.\n\nIf a callback is passed, a boolean can be returned to opt-in or opt-out. If nothing is returned the default logic applies.\n\nGit LFS placeholders are automatically excluded from inlining because they do not contain the content of the file they represent.\n\n::: tip Note\nIf you specify `build.lib`, `build.assetsInlineLimit` will be ignored and assets will always be inlined, regardless of file size or being a Git LFS placeholder.\n:::",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.assetsInlineLimit",
+        "heading_path": [
+          "Build Options",
+          "build.assetsInlineLimit"
+        ],
+        "topic": "Asset inlining size threshold",
+        "summary": "Sets the size threshold (default 4 KiB) below which assets are inlined as base64 URLs. Supports callback-based logic and excludes Git LFS placeholders.",
+        "keywords": [
+          "assetsInlineLimit",
+          "base64",
+          "inlining",
+          "Git LFS",
+          "asset optimization"
+        ],
+        "entities": [
+          "Vite",
+          "Git LFS",
+          "Base64 URLs"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "asset optimization",
+          "HTTP request reduction",
+          "inline embedding"
+        ],
+        "retrieval_queries": [
+          "how to control asset inlining size threshold",
+          "when are assets inlined as base64 URLs",
+          "Git LFS placeholder inlining behavior"
+        ],
+        "code_languages": [],
+        "chunk_index": 7
+      }
+    },
+    {
+      "id": "build-options-build-css-code-split-008",
+      "content": "## build.cssCodeSplit\n\n- **Type:** `boolean`\n- **Default:** `true`\n\nEnable/disable CSS code splitting. When enabled, CSS imported in async JS chunks will be preserved as chunks and fetched together when the chunk is fetched.\n\nIf disabled, all CSS in the entire project will be extracted into a single CSS file.\n\n::: tip Note\nIf you specify `build.lib`, `build.cssCodeSplit` will be `false` as default.\n:::",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.cssCodeSplit",
+        "heading_path": [
+          "Build Options",
+          "build.cssCodeSplit"
+        ],
+        "topic": "CSS code splitting for async chunk loading",
+        "summary": "Controls whether CSS from async JS chunks is preserved as separate chunks fetched together with the JavaScript. Defaults to true.",
+        "keywords": [
+          "cssCodeSplit",
+          "CSS splitting",
+          "async chunks",
+          "CSS extraction"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "CSS code splitting",
+          "async chunk loading",
+          "CSS isolation"
+        ],
+        "retrieval_queries": [
+          "how to enable CSS code splitting in Vite",
+          "what happens when cssCodeSplit is disabled"
+        ],
+        "code_languages": [],
+        "chunk_index": 8
+      }
+    },
+    {
+      "id": "build-options-build-css-target-009",
+      "content": "## build.cssTarget\n\n- **Type:** `string | string[]`\n- **Default:** the same as [`build.target`](#build-target)\n\nThis option allows users to set a different browser target for CSS minification from the one used for JavaScript transpilation.\n\nWhen `build.cssMinify` is `'lightningcss'` (the default), this option takes precedence over [`css.lightningcss.targets`](./shared-options.md#css-lightningcss) for the minification step.\n\nIt should only be used when you are targeting a non-mainstream browser.\nOne example is Android WeChat WebView, which supports most modern JavaScript features but not the [`#RGBA` hexadecimal color notation in CSS](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb_colors).\nIn this case, you need to set `build.cssTarget` to `chrome61` to prevent Vite from transforming `rgba()` colors into `#RGBA` hexadecimal notations.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.cssTarget",
+        "heading_path": [
+          "Build Options",
+          "build.cssTarget"
+        ],
+        "topic": "CSS minification browser target override",
+        "summary": "Sets a different browser target for CSS minification than JavaScript, useful for non-mainstream browsers like Android WeChat WebView.",
+        "keywords": [
+          "cssTarget",
+          "CSS minification",
+          "browser targeting",
+          "Lightning CSS"
+        ],
+        "entities": [
+          "Vite",
+          "Lightning CSS",
+          "#RGBA hex color notation",
+          "Android WeChat WebView"
+        ],
+        "technologies": [
+          "Vite",
+          "Lightning CSS"
+        ],
+        "concepts": [
+          "CSS browser compatibility",
+          "differential minification targets"
+        ],
+        "retrieval_queries": [
+          "how to set different CSS minification target in Vite",
+          "fixing rgba color transformation for WeChat WebView",
+          "why cssTarget differs from build.target"
+        ],
+        "code_languages": [],
+        "chunk_index": 9
+      }
+    },
+    {
+      "id": "build-options-build-css-minify-010",
+      "content": "## build.cssMinify\n\n- **Type:** `boolean | 'lightningcss' | 'esbuild'`\n- **Default:** `'lightningcss'`, but `false` if [`build.minify`](#build-minify) is disabled for client build\n\nThis option allows users to override CSS minification specifically instead of defaulting to `build.minify`, so you can configure minification for JS and CSS separately. Vite uses [Lightning CSS](https://lightningcss.dev/minification.html) by default to minify CSS. It can be configured using [`css.lightningcss`](./shared-options.md#css-lightningcss). Set the option to `'esbuild'` to use esbuild instead.\n\nesbuild must be installed when it is set to `'esbuild'`.\n\n```sh\nnpm add -D esbuild\n```",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.cssMinify",
+        "heading_path": [
+          "Build Options",
+          "build.cssMinify"
+        ],
+        "topic": "CSS minification method selection",
+        "summary": "Overrides CSS minification method with Lightning CSS (default) or esbuild. Defaults to false when build.minify is disabled for client build.",
+        "keywords": [
+          "cssMinify",
+          "Lightning CSS",
+          "esbuild",
+          "CSS minification"
+        ],
+        "entities": [
+          "Vite",
+          "Lightning CSS",
+          "esbuild"
+        ],
+        "technologies": [
+          "Vite",
+          "Lightning CSS",
+          "esbuild"
+        ],
+        "concepts": [
+          "CSS compression methods",
+          "minifier selection"
+        ],
+        "retrieval_queries": [
+          "how to switch CSS minifier to esbuild in Vite",
+          "what CSS minifier does Vite use by default"
+        ],
+        "code_languages": [
+          "Bash"
+        ],
+        "chunk_index": 10
+      }
+    },
+    {
+      "id": "build-options-build-sourcemap-011",
+      "content": "## build.sourcemap\n\n- **Type:** `boolean | 'inline' | 'hidden'`\n- **Default:** `false`\n\nGenerate production source maps. If `true`, a separate sourcemap file will be created. If `'inline'`, the sourcemap will be appended to the resulting output file as a data URI. `'hidden'` works like `true` except that the corresponding sourcemap comments in the bundled files are suppressed.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.sourcemap",
+        "heading_path": [
+          "Build Options",
+          "build.sourcemap"
+        ],
+        "topic": "Source map generation modes",
+        "summary": "Controls production source map output with three modes: separate file (true), inline data URI ('inline'), or hidden mode ('hidden').",
+        "keywords": [
+          "sourcemap",
+          "source maps",
+          "debugging",
+          "data URI",
+          "hidden source maps"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "debug information generation",
+          "stack trace mapping"
+        ],
+        "retrieval_queries": [
+          "how to generate source maps in Vite production build",
+          "what is hidden sourcemap mode",
+          "inline vs separate source maps"
+        ],
+        "code_languages": [],
+        "chunk_index": 11
+      }
+    },
+    {
+      "id": "build-options-build-chunk-import-map-012",
+      "content": "## build.chunkImportMap\n\n- **Type:** `boolean`\n- **Default:** `false`\n- **Experimental**\n- **Related:** [Chunk Import Map Optimization](/guide/features#chunk-import-map-optimization)\n\nWhether to use import maps feature to optimize chunk caching efficiency.\n\nNote that this option requires [`import.meta.resolve` support](https://caniuse.com/mdn-javascript_operators_import_meta_resolve). If you need to support older browsers, check out [`@vitejs/plugin-legacy`](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy).",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.chunkImportMap",
+        "heading_path": [
+          "Build Options",
+          "build.chunkImportMap"
+        ],
+        "topic": "Import maps for chunk caching optimization",
+        "summary": "Experimental option using import maps to optimize chunk caching efficiency. Requires import.meta.resolve browser support.",
+        "keywords": [
+          "chunkImportMap",
+          "import maps",
+          "chunk caching",
+          "experimental",
+          "import.meta.resolve"
+        ],
+        "entities": [
+          "Vite",
+          "import maps",
+          "import.meta.resolve",
+          "@vitejs/plugin-legacy"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "HTTP caching optimization",
+          "browser import map API"
+        ],
+        "retrieval_queries": [
+          "how to enable import maps for chunk caching in Vite",
+          "what browsers support build.chunkImportMap",
+          "using @vitejs/plugin-legacy with import maps"
+        ],
+        "code_languages": [],
+        "chunk_index": 12
+      }
+    },
+    {
+      "id": "build-options-build-rolldown-options-013",
+      "content": "## build.rolldownOptions\n\n- **Type:** [`RolldownOptions`](https://rolldown.rs/reference/)\n\nDirectly customize the underlying Rolldown bundle. This is the same as options that can be exported from a Rolldown config file and will be merged with Vite's internal Rolldown options. See [Rolldown options docs](https://rolldown.rs/reference/) for more details.\n\nInstead of `build.rolldownOptions.input`, it is recommended to set the top-level [`input`](/config/shared-options#input) option, because it will be used in dev as well. If `build.rolldownOptions.input` is set, it overrides the top-level `input` option for build only.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.rolldownOptions",
+        "heading_path": [
+          "Build Options",
+          "build.rolldownOptions"
+        ],
+        "topic": "Direct Rolldown bundle customization",
+        "summary": "Passes options directly to the underlying Rolldown bundler, equivalent to a Rolldown config file merged with Vite's internal options.",
+        "keywords": [
+          "rolldownOptions",
+          "Rolldown",
+          "bundle customization",
+          "underlying bundler"
+        ],
+        "entities": [
+          "Vite",
+          "Rolldown",
+          "RolldownOptions"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "bundler-level configuration",
+          "Rollup/Rolldown options API"
+        ],
+        "retrieval_queries": [
+          "how to pass raw Rolldown options in Vite",
+          "differences between build.rolldownOptions and input option"
+        ],
+        "code_languages": [],
+        "chunk_index": 13
+      }
+    },
+    {
+      "id": "build-options-build-rollup-options-014",
+      "content": "## build.rollupOptions\n\n- **Type:** `RolldownOptions`\n- **Deprecated**\n\nThis option is an alias of `build.rolldownOptions` option. Use `build.rolldownOptions` option instead.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.rollupOptions",
+        "heading_path": [
+          "Build Options",
+          "build.rollupOptions"
+        ],
+        "topic": "Deprecated Rollup options alias",
+        "summary": "Deprecated alias for build.rolldownOptions, kept for backwards compatibility.",
+        "keywords": [
+          "rollupOptions",
+          "deprecated",
+          "Rollup alias",
+          "Rolldown"
+        ],
+        "entities": [
+          "Vite",
+          "Rolldown",
+          "Rollup"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "legacy configuration options"
+        ],
+        "retrieval_queries": [
+          "what is build.rollupOptions in Vite",
+          "migrating from rollupOptions to rolldownOptions"
+        ],
+        "code_languages": [],
+        "chunk_index": 14
+      }
+    },
+    {
+      "id": "build-options-build-dynamic-import-vars-options-015",
+      "content": "## build.dynamicImportVarsOptions\n\n- **Type:** `{ include?: string | RegExp | (string | RegExp)[], exclude?: string | RegExp | (string | RegExp)[] }`\n- **Related:** [Dynamic Import](/guide/features#dynamic-import)\n\nWhether to transform dynamic imports with variables.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.dynamicImportVarsOptions",
+        "heading_path": [
+          "Build Options",
+          "build.dynamicImportVarsOptions"
+        ],
+        "topic": "Dynamic import with variables transformation",
+        "summary": "Controls transformation of dynamic imports that use variables, with include/exclude path filtering.",
+        "keywords": [
+          "dynamicImportVarsOptions",
+          "dynamic imports",
+          "variable imports",
+          "include",
+          "exclude"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "dynamic import resolution",
+          "import pattern filtering"
+        ],
+        "retrieval_queries": [
+          "how to configure dynamic import variable transformation in Vite",
+          "what does build.dynamicImportVarsOptions do"
+        ],
+        "code_languages": [],
+        "chunk_index": 15
+      }
+    },
+    {
+      "id": "build-options-build-lib-016",
+      "content": "## build.lib\n\n- **Type:** `{ entry?: string | string[] | { [entryAlias: string]: string }, name?: string, formats?: ('es' | 'cjs' | 'umd' | 'iife')[], fileName?: string | ((format: ModuleFormat, entryName: string) => string), cssFileName?: string }`\n- **Related:** [Library Mode](/guide/build#library-mode)\n\nBuild as a library. `entry` defaults to the top-level [`input`](/config/shared-options#input) option, and one of them is required since the library cannot use HTML as entry. `name` is the exposed global variable and is required when `formats` includes `'umd'` or `'iife'`. Default `formats` are `['es', 'umd']`, or `['es', 'cjs']`, if multiple entries are used.\n\n`fileName` is the name of the package file output, which defaults to the `\"name\"` in `package.json`. It can also be defined as a function taking the `format` and `entryName` as arguments, and returning the file name.\n\nIf your package imports CSS, `cssFileName` can be used to specify the name of the CSS file output. It defaults to the same value as `fileName` if it's set a string, otherwise it also falls back to the `\"name\"` in `package.json`.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.lib",
+        "heading_path": [
+          "Build Options",
+          "build.lib"
+        ],
+        "topic": "Library mode configuration for package distribution",
+        "summary": "Configures Vite to produce library builds with entry points, exposed name, formats (es/cjs/umd/iife), custom file names, and optional CSS output.",
+        "keywords": [
+          "library mode",
+          "build.lib",
+          "UMD",
+          "CJS",
+          "ES modules",
+          "package distribution"
+        ],
+        "entities": [
+          "Vite",
+          "ES modules",
+          "CommonJS (CJS)",
+          "UMD",
+          "IIFE"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "package publishing",
+          "multi-format bundling",
+          "global variable exposure"
+        ],
+        "retrieval_queries": [
+          "how to build a library with Vite",
+          "what formats are supported in Vite library mode",
+          "how to output CSS file separately in library mode"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 16
+      }
+    },
+    {
+      "id": "build-options-build-lib-017",
+      "content": "```js twoslash [vite.config.js]\nimport { defineConfig } from 'vite'\n\nexport default defineConfig({\n  build: {\n    lib: {\n      entry: ['src/main.js'],\n      fileName: (format, entryName) => `my-lib-${entryName}.${format}.js`,\n      cssFileName: 'my-lib-style',\n    },\n  },\n})\n```",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.lib (example)",
+        "heading_path": [
+          "Build Options",
+          "build.lib"
+        ],
+        "topic": "Library mode configuration example",
+        "summary": "Example of building a library with Vite using custom fileName function and cssFileName options.",
+        "keywords": [
+          "library example",
+          "fileName function",
+          "cssFileName",
+          "multi-format output"
+        ],
+        "entities": [
+          "Vite",
+          "defineConfig"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "multi-format bundling",
+          "custom file naming"
+        ],
+        "retrieval_queries": [
+          "Vite library mode fileName function example",
+          "how to configure custom output filenames in Vite library"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 17
+      }
+    },
+    {
+      "id": "build-options-build-license-018",
+      "content": "## build.license\n\n- **Type:** `boolean | { fileName?: string }`\n- **Default:** `false`\n- **Related:** [License](/guide/features#license)\n\nWhen set to `true`, the build will generate a `.vite/license.md` file that includes all bundled dependencies' licenses.\n\nIf `fileName` is passed, it will be used as the license file name relative to the `outDir`. If it ends with `.json`, the raw JSON metadata will be generated instead and can be used for further processing.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.license",
+        "heading_path": [
+          "Build Options",
+          "build.license"
+        ],
+        "topic": "Bundled dependency license extraction",
+        "summary": "Generates a .vite/license.md file with all bundled dependencies' licenses, or raw JSON metadata for custom processing.",
+        "keywords": [
+          "license",
+          "dependencies",
+          "license extraction",
+          "package.json"
+        ],
+        "entities": [
+          "Vite",
+          ".vite/license.md"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "license compliance",
+          "dependency attribution"
+        ],
+        "retrieval_queries": [
+          "how to extract dependency licenses in Vite build",
+          "generating JSON license metadata with Vite"
+        ],
+        "code_languages": [],
+        "chunk_index": 18
+      }
+    },
+    {
+      "id": "build-options-build-license-019",
+      "content": "If you'd like to reference the license file in the built code, you can use [`build.rolldownOptions.output.postBanner`](https://rolldown.rs/reference/OutputOptions.postBanner#postbanner) to inject a comment at the top of the files.\n\n```js twoslash [vite.config.js]\nimport { defineConfig } from 'vite'\n\nexport default defineConfig({\n  build: {\n    license: true,\n    rolldownOptions: {\n      output: {\n        postBanner:\n          '/* See licenses of bundled dependencies at https://example.com/license.md */',\n      },\n    },\n  },\n})\n```",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.license (postBanner injection)",
+        "heading_path": [
+          "Build Options",
+          "build.license"
+        ],
+        "topic": "Injecting license references into built files via postBanner",
+        "summary": "Example of using rolldownOptions.output.postBanner to inject license file references at the top of built files.",
+        "keywords": [
+          "postBanner",
+          "license injection",
+          "banner comment",
+          "built file modification"
+        ],
+        "entities": [
+          "Vite",
+          "rolldownOptions",
+          "postBanner"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "license attribution in output"
+        ],
+        "retrieval_queries": [
+          "how to inject license references into built files with Vite",
+          "using postBanner for license comments"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 19
+      }
+    },
+    {
+      "id": "build-options-build-manifest-020",
+      "content": "## build.manifest\n\n- **Type:** `boolean | string`\n- **Default:** `false`\n- **Related:** [Backend Integration](/guide/backend-integration)\n\nWhether to generate a manifest file that contains a mapping of non-hashed asset filenames to their hashed versions, which can then be used by a server framework to render the correct asset links.\n\nWhen the value is a string, it will be used as the manifest file path relative to `build.outDir`. When set to `true`, the path would be `.vite/manifest.json`.\n\nIf you are writing a plugin and need to inspect each output chunk or asset's related CSS and static assets during the build, you can also use [`viteMetadata` output bundle metadata API](/guide/api-plugin#output-bundle-metadata).",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.manifest",
+        "heading_path": [
+          "Build Options",
+          "build.manifest"
+        ],
+        "topic": "Asset filename manifest for server-side template rendering",
+        "summary": "Generates a JSON manifest mapping non-hashed asset filenames to their hashed versions for server-side template rendering.",
+        "keywords": [
+          "manifest",
+          "asset manifest",
+          "hashed filenames",
+          "server integration",
+          "backend"
+        ],
+        "entities": [
+          "Vite",
+          ".vite/manifest.json"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "asset fingerprinting",
+          "server template rendering"
+        ],
+        "retrieval_queries": [
+          "how to generate asset manifest in Vite",
+          "using asset manifest for backend template rendering"
+        ],
+        "code_languages": [],
+        "chunk_index": 20
+      }
+    },
+    {
+      "id": "build-options-build-ssr-manifest-021",
+      "content": "## build.ssrManifest\n\n- **Type:** `boolean | string`\n- **Default:** `false`\n- **Related:** [Server-Side Rendering](/guide/ssr)\n\nWhether to generate a SSR manifest file for determining style links and asset preload directives in production.\n\nWhen the value is a string, it will be used as the manifest file path relative to `build.outDir`. When set to `true`, the path would be `.vite/ssr-manifest.json`.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.ssrManifest",
+        "heading_path": [
+          "Build Options",
+          "build.ssrManifest"
+        ],
+        "topic": "SSR manifest for style links and preload directives",
+        "summary": "Generates a manifest file for server-side rendering to determine which CSS styles and assets should be preloaded.",
+        "keywords": [
+          "ssrManifest",
+          "SSR",
+          "preload directives",
+          "style links"
+        ],
+        "entities": [
+          "Vite",
+          ".vite/ssr-manifest.json"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "server-side rendering optimization",
+          "critical resource preloading"
+        ],
+        "retrieval_queries": [
+          "how to generate SSR manifest in Vite",
+          "determining CSS and asset preload directives for SSR"
+        ],
+        "code_languages": [],
+        "chunk_index": 21
+      }
+    },
+    {
+      "id": "build-options-build-ssr-022",
+      "content": "## build.ssr\n\n- **Type:** `boolean | string`\n- **Default:** `false`\n- **Related:** [Server-Side Rendering](/guide/ssr)\n\nProduce SSR-oriented build. The value can be a string to directly specify the SSR entry, or `true`, which requires specifying the SSR entry via [`input`](/config/shared-options#input) or `build.rolldownOptions.input`.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.ssr",
+        "heading_path": [
+          "Build Options",
+          "build.ssr"
+        ],
+        "topic": "SSR-oriented build generation",
+        "summary": "Produces a server-side rendering oriented build. Can directly specify the SSR entry point or use the top-level input option.",
+        "keywords": [
+          "ssr",
+          "server-side rendering",
+          "SSR build"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "SSR bundling",
+          "server bundle generation"
+        ],
+        "retrieval_queries": [
+          "how to create SSR build with Vite",
+          "configuring build.ssr entry point"
+        ],
+        "code_languages": [],
+        "chunk_index": 22
+      }
+    },
+    {
+      "id": "build-options-build-emit-assets-023",
+      "content": "## build.emitAssets\n\n- **Type:** `boolean`\n- **Default:** `false`\n\nDuring non-client builds, static assets aren't emitted as it is assumed they would be emitted as part of the client build. This option allows frameworks to force emitting them in other environments build. It is responsibility of the framework to merge the assets with a post build step.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.emitAssets",
+        "heading_path": [
+          "Build Options",
+          "build.emitAssets"
+        ],
+        "topic": "Static asset emission in non-client builds",
+        "summary": "Forces static assets to be emitted during non-client builds (SSR, library) when frameworks handle asset merging via post-build steps.",
+        "keywords": [
+          "emitAssets",
+          "static assets",
+          "non-client builds",
+          "framework integration"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "asset emission control",
+          "cross-environment builds"
+        ],
+        "retrieval_queries": [
+          "how to emit static assets in SSR build",
+          "what is build.emitAssets used for"
+        ],
+        "code_languages": [],
+        "chunk_index": 23
+      }
+    },
+    {
+      "id": "build-options-build-ssr-emit-assets-024",
+      "content": "## build.ssrEmitAssets\n\n- **Type:** `boolean`\n- **Default:** `false`\n\nDuring the SSR build, static assets aren't emitted as it is assumed they would be emitted as part of the client build. This option allows frameworks to force emitting them in both the client and SSR build. It is responsibility of the framework to merge the assets with a post build step. This option will be replaced by `build.emitAssets` once Environment API is stable.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.ssrEmitAssets",
+        "heading_path": [
+          "Build Options",
+          "build.ssrEmitAssets"
+        ],
+        "topic": "Static asset emission in SSR builds (deprecated)",
+        "summary": "Controls static asset emission during SSR builds. Will be replaced by build.emitAssets once Environment API is stable.",
+        "keywords": [
+          "ssrEmitAssets",
+          "static assets",
+          "SSR",
+          "Environment API"
+        ],
+        "entities": [
+          "Vite",
+          "Environment API"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "legacy configuration options"
+        ],
+        "retrieval_queries": [
+          "what is build.ssrEmitAssets in Vite",
+          "migrating from ssrEmitAssets to emitAssets"
+        ],
+        "code_languages": [],
+        "chunk_index": 24
+      }
+    },
+    {
+      "id": "build-options-build-minify-025",
+      "content": "## build.minify\n\n- **Type:** `boolean | 'oxc' | 'terser' | 'esbuild'`\n- **Default:** `'oxc'` for client build, `false` for SSR build\n\nSet to `false` to disable minification, or specify the minifier to use. The default is [Oxc Minifier](https://oxc.rs/docs/guide/usage/minifier) which is 30 ~ 90x faster than terser and only 0.5 ~ 2% worse compression. [Benchmarks](https://github.com/privatenumber/minification-benchmarks)\n\n`build.minify: 'esbuild'` is deprecated and will be removed in the future.\n\nNote the `build.minify` option does not minify whitespaces when using the `'es'` format in lib mode, as it removes pure annotations and breaks tree-shaking.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.minify",
+        "heading_path": [
+          "Build Options",
+          "build.minify"
+        ],
+        "topic": "JavaScript minification method selection",
+        "summary": "Selects the JavaScript minifier: Oxc Minifier (default, 30-90x faster than terser with comparable compression), Terser, or esbuild (deprecated). Disabled by default for SSR builds.",
+        "keywords": [
+          "minify",
+          "Oxc",
+          "Terser",
+          "esbuild",
+          "code minification",
+          "compression"
+        ],
+        "entities": [
+          "Vite",
+          "Oxc Minifier",
+          "Terser",
+          "esbuild"
+        ],
+        "technologies": [
+          "Vite",
+          "Oxc",
+          "Terser",
+          "esbuild"
+        ],
+        "concepts": [
+          "code compression",
+          "build performance optimization",
+          "minifier comparison"
+        ],
+        "retrieval_queries": [
+          "how to configure JavaScript minification in Vite",
+          "why is Oxc the default minifier",
+          "when to use Terser instead of Oxc"
+        ],
+        "code_languages": [],
+        "chunk_index": 25
+      }
+    },
+    {
+      "id": "build-options-build-minify-026",
+      "content": "esbuild or Terser must be installed when it is set to `'esbuild'` or `'terser'` respectively.\n\n```sh\nnpm add -D esbuild\nnpm add -D terser\n```",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.minify (installation)",
+        "heading_path": [
+          "Build Options",
+          "build.minify"
+        ],
+        "topic": "Minifier installation requirements",
+        "summary": "Installation commands for esbuild and Terser, required when selecting them as the JavaScript minifier.",
+        "keywords": [
+          "esbuild install",
+          "Terser install",
+          "npm add -D",
+          "minifier dependencies"
+        ],
+        "entities": [
+          "Vite",
+          "Oxc Minifier",
+          "Terser",
+          "esbuild"
+        ],
+        "technologies": [
+          "Vite",
+          "Terser",
+          "esbuild"
+        ],
+        "concepts": [
+          "minifier installation",
+          "dev dependency management"
+        ],
+        "retrieval_queries": [
+          "how to install Terser for Vite build",
+          "npm commands for minifier dependencies"
+        ],
+        "code_languages": [
+          "Bash"
+        ],
+        "chunk_index": 26
+      }
+    },
+    {
+      "id": "build-options-build-terser-options-027",
+      "content": "## build.terserOptions\n\n- **Type:** `TerserOptions`\n\nAdditional [minify options](https://terser.org/docs/api-reference#minify-options) to pass on to Terser.\n\nIn addition, you can also pass a `maxWorkers: number` option to specify the max number of workers to spawn. Defaults to the number of CPUs minus 1.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.terserOptions",
+        "heading_path": [
+          "Build Options",
+          "build.terserOptions"
+        ],
+        "topic": "Terser minifier configuration options",
+        "summary": "Passes additional Terser minification options and maxWorkers configuration when using Terser as the minifier.",
+        "keywords": [
+          "terserOptions",
+          "Terser",
+          "minifier config",
+          "maxWorkers"
+        ],
+        "entities": [
+          "Vite",
+          "Terser"
+        ],
+        "technologies": [
+          "Vite",
+          "Terser"
+        ],
+        "concepts": [
+          "minifier fine-tuning",
+          "parallel worker management"
+        ],
+        "retrieval_queries": [
+          "how to pass Terser options in Vite",
+          "configuring Terser maxWorkers for Vite build"
+        ],
+        "code_languages": [],
+        "chunk_index": 27
+      }
+    },
+    {
+      "id": "build-options-build-write-028",
+      "content": "## build.write\n\n- **Type:** `boolean`\n- **Default:** `true`\n\nSet to `false` to disable writing the bundle to disk. This is mostly used in [programmatic `build()` calls](/guide/api-javascript#build) where further post processing of the bundle is needed before writing to disk.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.write",
+        "heading_path": [
+          "Build Options",
+          "build.write"
+        ],
+        "topic": "Bundle disk write toggle for programmatic builds",
+        "summary": "Controls whether the built bundle is written to disk. Useful for programmatic builds with post-processing between build and disk write.",
+        "keywords": [
+          "write",
+          "disk write",
+          "programmatic build",
+          "post processing"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "build pipeline control",
+          "programmatic API usage"
+        ],
+        "retrieval_queries": [
+          "how to prevent Vite from writing bundle to disk",
+          "using Vite build() programmatically without disk output"
+        ],
+        "code_languages": [],
+        "chunk_index": 28
+      }
+    },
+    {
+      "id": "build-options-build-empty-out-dir-029",
+      "content": "## build.emptyOutDir\n\n- **Type:** `boolean`\n- **Default:** `true` if `outDir` is inside `root`\n\nBy default, Vite will empty the `outDir` on build if it is inside project root. It will emit a warning if `outDir` is outside of root to avoid accidentally removing important files. You can explicitly set this option to suppress the warning. This is also available via command line as `--emptyOutDir`.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.emptyOutDir",
+        "heading_path": [
+          "Build Options",
+          "build.emptyOutDir"
+        ],
+        "topic": "Output directory cleanup on build",
+        "summary": "Controls automatic emptying of outDir before build. Warns by default when outDir is outside project root; can be explicitly set to suppress.",
+        "keywords": [
+          "emptyOutDir",
+          "output cleanup",
+          "outDir management",
+          "build safety"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "build output management",
+          "accidental file deletion protection"
+        ],
+        "retrieval_queries": [
+          "how to prevent Vite from clearing the dist folder",
+          "suppressing outDir empty warning"
+        ],
+        "code_languages": [],
+        "chunk_index": 29
+      }
+    },
+    {
+      "id": "build-options-build-copy-public-dir-030",
+      "content": "## build.copyPublicDir\n\n- **Type:** `boolean`\n- **Default:** `true`\n\nBy default, Vite will copy files from the `publicDir` into the `outDir` on build. Set to `false` to disable this.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.copyPublicDir",
+        "heading_path": [
+          "Build Options",
+          "build.copyPublicDir"
+        ],
+        "topic": "Public directory file copying control",
+        "summary": "Controls whether files from the public directory are copied into the output directory during build.",
+        "keywords": [
+          "copyPublicDir",
+          "public directory",
+          "static assets",
+          "file copying"
+        ],
+        "entities": [
+          "Vite",
+          "publicDir"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "static file management",
+          "public asset handling"
+        ],
+        "retrieval_queries": [
+          "how to disable public folder copying in Vite build",
+          "what does build.copyPublicDir control"
+        ],
+        "code_languages": [],
+        "chunk_index": 30
+      }
+    },
+    {
+      "id": "build-options-build-report-compressed-size-031",
+      "content": "## build.reportCompressedSize\n\n- **Type:** `boolean`\n- **Default:** `true`\n\nEnable/disable gzip-compressed size reporting. Compressing large output files can be slow, so disabling this may increase build performance for large projects.",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.reportCompressedSize",
+        "heading_path": [
+          "Build Options",
+          "build.reportCompressedSize"
+        ],
+        "topic": "Gzip-compressed size reporting toggle",
+        "summary": "Enables/disables gzip size reporting in build output. Disabling may improve build performance for large projects.",
+        "keywords": [
+          "reportCompressedSize",
+          "gzip",
+          "compressed size",
+          "build performance"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "build metrics reporting",
+          "compression analysis"
+        ],
+        "retrieval_queries": [
+          "how to disable gzip size reporting in Vite build",
+          "improving Vite build performance by disabling compressed size"
+        ],
+        "code_languages": [],
+        "chunk_index": 31
+      }
+    },
+    {
+      "id": "build-options-build-chunk-size-warning-limit-032",
+      "content": "## build.chunkSizeWarningLimit\n\n- **Type:** `number`\n- **Default:** `500`\n\nLimit for chunk size warnings (in kB). It is compared against the uncompressed chunk size as the [JavaScript size itself is related to the execution time](https://v8.dev/blog/cost-of-javascript-2019).",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.chunkSizeWarningLimit",
+        "heading_path": [
+          "Build Options",
+          "build.chunkSizeWarningLimit"
+        ],
+        "topic": "Chunk size warning threshold",
+        "summary": "Sets the chunk size limit (default 500 kB) for build warnings, compared against uncompressed JavaScript size.",
+        "keywords": [
+          "chunkSizeWarningLimit",
+          "chunk size",
+          "warnings",
+          "uncompressed size"
+        ],
+        "entities": [
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "build warning configuration",
+          "bundle size monitoring"
+        ],
+        "retrieval_queries": [
+          "how to adjust chunk size warning threshold in Vite",
+          "what is the default chunk size limit"
+        ],
+        "code_languages": [],
+        "chunk_index": 32
+      }
+    },
+    {
+      "id": "build-options-build-watch-033",
+      "content": "## build.watch\n\n- **Type:** [`WatcherOptions`](https://rolldown.rs/reference/InputOptions.watch)`| null`\n- **Default:** `null`\n\nSet to `{}` to enable Rolldown watcher. This is mostly used in cases that involve build-only plugins or integrations processes.\n\n::: warning Using Vite on Windows Subsystem for Linux (WSL) 2\n\nThere are cases that file system watching does not work with WSL2.\nSee [`server.watch`](./server-options.md#server-watch) for more details.\n\n:::",
+      "metadata": {
+        "source_file": "config/build-options.md",
+        "document_title": "Build Options",
+        "document_type": "Configuration Reference",
+        "section": "build.watch",
+        "heading_path": [
+          "Build Options",
+          "build.watch"
+        ],
+        "topic": "Rolldown file watcher configuration",
+        "summary": "Enables the Rolldown file system watcher for build-only plugins and integration processes. Includes WSL2 filesystem watch notes.",
+        "keywords": [
+          "watch",
+          "file watcher",
+          "Rolldown",
+          "WSL2"
+        ],
+        "entities": [
+          "Vite",
+          "Rolldown",
+          "WatcherOptions",
+          "WSL2"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "file system monitoring",
+          "hot module reloading",
+          "build automation"
+        ],
+        "retrieval_queries": [
+          "how to enable Rolldown watcher for Vite build",
+          "file watching issues with WSL2 in Vite"
+        ],
+        "code_languages": [],
+        "chunk_index": 33
+      }
+    }
+  ]
+}
