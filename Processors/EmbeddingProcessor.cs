@@ -82,7 +82,7 @@ public class EmbeddingProcessor
                     text, cancellationToken);
 
                 // Validate dimension after first successful call
-                if (i == 0 && _expectedDimension.HasValue)
+                if (i == 0 && _expectedDimension > 0)
                 {
                     if (vector.Length != _expectedDimension.Value)
                         throw new InvalidOperationException(
