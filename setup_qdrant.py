@@ -1,33 +1,74 @@
-"""Create 'Coding Knowledge' Qdrant collection and upsert all embeddings from output.json."""
+"""Manage a Qdrant collection: create (with llama.cpp model verification) or upsert points."""
 
+import argparse
 import json
 import sys
+from pathlib import Path
+
 from qdrant_client import QdrantClient, models
 
-CLIENT_URL = "http://localhost:6333"
-COLLECTION_NAME = "Coding Knowledge"
-VECTOR_SIZE = 4096
-INPUT_FILE = "./output.json"
+
+# ---------------------------------------------------------------------------
+# Helpers — accept client directly; no module-global mutation needed.
+# ---------------------------------------------------------------------------
+
+DEFAULT_COLLECTION = "Coding Knowledge"
 
 
-def create_collection(client: QdrantClient):
-    """Create the collection with maximum-performance settings for a small dataset (33 points).
+def fetch_llama_model_info(llama_url: str) -> dict:
+    """Query llama.cpp /v1/models to discover the loaded embedding model and its dimension.
+
+    llama.cpp exposes an OpenAI-compatible /v1/models endpoint.
+    Returns a dict with at least {"id": "<model-id>", "embedding_dim": <int>}.
+    Raises on HTTP error or missing data.
+    """
+    import requests
+
+    url = f"{llama_url.rstrip('/')}/v1/models"
+    resp = requests.get(url, timeout=15)
+    resp.raise_for_status()
+
+    body = resp.json()
+    # OpenAI-compatible response: {"data": [{"id": "...", ...}, ...]}
+    items = body.get("data", [])
+    if not items:
+        raise ValueError(f"No models returned from {url}")
+
+    # Prefer the first model; collect its properties.
+    model = items[0]
+    model_id = model.get("id", "unknown")
+
+    # llama.cpp embeds dimension in a field called "n_embd" on the model object.
+    dim = model.get("embedding_dim") or model.get("n_embd")
+    if dim is None:
+        raise ValueError(
+            f"Model '{model_id}' returned by llama.cpp does not include an "
+            f"'embedding_dim' or 'n_embd' field. "
+            "Use --dimension to set it manually."
+        )
+
+    return {"id": model_id, "embedding_dim": int(dim)}
+
+
+def create_collection(client: QdrantClient, collection_name: str, vector_size: int):
+    """Create the collection with maximum-performance settings for a small dataset.
+
+    The default config (float32 vectors + TurboQuant BITS4 rescoring) is appropriate
+    when *vector_size* <= 4096 and point count stays under ~10k.
 
     Rationale per parameter:
-    - datatype=float32 : with only 33 points (~512 KB total), keeping full precision avoids any
-      quantisation-induced accuracy loss. TurboQuant is stacked on top for ~4x search compression
-      with rescoring against the original float32 vectors.
-    - distance=COSINE  : standard for cosine-normalised embeddings (Qwen3-Embedding).
-    - default_segment_number=1 : single segment eliminates multi-segment merge overhead at query time.
-    - max_segment_size=50000 : large enough to hold all 33 points in one segment without splitting.
-    - indexing_threshold=5000 : defer vector index rebuilds for this tiny dataset (index already exists).
-    - HNSW m=6, ef_construct=128 : compact graph tuned for small cardinalities — fast traversal, no wasted RAM.
-    - TurboQuant BITS4 : 4-bit per-dimension compression for the search index; original float32 kept
-      on disk for rescoring → recall within ~1-2 pp of raw float32 at 4x throughput.
+    - datatype=float32 : full precision avoids quantisation loss; tiny dataset, RAM is cheap.
+    - distance=COSINE  : standard for cosine-normalised embeddings (Qwen3-Embedding et al.).
+    - default_segment_number=1 : single segment — no merge overhead at query time.
+    - max_segment_size=50_000 : far exceeds expected cardinality; avoids unwanted splits.
+    - indexing_threshold=5_000 : index already ready for this size (no lazy rebuild).
+    - HNSW m=6, ef_construct=128 : compact graph tuned for small cardinalities.
+    - TurboQuant BITS4 : 4-bit search index; original float32 kept on disk for rescoring.
+      Recall within ~1-2 pp of raw float32 at ~4x throughput.
     """
 
     vectors_config = models.VectorParams(
-        size=VECTOR_SIZE,
+        size=vector_size,
         distance=models.Distance.COSINE,
         datatype=models.Datatype.FLOAT32,
         memory=models.Memory.CACHED,       # original vectors in RAM (on_disk=False)
@@ -35,8 +76,8 @@ def create_collection(client: QdrantClient):
 
     optimizers_config = models.OptimizersConfigDiff(
         default_segment_number=1,
-        max_segment_size=50_000,           # far exceeds 33 points
-        indexing_threshold=5_000,          # index is always ready (no lazy rebuild)
+        max_segment_size=50_000,           # far exceeds expected point count
+        indexing_threshold=5_000,          # index always ready (no lazy rebuild)
     )
 
     hnsw_config = models.HnswConfigDiff(
@@ -53,19 +94,27 @@ def create_collection(client: QdrantClient):
     )
 
     client.create_collection(
-        collection_name=COLLECTION_NAME,
+        collection_name=collection_name,
         vectors_config=vectors_config,
         optimizers_config=optimizers_config,
         hnsw_config=hnsw_config,
         quantization_config=quantization_config,
     )
-    print(f"Collection '{COLLECTION_NAME}' created successfully.")
+    print(f"Collection '{collection_name}' created successfully (dim={vector_size}).")
 
 
-def upsert_points(client: QdrantClient):
-    """Load output.json and upsert all points into the collection."""
+def upsert_points(client: QdrantClient, json_path: str, collection_name: str) -> int:
+    """Load points from a JSON file (output of the C# pipeline) and upsert them.
 
-    with open(INPUT_FILE, "r") as f:
+    Expected schema matches `output.json`: {"chunks": [{"id", "content", "metadata", "points": [...]}]}.
+    Each point entry needs an "id" and "vector".
+    """
+
+    path = Path(json_path)
+    if not path.exists():
+        sys.exit(f"File not found: {json_path}")
+
+    with open(path, "r") as f:
         data = json.load(f)
 
     all_points: list[models.PointStruct] = []
@@ -92,60 +141,180 @@ def upsert_points(client: QdrantClient):
             )
             next_id += 1
 
-    # Upsert in batches of 100 (safety net for large payloads)
+    if not all_points:
+        sys.exit(f"No valid points found in {json_path} (expected 'chunks[].points[]').")
+
+    # Upsert in batches of 100.
     batch_size = 100
     for i in range(0, len(all_points), batch_size):
         batch = all_points[i : i + batch_size]
-        client.upsert(collection_name=COLLECTION_NAME, points=batch)
+        client.upsert(collection_name=collection_name, points=batch)
 
-    print(f"Upserted {len(all_points)} points into '{COLLECTION_NAME}'.")
-    return all_points
+    return len(all_points)
 
 
-def verify(client: QdrantClient, sample_vector):
+def verify_config(client: QdrantClient, collection_name: str, expected_dim: int):
     """Verify the collection exists and report its status."""
+    try:
+        info = client.get_collection(collection_name)
+    except Exception as exc:
+        sys.exit(f"Collection '{collection_name}' not found: {exc}")
 
-    # Count
-    count = client.count(COLLECTION_NAME)
-    print(f"Point count in '{COLLECTION_NAME}': {count.count}")
+    count = client.count(collection_name)
 
-    # Collection info — config.params.vectors may be Dict (client v1.19) or VectorParams
-    info = client.get_collection(COLLECTION_NAME)
     vectors_cfg = info.config.params.vectors  # type: ignore[union-attr]
-    vec_size = vectors_cfg.size if hasattr(vectors_cfg, "size") else vectors_cfg.get("size", "N/A")  # type: ignore[attr-defined]
-    vec_dist = vectors_cfg.distance if hasattr(vectors_cfg, "distance") else vectors_cfg.get("distance", "N/A")  # type: ignore[attr-defined]
-    vec_dtype = vectors_cfg.datatype if hasattr(vectors_cfg, "datatype") else vectors_cfg.get("datatype", "N/A")  # type: ignore[attr-defined]
+    if hasattr(vectors_cfg, "size"):
+        # Single-vector config (VectorParams)
+        vec_size = vectors_cfg.size  # type: ignore[attr-defined]
+        vec_dist = vectors_cfg.distance  # type: ignore[attr-defined]
+    elif isinstance(vectors_cfg, dict):
+        # Multi-vector config — use first key's params
+        first_key = next(iter(vectors_cfg), "N/A")
+        cfg = vectors_cfg.get(first_key) if first_key != "N/A" else None
+        vec_size = cfg.size if cfg else "N/A"  # type: ignore[union-attr]
+        vec_dist = cfg.distance if cfg else "N/A"  # type: ignore[attr-defined]
+    else:
+        vec_size = "N/A"
+        vec_dist = "N/A"
 
     print(f"\nCollection configuration:")
     print(f"  Status:     {info.status}")
+    print(f"  Points:     {count.count}")
     print(f"  Vectors:    {vec_size} dims, distance={vec_dist}")
-    print(f"  Datatype:   {vec_dtype}")
+
+    if vec_size != expected_dim:
+        print(
+            f"  ⚠ WARNING: Expected dimension {expected_dim}, "
+            f"but collection reports {vec_size}. Search results may be wrong."
+        )
+
     if info.config.quantization_config:
         print(f"  Quantised:  TurboQuant (4-bit search index, rescoring against float32)")
 
-    # Quick search test
-    results = client.query_points(
-        collection_name=COLLECTION_NAME,
-        query=sample_vector,
-        limit=5,
-    )
-    print(f"\nSelf-search test (first point as query): found {len(results.points)} result(s)")
-    if results.points:
-        r = results.points[0]
-        print(f"  Top hit id={r.id}  score={r.score:.4f}")
 
+# ---------------------------------------------------------------------------
+# Subcommand implementations — each receives a QdrantClient directly.
+# ---------------------------------------------------------------------------
 
-if __name__ == "__main__":
-    client = QdrantClient(url=CLIENT_URL)
+def cmd_create(args: argparse.Namespace, qdrant_url: str) -> None:
+    """Create subcommand: verify llama.cpp model → create collection."""
 
-    # Delete existing collection if it already exists (idempotent run)
+    client = QdrantClient(url=qdrant_url)
+    collection_name = args.collection or DEFAULT_COLLECTION
+
+    # Auto-detect via llama.cpp or require --dimension.
+    if not args.dimension:
+        if not args.llama_url:
+            sys.exit(
+                "--dimension is required when --llama-url is not provided. "
+                "(Or pass --llama-url to auto-detect from the model.)"
+            )
+        print(f"Querying llama.cpp at {args.llama_url} for model info …")
+        try:
+            model_info = fetch_llama_model_info(args.llama_url)
+        except Exception as exc:
+            sys.exit(f"Failed to query llama.cpp: {exc}")
+        verified_dim = model_info["embedding_dim"]
+        print(f"  Model : {model_info['id']}")
+        print(f"  Dimension (verified): {verified_dim}")
+    else:
+        verified_dim = args.dimension
+        print(f"Dimension (supplied): {verified_dim}")
+
+    # 2. Delete existing collection if present (idempotent).
     try:
-        client.delete_collection(COLLECTION_NAME)
-        print(f"Deleted existing collection '{COLLECTION_NAME}'.")
+        client.delete_collection(collection_name)
+        print(f"Deleted existing collection '{collection_name}'.")
     except Exception:
         pass  # doesn't exist yet — fine
 
-    create_collection(client)
-    upserted_points = upsert_points(client)
-    verify(client, upserted_points[0].vector)
+    create_collection(client, collection_name, verified_dim)
+
+    # 3. Verify the created collection.
+    verify_config(client, collection_name, verified_dim)
     print("\nDone.")
+
+
+def cmd_upsert(args: argparse.Namespace, qdrant_url: str) -> None:
+    """Upsert subcommand: load points from JSON and upsert into the collection."""
+
+    client = QdrantClient(url=qdrant_url)
+    collection_name = args.collection or DEFAULT_COLLECTION
+    json_path = args.json_path
+
+    # Verify the target collection exists first.
+    try:
+        client.get_collection(collection_name)
+    except Exception:
+        sys.exit(f"Collection '{collection_name}' does not exist. Run 'create' first.")
+
+    count = upsert_points(client, json_path, collection_name)
+    print(f"Upserted {count} points into '{collection_name}'.")
+
+    # Quick sanity check — report back config without dimension mismatch warning.
+    verify_config(client, collection_name, 0)
+    print("\nDone.")
+
+
+# ---------------------------------------------------------------------------
+# CLI entry point
+# ---------------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Manage a Qdrant embedding collection: create (with llama.cpp verification) or upsert points."
+    )
+    parser.add_argument(
+        "--collection", "-c",
+        default=DEFAULT_COLLECTION,
+        help=f"Name of the Qdrant collection (default: '{DEFAULT_COLLECTION}').",
+    )
+    parser.add_argument(
+        "--qdrant-url",
+        default="http://localhost:6333",
+        help="Qdrant server URL (default: http://localhost:6333).",
+    )
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # ---- create ----
+    create_parser = subparsers.add_parser(
+        "create",
+        help="Create collection after verifying llama.cpp model dimension.",
+    )
+    create_parser.add_argument(
+        "--llama-url", "-l",
+        default=None,
+        help="llama.cpp server URL (default: http://localhost:4000). Used to query model info.",
+    )
+    create_parser.add_argument(
+        "--dimension", "-d",
+        type=int,
+        default=0,
+        help=(
+            "Force the vector dimension. When --llama-url is given, this must match "
+            "the reported dimension (or be omitted for auto-detection)."
+        ),
+    )
+
+    # ---- upsert ----
+    upsert_parser = subparsers.add_parser(
+        "upsert",
+        help="Upsert points from a JSON file (output of the C# pipeline).",
+    )
+    upsert_parser.add_argument(
+        "--json-path", "-j",
+        required=True,
+        help="Path to the JSON file containing embedded chunks (e.g. ./output.json).",
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "create":
+        cmd_create(args, args.qdrant_url)
+    elif args.command == "upsert":
+        cmd_upsert(args, args.qdrant_url)
+
+
+if __name__ == "__main__":
+    main()
