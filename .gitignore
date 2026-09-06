@@ -82,3 +82,7 @@ yarn-error.log*
 *.tmp
 *.temp
 *.cache
+
+# .NET build outputs specific to Test project
+Tests/bin/
+Tests/obj/
