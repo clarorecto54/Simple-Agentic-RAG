@@ -77,7 +77,7 @@ public class AgenticChunkingProcessor : IDisposable
         }
 
         // ===== STAGE 1: Segment =====
-        Console.WriteLine("\n\033[33m  → Stage 1: Document Segmentation\033[0m");
+        Console.WriteLine("\n\u001b[33m  → Stage 1: Document Segmentation\u001b[0m");
         var allSegmentedFiles = new List<SegmentedFile>();
         foreach (var batch in markdownBatches)
         {
@@ -99,7 +99,7 @@ public class AgenticChunkingProcessor : IDisposable
         Console.WriteLine($"  Segments: {allSegmentedFiles.Count}");
 
         // ===== STAGE 2: Semantic Extraction =====
-        Console.WriteLine("\n\033[33m  → Stage 2: Semantic Extraction\033[0m");
+        Console.WriteLine("\n\u001b[33m  → Stage 2: Semantic Extraction\u001b[0m");
         var semanticResults = new List<(string segmentId, string markdownContent, JsonObject analysis)>();
         for (int i = 0; i < allSegmentedFiles.Count; i++)
         {
@@ -116,18 +116,18 @@ public class AgenticChunkingProcessor : IDisposable
             {
                 var analysis = ParseStage2Output(stage2Result);
                 semanticResults.Add((seg.Id, seg.SourceContent, analysis));
-                Console.WriteLine("\033[32m✓\033[0m");
+                Console.WriteLine("\u001b[32m✓\u001b[0m");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\033[31m✗ ({ex.Message})\033[0m");
+                Console.WriteLine($"\u001b[31m✗ ({ex.Message})\u001b[0m");
             }
         }
 
         int stage2Chunks = semanticResults.Sum(sr => GetChunkCount(sr.analysis));
 
         // ===== STAGE 3: Final Chunking =====
-        Console.WriteLine("\n\033[33m  → Stage 3: RAG Chunking\033[0m");
+        Console.WriteLine("\n\u001b[33m  → Stage 3: RAG Chunking\u001b[0m");
         var allFinalChunks = new List<JsonObject>();
 
         for (int i = 0; i < semanticResults.Count; i++)
@@ -171,7 +171,7 @@ public class AgenticChunkingProcessor : IDisposable
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\033[31m✗ Segment {sr.segmentId}: {ex.Message}\033[0m");
+                Console.WriteLine($"\u001b[31m✗ Segment {sr.segmentId}: {ex.Message}\u001b[0m");
             }
 
             Console.Write($"  [{i + 1}/{semanticResults.Count}] Semantic chunking done: ");
@@ -223,7 +223,7 @@ public class AgenticChunkingProcessor : IDisposable
         stopwatch.Stop();
 
         Console.WriteLine();
-        Console.WriteLine($"\033[32m  Output:    {outputFile}\033[0m");
+        Console.WriteLine($"\u001b[32m  Output:    {outputFile}\u001b[0m");
         Console.WriteLine($"  Final chunks: {stage3Final}");
         Console.WriteLine($"  Time:          {stopwatch.Elapsed.TotalSeconds:F1}s");
 

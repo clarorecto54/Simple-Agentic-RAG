@@ -363,7 +363,7 @@ static async Task<int> RunRagAsync(string[] subArgs)
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  \033[31mError: {ex.Message}\033[0m");
+            Console.WriteLine($"\u001b[31m  Error: {ex.Message}\u001b[0m");
             results.Add((inputFile, false, ex.Message));
             totalFailed++;
         }
@@ -372,7 +372,7 @@ static async Task<int> RunRagAsync(string[] subArgs)
     }
 
     // ── Summary ────────────────────────────────────────
-    Console.WriteLine("\n\033[1m=== Processing Complete ===\033[0m");
+    Console.WriteLine("\n\u001b[1m=== Processing Complete ===\u001b[0m");
     Console.WriteLine($"  Successful: {totalSuccess}");
     Console.WriteLine($"  Failed:     {totalFailed}");
 
