@@ -719,25 +719,48 @@ You are a **local semantic chunking agent**.
 
 # OUTPUT RULES
 
-Return **ONLY valid JSON**.
-
-Do not return:
-
-* Markdown fences
-* Explanations
-* Commentary
-* Analysis
-* Recommendations
-
-Return exactly:
+Return **ONLY valid JSON** matching this exact schema. Nothing else. No markdown fences, no commentary, no analysis.
 
 ```json
 {
-  "chunks": [...]
+  "chunks": [
+    {
+      "id": "string — deterministic identifier like 'doc-section-001'",
+      "content": "string — EXACT original Markdown content from source (not rewritten)",
+      "metadata": {
+        "source_file": "string — filename/path of the original source",
+        "document_title": "string — title of the full document",
+        "document_type": "string — type classification of the document",
+        "section": "string — the section/subsection this chunk belongs to",
+        "heading_path": ["array of strings: full heading hierarchy from root"],
+        "topic": "string — primary concept the chunk covers",
+        "summary": "string — one-sentence description of what the chunk contains",
+        "keywords": ["array of important retrieval terms from this chunk's source"],
+        "entities": ["array of entities explicitly present in this chunk"],
+        "technologies": ["array of technologies/libraries mentioned in this chunk"],
+        "concepts": ["array of semantic concepts represented in this chunk"],
+        "retrieval_queries": ["array of natural-language questions answerable from this chunk"],
+        "code_languages": ["array: programming languages detected in code blocks within this chunk"],
+        "chunk_index": 1
+      }
+    }
+  ]
 }
 ```
 
----
+**CRITICAL RULES FOR OUTPUT:**
+
+1. Top-level key MUST be exactly `"chunks"` — no other keys at top level.
+2. `chunks` MUST be a JSON array, even if it contains a single element.
+3. Every chunk object MUST have exactly three top-level keys: `"id"`, `"content"`, `"metadata"`.
+4. Every field in `metadata` above MUST exist — do not omit any metadata fields.
+5. `"content"` must contain the EXACT original Markdown text — verbatim, never paraphrased or summarized.
+6. `"chunk_index"` is a 1-based integer counting chunks in source order within this segment.
+7. `"heading_path"` must list ALL levels of the heading hierarchy from root to current section.
+8. If an array field has no data, use `[]` — never `null` and never omit the key.
+9. Do NOT wrap JSON in markdown code fences (```json ... ```). Return raw JSON only.
+
+If you produce anything other than this exact structure, the parser will fail.
 
 # FINAL VALIDATION
 

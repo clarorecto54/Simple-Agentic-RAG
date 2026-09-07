@@ -321,48 +321,41 @@ Preserve the original hierarchy and structure even if it is repetitive.
 
 ---
 
-# OUTPUT
+# OUTPUT FORMAT
 
-Return **ONLY valid JSON**.
+Return **ONLY valid JSON** matching this exact schema. No markdown fences, no commentary.
 
-Do not return Markdown.
-Do not return explanations.
-Do not return commentary.
-
-Use this schema:
-
+```json
 {
-"source_file": "original.md",
-"segments": [
-{
-"id": "001",
-"filename": "descriptive-file-name.md",
-"title": "Original section title",
-"heading_path": [
-"Original Parent Heading",
-"Original Section Heading"
-],
-"start_marker": "exact text identifying the beginning of the segment",
-"end_marker": "exact text identifying the end of the segment",
-"reason": "Brief explanation of why this is a semantic boundary"
+  "source_file": "string — filename or path of the input Markdown file",
+  "segments": [
+    {
+      "id": "string — deterministic identifier for this segment",
+      "filename": "string — lowercase kebab-case filename (e.g. 'config-build-options.md')",
+      "title": "string — exact heading or meaningful section name from the source",
+      "heading_path": ["array of strings: full Markdown heading hierarchy from root to this segment"],
+      "start_marker": "string — exact text that identifies the beginning of this segment in the source",
+      "end_marker": "string — exact text that identifies the end of this segment in the source",
+      "reason": "string — brief explanation of why this is a semantic boundary"
+    }
+  ]
 }
-]
-}
+```
 
-## OUTPUT RULES
+**CRITICAL RULES FOR OUTPUT:**
 
-1. `filename` must be deterministic and filesystem-safe.
-2. Use lowercase kebab-case for filenames.
-3. Do not invent content for filenames.
-4. `title` must correspond to an actual heading or meaningful section in the source.
-5. `heading_path` must reflect the original Markdown hierarchy.
-6. `start_marker` and `end_marker` must come directly from the source.
-7. Do not modify the markers.
-8. Preserve the original ordering of segments.
-9. Every part of the source must belong to exactly one segment unless it is structurally impossible to isolate.
-10. Do not duplicate source content between segments.
-11. Do not omit source content.
-12. Do not output the actual segmented Markdown content; output only the segmentation plan.
+1. Top-level keys MUST be exactly `"source_file"` and `"segments"`. No other top-level keys.
+2. `"segments"` MUST be a JSON array (even if it contains only one segment).
+3. Every field listed above MUST exist in every segment object — do not omit any fields.
+4. `heading_path` must include ALL levels of the Markdown heading hierarchy from root to current segment.
+5. `start_marker` and `end_marker` must be literal text snippets that can be found verbatim in the source document.
+6. `filename` must be lowercase kebab-case and derived from the segment title or content (e.g. "authentication-oauth.md").
+7. Segments must appear in the same order as they appear in the source document.
+8. Every part of the source document must belong to exactly one segment — no overlaps, no omissions.
+9. Do NOT output the actual segmented Markdown content; output only the segmentation plan (metadata).
+10. Do NOT wrap JSON in markdown code fences (```json ... ```). Return raw JSON only.
+
+If you produce anything other than this exact structure with `"segments"` as a top-level array, the parser will fail.
 
 ## FINAL CHECK
 

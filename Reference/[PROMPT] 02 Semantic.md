@@ -524,67 +524,56 @@ Code blocks, tables, and related lists are not arbitrarily split.
 
 # OUTPUT FORMAT
 
-Return **ONLY valid JSON**.
+Return **ONLY valid JSON** matching this exact schema:
 
-Do not return Markdown.
-Do not return explanations outside JSON.
-Do not use Markdown code fences around the JSON.
-
-Use this schema:
-
+```json
 {
-"document": {
-"source_file": "example.md",
-"title": "...",
-"document_type": "...",
-"primary_topic": "...",
-"summary": "...",
-"technologies": [],
-"entities": [],
-"concepts": []
-},
-
-"chunks": [
-{
-"chunk_id": "example-001",
-
-```
-  "title": "...",
-
-  "heading_path": [
-    "Parent Heading",
-    "Section Heading",
-    "Subsection Heading"
-  ],
-
-  "topic": "...",
-
-  "summary": "...",
-
-  "keywords": [],
-
-  "entities": [],
-
-  "concepts": [],
-
-  "relationships": [
+  "document": {
+    "source_file": "string — filename or path from input",
+    "title": "string — document title",
+    "document_type": "string — type of document",
+    "primary_topic": "string — main subject",
+    "summary": "string — concise description of the source content",
+    "technologies": ["array of technology/library names found in source"],
+    "entities": ["array of entities: APIs, classes, functions, configs, etc."],
+    "concepts": ["array of semantic concepts"]
+  },
+  "chunks": [
     {
-      "source": "...",
-      "type": "...",
-      "target": "..."
+      "chunk_id": "string — unique identifier for this chunk",
+      "title": "string — section/subsection heading",
+      "heading_path": ["array of strings: full heading hierarchy from root to current"],
+      "topic": "string — primary concept this section covers",
+      "summary": "string — brief description of what this chunk contains",
+      "keywords": ["array of important retrieval terms from source"],
+      "entities": ["array of entities explicitly present in the source content"],
+      "concepts": ["array of semantic concepts found in this chunk"],
+      "relationships": [
+        {
+          "source": "string",
+          "type": "string — uses|requires|creates|produces|consumes|depends_on|extends|implements|configures|references|contains|calls|returns|authenticates|connects_to",
+          "target": "string"
+        }
+      ],
+      "retrieval_topics": ["array of natural-language questions this chunk could help answer"],
+      "code_languages": ["array: detected programming languages in code blocks, e.g. ['JavaScript']"],
+      "source_content": "string — EXACT original Markdown content for this section"
     }
-  ],
-
-  "retrieval_topics": [],
-
-  "code_languages": [],
-
-  "source_content": "EXACT ORIGINAL MARKDOWN CONTENT"
+  ]
 }
 ```
 
-]
-}
+**CRITICAL RULES FOR OUTPUT:**
+
+1. Top-level key MUST be `document` and `chunks` (both strings). No other keys at top level.
+2. `chunks` MUST be a JSON array (even if only one chunk).
+3. Every field listed above MUST exist in every chunk — no missing fields.
+4. `heading_path` must include ALL levels of the heading hierarchy, from root to leaf.
+5. `source_content` must contain the EXACT original Markdown text — not paraphrased, not summarized.
+6. Do NOT wrap JSON in markdown code fences (```json ... ```). Return raw JSON only.
+7. If a field has no data, use an empty array `[]`, not `null` or omitted.
+
+Use this schema for every output.
 
 ---
 
