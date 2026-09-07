@@ -17,4 +17,11 @@
     <PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Copy prompt files and other Reference content to output dir -->
+    <Content Include="Reference\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
