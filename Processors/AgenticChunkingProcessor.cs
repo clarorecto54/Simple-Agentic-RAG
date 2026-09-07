@@ -339,10 +339,23 @@ public class AgenticChunkingProcessor : IDisposable
         {
             string cleaned = SanitizeJsonOutput(jsonText);
             var doc = JsonNode.Parse(cleaned)!;
-            if (doc is not JsonObject root)
-                throw new AgenticChunkingException($"Stage 2 returned non-object.");
 
-            // Ensure chunks array exists
+            JsonObject root;
+            if (doc is JsonObject obj && obj.ContainsKey("chunks"))
+                root = obj;
+            else if (doc is JsonObject obj2)
+            {
+                // Object with a different top-level key — wrap it
+                root = new JsonObject { ["chunks"] = doc };
+            }
+            else if (doc is JsonArray arr)
+            {
+                // LLM returned just the array (common fallback format)
+                root = new JsonObject { ["chunks"] = arr };
+            }
+            else
+                throw new AgenticChunkingException($"Stage 2 returned non-object: {typeof(JsonNode).Name}.");
+
             if (!root.ContainsKey("chunks"))
                 throw new AgenticChunkingException("Stage 2 output missing 'chunks' array.");
 
