@@ -1,4 +1,5 @@
-﻿using Embedding_Console.Processors;
+﻿using Embedding_Console;
+using Embedding_Console.Processors;
 using Embedding_Console.Services;
 using System;
 using System.Text;
@@ -10,13 +11,7 @@ Console.OutputEncoding = Encoding.UTF8;
 // ─────────────── CLI Argument Parsing ───────────────
 if (args.Length < 1)
 {
-    Console.WriteLine("Usage: dotnet run -- <command> [options]");
-    Console.WriteLine();
-    Console.WriteLine("Commands:");
-    Console.WriteLine("  embed   Embed chunks from a JSON file via llama.cpp.");
-    Console.WriteLine("  rag     Agentic chunking: markdown → segmented → semantic → RAG-ready chunks.");
-    Console.WriteLine();
-    Console.WriteLine("  Use 'embed --help' or 'rag --help' for command-specific options.");
+    HelpText.PrintMain();
     return 1;
 }
 
@@ -24,7 +19,7 @@ string command = args[0];
 
 if (command == "--help" || command == "-h")
 {
-    PrintHelp();
+    HelpText.PrintMain();
     return 0;
 }
 
@@ -56,12 +51,7 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
         switch (subArgs[i])
         {
             case "--help":
-                Console.WriteLine("Usage: dotnet run -- embed <input.json> [output.json]");
-                Console.WriteLine();
-                Console.WriteLine("  input.json   Path to the JSON file with chunks to embed.");
-                Console.WriteLine("  output.json  Optional. Path for the embedded output file.");
-                Console.WriteLine();
-                Console.WriteLine("If output path is omitted, <input>.embedded.json will be generated.");
+                HelpText.PrintEmbedHelp();
                 return 0;
 
             case "--output":
@@ -92,10 +82,9 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
     // Validate input file required
     if (string.IsNullOrEmpty(inputPath))
     {
-        Console.Error.WriteLine("Error: Input file path is required.");
+        Console.Error.WriteLine(HelpText.EmbedNoInputError);
         Console.WriteLine();
-        Console.WriteLine("Usage: dotnet run -- embed <input.json> [output.json]");
-        Console.WriteLine("  or:   dotnet run -- embed --help");
+        Console.WriteLine(HelpText.EmbedNoInputUsage.TrimEnd());
         return 1;
     }
 
@@ -206,6 +195,7 @@ static async Task<int> RunRagAsync(string[] subArgs)
 {
     // ── Rag subcommand argument parsing ────────────────
     List<string> inputFiles = new();
+    string? inputDir = null;
     string outputDir = "./rag_output";
     string llamaUrl = Environment.GetEnvironmentVariable("LLAMA_CPP_URL") ?? "http://localhost:4000";
     string promptDir = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ".", "Reference");
@@ -216,7 +206,7 @@ static async Task<int> RunRagAsync(string[] subArgs)
         switch (subArgs[i])
         {
             case "--help":
-                PrintRagHelp();
+                HelpText.PrintRagHelp();
                 return 0;
 
             case "--output-dir":
@@ -249,6 +239,16 @@ static async Task<int> RunRagAsync(string[] subArgs)
                 promptDir = subArgs[++i];
                 break;
 
+            case "--input-dir":
+            case "-d":
+                if (i + 1 >= subArgs.Length)
+                {
+                    Console.Error.WriteLine("Error: --input-dir requires a directory path.");
+                    return 1;
+                }
+                inputDir = subArgs[++i];
+                break;
+
             default:
                 // Treat as input markdown file path
                 if (!subArgs[i].StartsWith("--"))
@@ -264,12 +264,44 @@ static async Task<int> RunRagAsync(string[] subArgs)
         i++;
     }
 
+    // Resolve directory-based input if specified
+    if (inputDir is not null)
+    {
+        if (!Directory.Exists(inputDir))
+        {
+            Console.Error.WriteLine($"Error: Directory not found: {inputDir}");
+            return 1;
+        }
+
+        try
+        {
+            var dirFiles = Directory.GetFiles(inputDir, "*.md", SearchOption.AllDirectories)
+                                    .Concat(Directory.GetFiles(inputDir, "*.markdown", SearchOption.AllDirectories))
+                                    .OrderBy(f => f)
+                                    .ToList();
+
+            if (dirFiles.Count == 0)
+            {
+                Console.Error.WriteLine($"Error: No markdown files found in directory: {inputDir}");
+                return 1;
+            }
+
+            Console.WriteLine($"  Scanning directory: {inputDir} → found {dirFiles.Count} markdown file(s)");
+            inputFiles.AddRange(dirFiles);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Error: Access denied scanning directory: {ex.Message}");
+            return 1;
+        }
+    }
+
     // Validate inputs
     if (inputFiles.Count == 0)
     {
-        Console.Error.WriteLine("Error: At least one markdown file is required.");
+        Console.Error.WriteLine("Error: At least one markdown file or input directory is required.");
         Console.WriteLine();
-        PrintRagHelp();
+        HelpText.PrintRagHelp();
         return 1;
     }
 
@@ -352,36 +384,4 @@ static async Task<int> RunRagAsync(string[] subArgs)
     }
 
     return totalFailed > 0 ? 1 : 0;
-}
-
-static void PrintRagHelp()
-{
-    Console.WriteLine("Usage: dotnet run -- rag <file1.md> [file2.md ...] [options]");
-    Console.WriteLine();
-    Console.WriteLine("Agentic chunking pipeline: markdown → segmented → semantic analysis → RAG-ready chunks.");
-    Console.WriteLine();
-    Console.WriteLine("Arguments:");
-    Console.WriteLine("  file1.md ...     One or more markdown files to process.");
-    Console.WriteLine();
-    Console.WriteLine("Options:");
-    Console.WriteLine("  --output-dir, -o DIR   Output directory for .ragged.json files (default: ./rag_output)");
-    Console.WriteLine("  --llama-url, -l URL    llama.cpp server URL (default: $LLAMA_CPP_URL or http://localhost:4000)");
-    Console.WriteLine("  --prompt-dir, -p DIR   Directory containing prompt templates (default: ./Reference)");
-    Console.WriteLine();
-    Console.WriteLine("Environment variables:");
-    Console.WriteLine("  LLAMA_CPP_URL       llama.cpp server URL");
-    Console.WriteLine();
-    Console.WriteLine("Each file produces a <filename>.ragged.json in the output directory.");
-    Console.WriteLine("Intermediate results are saved per-stage so OOM errors preserve progress.");
-}
-
-static void PrintHelp()
-{
-    Console.WriteLine("Usage: dotnet run -- <command> [options]");
-    Console.WriteLine();
-    Console.WriteLine("Commands:");
-    Console.WriteLine("  embed   Embed chunks from a JSON file via llama.cpp.");
-    Console.WriteLine("  rag     Agentic chunking: markdown → segmented → semantic → RAG-ready chunks.");
-    Console.WriteLine();
-    Console.WriteLine("Use 'embed --help' or 'rag --help' for command-specific options.");
 }
