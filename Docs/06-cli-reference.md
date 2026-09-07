@@ -2,18 +2,37 @@
 
 ## Command Dispatch
 
-The app uses a command dispatch system. List available commands:
+The app uses a command dispatch system with two commands: `embed` and `rag`. List available commands:
 
 ```bash
 dotnet run -- --help
 ```
 
-Currently one command is available:
+### Available Commands
 
 ```bash
+# Embed command — JSON embedding pipeline
 dotnet run -- embed <input.json> [output.json]
 dotnet run -- embed --help
+
+# RAG command — agentic markdown chunking pipeline
+dotnet run -- rag <file1.md> [file2.md ...] [options]
+dotnet run -- rag --help
 ```
+
+All subcommands and the top-level help support `--help` / `-h`. Help text is centralised in `HelpText.cs` for easy maintenance.
+
+### RAG Subcommand Options
+
+| Argument / Flag | Required | Description |
+|-----------------|----------|-------------|
+| `[file1.md ...]` | No | One or more markdown files to process. If omitted, use `--input-dir`. |
+| `--input-dir, -d DIR` | No | Directory to scan recursively for `.md`/`.markdown` files |
+| `--output-dir, -o DIR` | No | Output directory for `.ragged.json` files (default: `./rag_output`) |
+| `--llama-url, -l URL` | No | llama.cpp server URL (default: `$LLAMA_CPP_URL` or `http://localhost:4000`) |
+| `--prompt-dir, -p DIR` | No | Directory containing prompt templates (default: `./Reference`) |
+
+When `--input-dir` is used, the app finds all `.md` and `.markdown` files recursively and processes them in sorted order. Per-file results are saved as `<filename>.ragged.json`. Each file goes through 3 stages: Segment → Semantic → Chunk, with intermediate results saved so OOM errors preserve progress.
 
 ### Subcommand Arguments
 
@@ -80,14 +99,14 @@ Results
   Completed successfully.
 ```
 
-## Console Output on Failure
+### Console Output on Failure
 
 Example — missing input file:
 ```
 Error: Input file not found: ./nonexistent.json
 ```
 
-Example — dimension mismatch:
+Example — dimension mismatch (embed):
 ```
 Error: Embedding dimension mismatch. Expected: 1024, Actual: 4096. First chunk: chunk-001
 ```
@@ -95,6 +114,29 @@ Error: Embedding dimension mismatch. Expected: 1024, Actual: 4096. First chunk: 
 Example — HTTP error:
 ```
 Error: Failed to generate embedding for chunk 'chunk-001': HTTP 503 (ServiceUnavailable)
+```
+
+### Console Output — RAG Pipeline
+
+Rag output shows per-stage progress and summary:
+```
+=== RAG Processing Pipeline ===
+  Input files:    Reference/Project Structure.md, Reference/Reference Data.json
+  Output dir:     ./rag_output
+  Server URL:     http://localhost:4000
+  Model ID:       qwen2.5-14b-instruct
+
+Processing file: Reference/Project Structure.md (2838 chars)
+  Segment:   1 segments in 0.8s
+  Semantic:  Found 4 semantic groups in 6.1s
+  Chunk:     12 chunks written to ./rag_output/Project Structure.ragged.json
+
+Results
+  Files processed:       2
+  Total input bytes:     14,672
+  Successful:            2
+  Failed:                0
+  Time elapsed:          9.4s
 ```
 
 ## Environment Variable Reference

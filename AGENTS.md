@@ -32,7 +32,7 @@ The test project (`Tests/Tests.csproj`) references the main project via `<Projec
 
 ## Running the App
 
-The app uses a command dispatch system. Currently one command is available: `embed`.
+The app uses a command dispatch system. Available commands: `embed` and `rag`.
 
 ```bash
 # General usage
@@ -42,6 +42,10 @@ dotnet run -- --help
 dotnet run -- embed <input.json> [output.json]
 dotnet run -- embed <input.json> -o <output.json>
 dotnet run -- embed --help
+
+# RAG command
+dotnet run -- rag <file1.md> [file2.md ...] [options]
+dotnet run -- rag --help
 ```
 
 The `embed` subcommand accepts:
@@ -49,12 +53,21 @@ The `embed` subcommand accepts:
 - `[output.json]` — Optional. Alternative output path (auto-generated to `<input>.embedded.json` if omitted).
 - `-o <path>` / `--output <path>` — Alternative flag for explicit output path.
 
+The `rag` subcommand accepts:
+- `[file1.md ...]` — Optional. One or more markdown files to process.
+- `--input-dir, -d DIR` — Directory to scan recursively for `.md`/`.markdown` files.
+- `--output-dir, -o DIR` — Output directory for `.ragged.json` files (default: `./rag_output`).
+- `--llama-url, -l URL` — llama.cpp server URL (default: `$LLAMA_CPP_URL` or `http://localhost:4000`).
+- `--prompt-dir, -p DIR` — Directory containing prompt templates (default: `./Reference`).
+
 Required env vars:
 | Var | Default | Purpose |
 |-----|---------|---------|
-| `LLAMA_CPP_URL` | `http://localhost:4000` | llama.cpp embedding server endpoint |
+| `LLAMA_CPP_URL` | `http://localhost:4000` | llama.cpp server endpoint (used by both `embed` and `rag`) |
 | `LLAMA_CPP_MODEL` | _(none)_ | model ID string, shown in output log |
 | `EMBEDDING_DIMENSION` | `0` (auto-detect) | expected vector dimension; set to avoid first-chunk mismatch errors |
+
+All commands accept `--help` / `-h` for usage info.
 
 ### Python Script (`setup_qdrant.py`)
 
@@ -93,6 +106,7 @@ The collection is configured with float32 vectors, COSINE distance, single-segme
 ```
 Embedding Console.csproj   ← main project (net10.0, ImplicitUsings+Nullable)
 Program.cs                 ← CLI entry: arg parsing → env config → processor pipeline
+HelpText.cs                ← centralised --help text constants and print methods
 Processors/EmbeddingProcessor.cs  ← core ETL: extract chunks, call embedding service, build Qdrant points
 Services/IEmbeddingService.cs   ← interface (GenerateEmbeddingAsync + EmbeddingDimension)
 Services/LlamaCppEmbeddingService.cs ← real HTTP impl against llama.cpp
@@ -123,37 +137,32 @@ Reference/                   ← project prompts and chunked data samples
 
 This repo uses a structured commit convention observed in history: `<TYPE>-<ID> : <title>` (e.g. `FEAT-3K79 : Add Qdrant collection setup script`). Generate identifiers by checking recent `git log` to avoid collisions — do not invent or reuse IDs from other branches.
 
-**Pre-Commit Analysis Checklist:**
+### Commit Authors
+
+All commits use the following authorship pattern, modeled after reference commit `c6a200b`:
+
+- **Primary author:** `clarorecto54 <clarorecto54@gmail.com>`
+- **Co-author (when Hermes contributes):** `Hermes Agent <hermes@nousresearch.com>`
+
+When committing with a co-authored change, append a trailer to the commit body:
+
+```text
+Co-authored-by: Hermes Agent <hermes@nousresearch.com>
+```
+
+### Pre-Commit Analysis Checklist
+
 - [ ] Run `git status` to see all modified files
 - [ ] Run `git diff` to review changes before staging
 - [ ] Verify all tests pass with `cd Tests && dotnet run`
 - [ ] Update AGENTS.md if documentation was modified
 - [ ] Use descriptive commit messages that explain WHAT and WHY
-- [ ] Group related changes logically, not by file location
+- [ ] Group changes logically by purpose, not by file location
 - [ ] Stage specific files with `git add <path>` (never `git add .`)
 - [ ] Verify commit shows clean status with `git status --short`
 
-**Commit Format:**
-```text
-<CHANGE_TYPE>-<UNIQUE_SUFFIX> : <commit_title>
+### Commit Format
 
-## Summary
-
-- <high-level change>
-- <high-level change>
-
-## Details
-
-- <implementation detail>
-- <implementation detail>
-```
-
-**Rules:**
-- Never stage, modify, discard, or reset unrelated working-tree changes
-- Never push — commits stay local unless explicitly requested
-- Inspect all changes before committing — group files by logical purpose, not by when they were touched together
-
-**Format:**
 ```text
 <CHANGE_TYPE>-<UNIQUE_SUFFIX> : <commit_title>
 
@@ -170,7 +179,8 @@ This repo uses a structured commit convention observed in history: `<TYPE>-<ID> 
 
 Change types: `FEAT`, `BUGFIX`, `CHORE`, `DOC`, `TEST`, `CONFIG`. Suffixes are short alphanumeric codes.
 
-**Rules:**
+### Commit Rules
+
 - Inspect all changes (`git status`, `git diff`) before committing — do not blindly group by directory.
 - Group files by logical purpose, not by when they were touched together. Independent features → separate commits.
 - Stage explicitly per group: `git add path/to/file.cs` — never use `git add .` or `git add -A`.

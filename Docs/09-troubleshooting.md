@@ -91,6 +91,43 @@ python3 -c "import json; json.load(open('input.json'))" && echo "Valid JSON"
 ```
 If chunks are nested under a different key, the fallback logic scans root values for any array of objects.
 
+### 8. Rag Pipeline OOM — Intermediate Files Not Found
+
+**Symptom:** After an OOM during Chunk stage, re-running `rag` says "No intermediate results found — restarting from Segment."
+
+**Cause:** The AgenticChunkingProcessor saves segment and semantic-grouping intermediates to disk for resumption. If those files were deleted or the output dir moved, the pipeline restarts from Stage 1.
+
+**Fix:** Ensure your intermediate output directory exists and contains `segment_output.json` and `semantic_groups.json`. They're created after Stage 1 (Segment) and Stage 2 (Semantic Grouping). Check:
+```bash
+ls ./rag_output/segment_output.json ./rag_output/semantic_groups.json
+```
+
+### 9. Rag Service Returns Empty Object `{}` or Null
+
+**Symptom:** `NullReferenceException` during rag processing when parsing LLM output.
+
+**Cause:** The LLM response contains no balanced brace/bracket blocks, or all extracted blocks are arrays (not objects). `ExtractJsonFromText()` prefers objects over arrays of equal size.
+
+**Fix:** Check that your prompt templates include clear JSON structure instructions. Verify the raw LLM response:
+```csharp
+// Debug by printing raw response before extraction in RagService.SendPromptAsync()
+```
+If the model returns valid content but not structured JSON, adjust the prompt to enforce a specific JSON schema.
+
+### 10. Rag Reasoning Tokens Format Mismatch
+
+**Symptom:** llama.cpp rejects the request with a format error about `reasoning_tokens`.
+
+**Cause:** Different models use different keys for reasoning tokens: Qwen uses `"reasoning_tokens"`, while some other models use `"thinking"` or `"reasoning"`. The app hardcodes `reasoning_tokens: -1` in RagService.cs line 87.
+
+**Fix:** If using a non-Qwen model, change the key in `RagService.SendPromptAsync()`:
+```csharp
+// For Qwen models (current):
+model["reasoning_tokens"] = -1;
+// For other models:
+model["thinking"] = "enabled";  // or model["reasoning"] = true;
+```
+
 ## Error Handling Reference
 
 | Error | Where Caught | Message Format |
@@ -104,6 +141,11 @@ If chunks are nested under a different key, the fallback logic scans root values
 | HTTP error | EmbeddingProcessor.L111-113 | `Error: Failed to generate embedding for chunk '{id}': HTTP {code} ({status})` |
 | Dimension mismatch | EmbeddingProcessor.L87-90 | `Embedding dimension mismatch. Expected: {expected}, Actual: {actual}. First chunk: {id}` |
 | Write failure | Program.cs L126-130 | `Error: Could not write output file: {message}` |
+| Rag: input neither files nor dir | Program.cs (rag branch) | `Error: No input specified. Provide markdown files or --input-dir.` |
+| Rag: server URL required | AgenticChunkingProcessor | `Error: --llama-url required (LLAMA_CPP_URL is not set).` |
+| Rag: segment failed | AgenticChunkingProcessor | `Error: Failed to segment file '{file}': {error}` |
+| Rag: semantic grouping failed | AgenticChunkingProcessor | `Error: Failed to group segments for '{file}': {error}` |
+| Rag: chunk generation failed | AgenticChunkingProcessor | `Error: Failed to generate chunks for '{file}' stage {stage}: {error}` |
 
 ## Troubleshooting Strategy
 
@@ -129,3 +171,4 @@ Encounter error
 - [Getting Started](02-getting-started.md) — quick fixes table (subset of this document)
 - [Project Overview](01-project-overview.md) — architecture context for understanding where errors originate
 - [Core Components](03-core-components.md) — which class/line throws each error
+- [RAG Pipeline Docs](04-rag-pipeline.md) — RagService and AgenticChunkingProcessor troubleshooting

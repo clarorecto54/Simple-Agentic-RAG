@@ -118,10 +118,53 @@ JSON root node (JsonNode)
     │       ChunkNode["points"].Add(BuildPointJson(point))
     │
     └─> WriteOutput(result, outputPath)  // serializes mutated JsonNode
+
+RAG Pipeline (rag subcommand) — separate flow:
+    Markdown files → AgenticChunkingProcessor
+        ├─> ParseMarkdown(file) → raw text sections
+        ├─> Segment → Send to LLM for coarse segmentation
+        ├─> Semantic Grouping → Ask LLM for topic labels & groupings
+        ├─> Chunk Within Segments → Final chunking with boundaries
+        └─> WriteOutput → <filename>.ragged.json per input file
 ```
+
+## RagService (Services) — Agentic Chunking
+
+**File:** `Services/RagService.cs`
+
+RagService handles the chat completions API for the RAG pipeline's three-stage chunking process:
+
+### Methods
+
+| Method | Purpose |
+|--------|---------|
+| `SendPromptAsync(string prompt)` | Sends a single chat completions request with `reasoning_tokens: -1` (Qwen format). Returns the assistant's text content. |
+| `ExtractJsonFromText(string response)` | Qwen may prepend commentary before JSON. This collects all balanced `{}` and `[]` blocks, sorts by span length descending (outermost first), prefers objects over arrays at equal size, and returns the first valid object. |
+
+### Configuration — AgenticChunkingOptions
+
+**File:** `Services/AgenticChunkingOptions.cs`
+
+```csharp
+public record AgenticChunkingOptions(
+    int MaxTokens = 8192,
+    string PromptDir = "./Reference",
+    string OutputDir = "./rag_output");
+```
+
+- **MaxTokens**: Controls response length budget per LLM call. Default `8192` covers typical segment/semantic/chunk responses for files up to ~5k chars.
+- **PromptDir**: Directory containing prompt templates used by Segment/Semantic/Chunk stages. See `Reference/prompts/`.
+- **OutputDir**: Where `.ragged.json` files are written per source file.
+
+### Data Output — RagResult
+
+**File:** `Models/RagResult.cs` (if exists) or embedded in processor
+
+Each processed markdown file produces a `.ragged.json` containing the final chunks from the three-stage pipeline. Intermediate results (post-segment, post-semantic-grouping) are saved to disk so that an OOM during Chunk stage doesn't lose prior progress — on restart those intermediates allow resuming.
 
 ## Related Documents
 
-- [Project Overview](01-project-overview.md) — architecture context
+- [Project Overview](01-project-overview.md) — architecture context including both embed and rag pipelines
 - [Embedding Services](04-embedding-services.md) — how the processor calls into IEmbeddingService
 - [Qdrant Integration](05-qdrant-integration.md) — how points flow from here into Qdrant
+- [RAG Pipeline Docs](04-rag-pipeline.md) — detailed RagService, AgenticChunkingProcessor, and prompt templates
