@@ -18,8 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Copy prompt files and other Reference content to output dir -->
-    <Content Include="Reference\**">
+    <!-- Embed prompt templates as assembly resources -->
+    <EmbeddedResource Include="Prompts\prompts.json" LogicalName="Embedding_Console.Prompts.prompts.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+
+    <!-- Copy other Reference content to output dir (non-prompt files) -->
+    <Content Include="Reference\**" Exclude="Reference\[PROMPT] *">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

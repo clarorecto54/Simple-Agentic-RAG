@@ -111,11 +111,12 @@ Processors/EmbeddingProcessor.cs  ← core ETL: extract chunks, call embedding s
 Services/IEmbeddingService.cs   ← interface (GenerateEmbeddingAsync + EmbeddingDimension)
 Services/LlamaCppEmbeddingService.cs ← real HTTP impl against llama.cpp
 Services/FakeEmbeddingService.cs    ← deterministic hash-based vectors for tests
-Models/QdrantPoint.cs            ← record(Id, Vector, Payload)
-Tests/                       ← inline test harness (dotnet run)
-  Program.cs                 ← 15 PASS/FAIL assertions
-setup_qdrant.py              ← Qdrant collection + batch upsert (python3)
-Reference/                   ← project prompts and chunked data samples
+Models/QdrantPoint.cs          ← record(Id, Vector, Payload)
+Tests/                         ← inline test harness (dotnet run)
+  Program.cs                   ← 15 PASS/FAIL assertions
+Prompts/prompts.json           ← embedded prompt templates (segment, semantic, chunking)
+setup_qdrant.py                ← Qdrant collection + batch upsert (python3)
+Reference/                     ← non-prompt project assets only
 ```
 
 ## Conventions

@@ -1,6 +1,8 @@
 namespace Embedding_Console.Processors;
 
 using Embedding_Console.Services;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -595,10 +597,57 @@ public class AgenticChunkingProcessor : IDisposable
 
     #endregion
 
-    #region I/O helpers
+    #region Prompt loading (embedded resource + filesystem fallback)
+
+    /// <summary>Cached embedded prompts loaded once at first use.</summary>
+    private static readonly Dictionary<string, string> _embeddedPrompts = LoadEmbeddedPrompts();
+
+    private static Dictionary<string, string> LoadEmbeddedPrompts()
+    {
+        var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            var asm = typeof(AgenticChunkingProcessor).Assembly;
+            // Get the embedded resource stream by its logical name
+            var resourceName = "Embedding_Console.Prompts.prompts.json";
+            using var stream = asm.GetManifestResourceStream(resourceName);
+            if (stream == null) return dict;
+
+            using var reader = new StreamReader(stream);
+            var json = reader.ReadToEnd();
+            var doc = JsonNode.Parse(json);
+            if (doc is JsonObject root)
+            {
+                foreach (var kvp in root)
+                {
+                    if (kvp.Value is JsonValue jv && jv.TryGetValue<string>(out var promptText))
+                    {
+                        // Map short keys to canonical filenames
+                        string key = kvp.Key.ToLowerInvariant();
+                        if (key == "segment" || key.Contains("01") || key.Contains("segment"))
+                            dict["01 Segment.md"] = promptText;
+                        else if (key == "semantic" || key.Contains("02") || key.Contains("semantic"))
+                            dict["02 Semantic.md"] = promptText;
+                        else if (key == "chunking" || key.Contains("03") || key.Contains("chunking"))
+                            dict["03 Chunking.md"] = promptText;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Silently ignore — filesystem fallback will apply
+        }
+        return dict;
+    }
 
     private string LoadPrompt(string promptFilename)
     {
+        // Try embedded resource first (case-insensitive lookup on canonical name)
+        if (_embeddedPrompts.TryGetValue(promptFilename, out var embedded))
+            return embedded;
+
+        // Fallback: read from file system at custom prompt directory
         var promptPath = Path.Combine(_promptDir, $"[PROMPT] {promptFilename}");
         if (!File.Exists(promptPath))
             throw new AgenticChunkingException($"Prompt file not found: {promptPath}");
