@@ -61,6 +61,7 @@ internal static class HelpText
           --output-dir, -o DIR     Output directory for .ragged.json files (default: ./rag_output)
           --llama-url, -l URL      llama.cpp server URL (default: $LLAMA_CPP_URL or http://localhost:4000)
           --prompt-dir, -p DIR     Directory containing prompt templates (default: ./Reference)
+          --timeout MIN            Per-stage timeout in minutes (default: 10); increase for large files
         """;
 
     internal const string RagEnvSection =

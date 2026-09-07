@@ -198,6 +198,7 @@ static async Task<int> RunRagAsync(string[] subArgs)
     string? inputDir = null;
     string outputDir = "./rag_output";
     string llamaUrl = Environment.GetEnvironmentVariable("LLAMA_CPP_URL") ?? "http://localhost:4000";
+    TimeSpan llamaTimeout = TimeSpan.FromMinutes(10); // Increased default for large files; per-stage limit
     string promptDir = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ".", "Reference");
 
     int i = 0;
@@ -237,6 +238,16 @@ static async Task<int> RunRagAsync(string[] subArgs)
                     return 1;
                 }
                 promptDir = subArgs[++i];
+                break;
+
+            case "--timeout":
+                if (i + 1 >= subArgs.Length || !double.TryParse(subArgs[i + 1], out var mins) || mins <= 0)
+                {
+                    Console.Error.WriteLine("Error: --timeout requires a positive number of minutes.");
+                    return 1;
+                }
+                llamaTimeout = TimeSpan.FromMinutes(mins);
+                i++;
                 break;
 
             case "--input-dir":
@@ -335,7 +346,8 @@ static async Task<int> RunRagAsync(string[] subArgs)
         ragService,
         promptDir,
         maxChunkTokens: 8000,
-        outputDir: outputDir);
+        outputDir: outputDir,
+        llamaTimeout: llamaTimeout);
 
     // ── Process each file ──────────────────────────────
     Console.WriteLine();

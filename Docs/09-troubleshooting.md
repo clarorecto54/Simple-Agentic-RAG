@@ -52,17 +52,24 @@ cd "Tests" && dotnet run
 - Pass explicit output path: `dotnet run -- embed "input.json" "./output.json"`
 - Or supply the same path to the upsert command: `python3 setup_qdrant.py upsert -j ./your_path.json`
 
-### 5. HTTP Timeout on Large Chunks
+### 5. HTTP Timeout on Large Chunks (RAG Pipeline)
 
-**Symptom:** `TaskCanceledException` or `HttpRequestException` with timeout message after ~300 seconds.
+**Symptom:** `02 Semantic timed out after Nm.` or similar stage timeout error.
 
-**Cause:** The hardcoded 5-minute timeout may not be enough for very large text chunks on a slow llama.cpp server.
+**Cause:** The per-stage timeout (`_llamaTimeout`) limits how long each LLM call can take before being cancelled. For large markdown files with many segments or long reasoning output, the default may not be enough.
 
-**Fix:** The timeout is set in Program.cs line 88:
-```csharp
-Timeout = TimeSpan.FromMinutes(5)
+**Fix:** Use the `--timeout` flag to set a longer per-stage limit (in minutes):
+```bash
+# Increase to 15 minutes per stage
+dotnet run -- rag file.md --timeout 15
+
+# Increase to 30 minutes per stage for very large files
+dotnet run -- rag file.md --timeout 30
 ```
-Increase if needed: `TimeSpan.FromMinutes(10)`.
+
+The `RagService.HttpClient` has its own separate 15-minute HTTP timeout (configured in `RagService.cs:21`), so any per-stage timeout you set should stay at or below 15 minutes to avoid double-timeouts.
+
+### 6. Timeout on Embed Command
 
 ### 6. Invalid JSON Input
 
