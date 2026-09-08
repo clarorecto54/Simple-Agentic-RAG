@@ -184,6 +184,30 @@ unrelated database configuration
 
 ---
 
+# SECTION COVERAGE RULE — CRITICAL
+
+**Every H2 and H3 heading in the source MUST produce at least one chunk entry.**
+
+Before generating output, explicitly list all headings found:
+
+```text
+Document headings:
+## Heading A        → chunk 1
+### Subheading A.1  → chunk 2 (or merged into chunk 1 with correct heading_path)
+## Heading B        → chunk 3
+## Heading C        → chunk 4 (merge with Heading B if very short and closely related)
+```
+
+Coverage rules:
+
+* **Minimum**: One chunk per H2 heading. No H2 heading may be omitted — even if it is only one line or contains only a code block.
+* **H3 headings**: Each should either become its own chunk OR be merged into its parent H2 chunk. If an H3 section is short and closely related to its parent, merge it (use `heading_path` to preserve the hierarchy). Otherwise give it a separate chunk.
+* **Very short sections** (one line of text or code-only): Always include them as their own chunk. Do not drop "trivial" sections.
+* **Code-heavy sections**: Always create at least one chunk even if explanation text is minimal — the code block itself constitutes meaningful content.
+* **Sections with only lists/tables/warnings/tips**: Include them; they are often retrieved independently in RAG queries.
+
+If a section heading contains markup like `<NonInheritBadge />` (e.g., `## optimizeDeps.entries <NonInheritBadge />`), treat the entire heading line as one section and produce at least one chunk for it.
+
 # CHUNK BOUNDARIES
 
 Prefer boundaries at:
@@ -207,7 +231,7 @@ Avoid splitting:
 * A procedure from its required steps
 * An example from the concept it demonstrates
 
----
+
 
 # CONTEXT PRESERVATION
 
@@ -570,6 +594,8 @@ Return **ONLY valid JSON** matching this exact schema:
 3. Every field listed above MUST exist in every chunk — no missing fields.
 4. `heading_path` must include ALL levels of the heading hierarchy, from root to leaf.
 5. `source_content` must contain the EXACT original Markdown text — not paraphrased, not summarized.
+6. `source_content` must be actual Markdown text — NOT a description like "string — EXACT original Markdown content for this section". If unsure, include at least the heading and first line of content from the source.
+
 6. Do NOT wrap JSON in markdown code fences (```json ... ```). Return raw JSON only.
 7. If a field has no data, use an empty array `[]`, not `null` or omitted.
 
@@ -601,6 +627,51 @@ Use this schema for every output.
 20. Return valid JSON only.
 
 ---
+
+# PRE-OUTPUT CHECKLIST
+
+Before generating JSON output, perform this mandatory enumeration:
+
+1. Count all H2 headings (##) in the source markdown.
+2. Count all H3 headings (###) in the source markdown.
+3. Assign each heading to a chunk number. Every heading must be assigned — no exceptions.
+4. Verify that the number of chunks ≥ number of unique H2 headings.
+
+Example:
+```text
+Source has 15 H2 headings → output MUST have at least 15 chunk entries.
+Source has 8 H3 headings → each should appear in its own chunk or be merged into an H2 chunk (with correct heading_path).
+```
+
+Also ensure:
+- Every `chunk_id` is unique across all chunks (no duplicates allowed).
+- `chunk_index` values are sequential starting from 1.
+- No template placeholder strings remain (e.g., "string — ...", "... — ...").
+- Every chunk's `source_content` contains actual markdown text, not a description of the format.
+
+
+
+---
+
+# PRE-OUTPUT CHECKLIST
+
+Before generating JSON output, perform this mandatory enumeration:
+
+1. Count all H2 headings (##) in the source markdown — let's call this N_h2.
+2. Assign each heading to a chunk number. Every heading must be assigned — no exceptions.
+3. Verify that the number of chunks >= N_h2 (or fewer only if some very short H3 sections were safely merged into parent H2 chunks).
+
+Example:
+```text
+Source has 15 H2 headings → output MUST have at least 14 chunk entries (allowing safe merges of small subsections)
+Source has 8 H3 headings → each should appear in its own chunk or be merged into an H2 chunk with correct heading_path
+```
+
+Also ensure:
+- Every `chunk_id` is unique across all chunks (no duplicates).
+- `chunk_index` values are sequential starting from 1.
+- No template placeholder strings remain as actual content (e.g., replace "string — ..." with real text, replace the example schema with data derived from the source).
+
 
 # FINAL VALIDATION
 

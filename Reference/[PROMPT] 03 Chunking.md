@@ -16,6 +16,11 @@ The document has already been:
 
 Do NOT repeat the work of the previous semantic extraction stage.
 
+**Preserve all semantic chunks from Stage 2.**
+
+Every chunk produced by the previous stage must appear in your output. Do not drop or merge chunks unless they are truly empty or have no meaningful content.
+If Stage 2 identifies a section as semantically meaningful, your job is to convert it into embedding-ready format — not to re-evaluate whether it is meaningful.
+
 Your primary goals are:
 
 1. Create high-quality retrieval chunks.
@@ -749,6 +754,9 @@ Return **ONLY valid JSON** matching this exact schema. Nothing else. No markdown
 ```
 
 **CRITICAL RULES FOR OUTPUT:**
+10. `chunk_index` is a sequential number starting from 1 — never use 1 for all chunks.
+11. No chunk_id may appear more than once across all chunks.
+12. Do not copy template placeholder descriptions into actual field values (e.g., `"string — deterministic identifier like 'doc-section-001'"` should become a real unique ID, and `"string — EXACT original Markdown content"` should become the actual markdown text from the source).
 
 1. Top-level key MUST be exactly `"chunks"` — no other keys at top level.
 2. `chunks` MUST be a JSON array, even if it contains a single element.

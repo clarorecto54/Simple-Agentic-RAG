@@ -286,6 +286,38 @@ The goal is **retrieval-friendly semantic documents**, not uniformly sized files
 
 ---
 
+# MANDATORY H2/H3 SPLITTING RULE
+
+**Always split at every H2 (##) and H3 (###) heading boundary.**
+
+This is the primary segmentation criterion for technical documentation, API docs, and reference documents.
+
+For example:
+
+```markdown
+# Vite API Reference
+
+## Environment Instances     → segment 1
+## Module Graph              → segment 2
+## HMR API                   → segment 3
+### Client API               → part of segment 3 or its own segment
+## Plugin Hooks              → segment 4
+```
+
+should produce **four separate segments** (or more if H3 sections are substantial):
+
+```text
+environment-instances.md    (## Environment Instances)
+module-graph.md             (## Module Graph)
+hmr-api.md                  (## HMR API + ### Client API)
+plugin-hooks.md             (## Plugin Hooks)
+```
+
+Do NOT merge multiple H2 sections into one segment just because they share a document title. Each H2 heading should normally become its own segment unless:
+- Two adjacent H2 sections are very short (< 50 words each) AND closely related (e.g., two tiny error code descriptions)
+
+For documents with many distinct API concepts, endpoints, classes, or functions, prefer one segment per H2 heading. It is better to have more smaller segments than fewer large merged ones.
+
 ## SPECIAL CASES
 
 ### Single-topic document
