@@ -267,18 +267,22 @@ public class AgenticChunkingProcessor : IDisposable
         try
         {
             var doc = JsonNode.Parse(jsonText)!;
-            if (doc is not JsonObject rootObj)
-                throw new AgenticChunkingException($"Stage 1 returned non-object: {jsonText[..200]}");
 
-            if (!rootObj.ContainsKey("segments"))
-                throw new AgenticChunkingException("Stage 1 output missing 'segments' array.");
+            // LLM may return either { "segments": [...] } or a bare array of segment objects
+            JsonArray segmentsArr;
+            if (doc is JsonObject rootObj && rootObj.ContainsKey("segments"))
+                segmentsArr = rootObj["segments"]!.AsArray();
+            else if (doc is JsonArray arr)
+                segmentsArr = arr;
+            else
+                throw new AgenticChunkingException(
+                    $"Stage 1 returned unexpected type: expected {{\"segments\": [...]}} or bare array, got {doc?.GetValueKind()}");
 
-            var segments = rootObj["segments"]!.AsArray();
             var result = new List<SegmentedFile>();
 
-            for (int i = 0; i < segments.Count; i++)
+            for (int i = 0; i < segmentsArr.Count; i++)
             {
-                if (segments[i] is not JsonObject seg) continue;
+                if (segmentsArr[i] is not JsonObject seg) continue;
 
                 string id = GetStringValue(seg, "id") ?? $"seg-{batchIndex}-{i:D3}";
                 string filename = GetStringValue(seg, "filename") ?? $"segment-{i}.md";
@@ -290,6 +294,19 @@ public class AgenticChunkingProcessor : IDisposable
                             headingPath.Add(hs);
 
                 result.Add(new SegmentedFile(id, filename, title, headingPath, ""));
+            }
+
+            // If no valid segment objects were parsed but the LLM returned elements
+            // (e.g., a bare array of heading strings), create one synthetic segment
+            // so the file isn't silently skipped.
+            if (result.Count == 0 && segmentsArr.Count > 0)
+            {
+                result.Add(new SegmentedFile(
+                    $"seg-{batchIndex}-000",
+                    "fallback-segment.md",
+                    sourceFileName,
+                    new List<string>(),
+                    ""));
             }
 
             return result;
