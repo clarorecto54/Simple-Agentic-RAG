@@ -162,7 +162,7 @@ public class RagService : IRagService, IDisposable
                     }
                 }
 
-                pos++; // advance past this opening bracket to find the next candidate
+                if (pos < text.Length) pos++; // advance past this opening bracket to find the next candidate
             }
         }
 

@@ -1,6 +1,7 @@
 namespace Embedding_Console.Processors;
 
 using Embedding_Console.Services;
+using Embedding_Console.Utils;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -47,6 +48,10 @@ public class AgenticChunkingProcessor : IDisposable
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var sourceFileName = Path.GetFileNameWithoutExtension(inputFilePath);
 
+        // Initialize per-file logging for this run
+        PipelineLogger.Clear();
+        PipelineLogger.WriteEntry(sourceFileName, "INFO", $"Processing started: {inputFilePath}");
+
         Console.WriteLine();
         Console.WriteLine($"\u001b[36m=== Agentic Chunking: {sourceFileName} ===\u001b[0m");
 
@@ -54,6 +59,9 @@ public class AgenticChunkingProcessor : IDisposable
         var rawMarkdown = File.ReadAllText(inputFilePath);
         int charCount = rawMarkdown.Length;
         Console.WriteLine($"  Input:    {inputFilePath} ({charCount:N0} chars)");
+
+        // Log raw input for debugging
+        PipelineLogger.WriteInput(sourceFileName, "RAW_INPUT", rawMarkdown);
 
         // Estimate tokens (~4 chars per token for markdown with code blocks)
         int estimatedTokens = charCount / 4;
@@ -63,6 +71,7 @@ public class AgenticChunkingProcessor : IDisposable
         if (estimatedTokens > _maxChunkTokens)
         {
             Console.WriteLine($"  Chunking markdown into ~{_maxChunkTokens} token batches...");
+            PipelineLogger.WriteEntry(sourceFileName, "INFO", $"Chunked into {_maxChunkTokens} token batches");
             markdownBatches = ChunkMarkdown(rawMarkdown, _maxChunkTokens);
             // Prepend a note so the LLM knows we're processing in parts
             for (int i = 0; i < markdownBatches.Count; i++)
@@ -81,19 +90,41 @@ public class AgenticChunkingProcessor : IDisposable
         var allSegmentedFiles = new List<SegmentedFile>();
         foreach (var batch in markdownBatches)
         {
-            string stage1Result = await RunStageAsync(
-                "01 Segment",
-                LoadPrompt("01 Segment.md"),
-                batch.content,
-                cancellationToken);
+            string stage1Prompt = LoadPrompt("01 Segment.md");
+            PipelineLogger.WriteInput(sourceFileName, "STAGE1_PROMPT", stage1Prompt);
+            PipelineLogger.WriteInput(sourceFileName, $"STAGE1_INPUT_batch{batch.index}", batch.content);
 
-            var segments = ParseStage1Output(stage1Result, batch.index, sourceFileName);
-            // Extract source_content for each segment from the batch content
-            foreach (var s in segments)
+            string stage1Result;
+            try
             {
-                var seg = s with { SourceContent = ExtractSegmentContent(batch.content, s) };
-                allSegmentedFiles.Add(seg);
+                stage1Result = await RunStageAsync(
+                    "01 Segment",
+                    stage1Prompt,
+                    batch.content,
+                    cancellationToken);
+                PipelineLogger.WriteOutput(sourceFileName, "STAGE1_OUTPUT", stage1Result);
+
+                var segments = ParseStage1Output(stage1Result, batch.index, sourceFileName);
+                // Extract source_content for each segment from the batch content
+                foreach (var s in segments)
+                {
+                    var seg = s with { SourceContent = ExtractSegmentContent(batch.content, s) };
+                    allSegmentedFiles.Add(seg);
+                }
+
+                PipelineLogger.WriteEntry(sourceFileName, "STAGE1_INFO", $"Parsed {segments.Count} segments from batch {batch.index}");
             }
+            catch (Exception ex) when (!(ex is AgenticChunkingException))
+            {
+                PipelineLogger.WriteError(sourceFileName, "STAGE1", ex, $"Batch index: {batch.index}\nContent length: {batch.content.Length} chars");
+                Console.WriteLine($"\u001b[31m  ✗ Stage 1 batch {batch.index}: {ex.Message}\u001b[0m");
+            }
+        }
+
+        PipelineLogger.WriteEntry(sourceFileName, "STAGE1_SUMMARY", $"Total segments: {allSegmentedFiles.Count}");
+        foreach (var seg in allSegmentedFiles)
+        {
+            PipelineLogger.WriteEntry(sourceFileName, "SEGMENT_DETAIL", $"{seg.Id}: \"{seg.Title}\" ({seg.SourceContent.Length} chars)");
         }
 
         Console.WriteLine($"  Segments: {allSegmentedFiles.Count}");
@@ -104,27 +135,35 @@ public class AgenticChunkingProcessor : IDisposable
         for (int i = 0; i < allSegmentedFiles.Count; i++)
         {
             var seg = allSegmentedFiles[i];
-            Console.Write($"  [{i + 1}/{allSegmentedFiles.Count}] Processing: {seg.Title}... ");
+            Console.Write($"  [{i + 1}/{allSegmentedFiles.Count}] Processing: {seg.Title}...");
 
-            string stage2Result = await RunStageAsync(
-                "02 Semantic",
-                LoadPrompt("02 Semantic.md"),
-                seg.SourceContent,
-                cancellationToken);
+            string stage2Prompt = LoadPrompt("02 Semantic.md");
+            PipelineLogger.WriteInput(sourceFileName, $"STAGE2_INPUT_seg{seg.Id}", seg.SourceContent);
 
+            string stage2Result;
             try
             {
+                stage2Result = await RunStageAsync(
+                    "02 Semantic",
+                    stage2Prompt,
+                    seg.SourceContent,
+                    cancellationToken);
+                PipelineLogger.WriteOutput(sourceFileName, $"STAGE2_OUTPUT_seg{seg.Id}", stage2Result);
+
                 var analysis = ParseStage2Output(stage2Result);
                 semanticResults.Add((seg.Id, seg.SourceContent, analysis));
+                PipelineLogger.WriteEntry(sourceFileName, "STAGE2_SUCCESS", $"Parsed analysis for {seg.Id}");
                 Console.WriteLine("\u001b[32m✓\u001b[0m");
             }
             catch (Exception ex)
             {
+                PipelineLogger.WriteError(sourceFileName, $"STAGE2_seg{seg.Id}", ex, $"Segment title: {seg.Title}\nSource content length: {seg.SourceContent?.Length ?? 0} chars");
                 Console.WriteLine($"\u001b[31m✗ ({ex.Message})\u001b[0m");
             }
         }
 
         int stage2Chunks = semanticResults.Sum(sr => GetChunkCount(sr.analysis));
+        PipelineLogger.WriteEntry(sourceFileName, "STAGE2_SUMMARY", $"Semantic chunks produced: {stage2Chunks}");
 
         // ===== STAGE 3: Final Chunking =====
         Console.WriteLine("\n\u001b[33m  → Stage 3: RAG Chunking\u001b[0m");
@@ -153,11 +192,23 @@ public class AgenticChunkingProcessor : IDisposable
                             sr.segmentId,
                             chunkObj);
 
-                        string stage3Result = await RunStageAsync(
-                            "03 Chunking",
-                            LoadPrompt("03 Chunking.md"),
-                            stage3Input,
-                            cancellationToken);
+                        PipelineLogger.WriteInput(sourceFileName, $"STAGE3_INPUT_seg{sr.segmentId}_chunk{processed}", stage3Input);
+
+                        string stage3Result;
+                        try
+                        {
+                            stage3Result = await RunStageAsync(
+                                "03 Chunking",
+                                LoadPrompt("03 Chunking.md"),
+                                stage3Input,
+                                cancellationToken);
+                            PipelineLogger.WriteOutput(sourceFileName, $"STAGE3_OUTPUT_seg{sr.segmentId}", stage3Result);
+                        }
+                        catch (Exception ex)
+                        {
+                            PipelineLogger.WriteError(sourceFileName, $"STAGE3_run_seg{sr.segmentId}_chunk{processed}", ex, $"Source content length: {sourceMd.Length}");
+                            throw;
+                        }
 
                         var chunks = ParseStage3Output(stage3Result, sourceFileName, sr.segmentId);
                         allFinalChunks.AddRange(chunks);
@@ -171,11 +222,14 @@ public class AgenticChunkingProcessor : IDisposable
             }
             catch (Exception ex)
             {
+                PipelineLogger.WriteError(sourceFileName, $"STAGE3_seg{sr.segmentId}", ex, $"Semantic chunk count from segment: {GetChunkCount(sr.analysis)}");
                 Console.WriteLine($"\u001b[31m✗ Segment {sr.segmentId}: {ex.Message}\u001b[0m");
             }
 
-            Console.Write($"  [{i + 1}/{semanticResults.Count}] Semantic chunking done: ");
+            Console.WriteLine($"\u001b[36m  [{i + 1}/{semanticResults.Count}] Semantic chunking done\u001b[0m");
         }
+
+        PipelineLogger.WriteEntry(sourceFileName, "STAGE3_SUMMARY", $"Final chunks: {allFinalChunks.Count}");
 
         int stage3Final = allFinalChunks.Count;
 
@@ -226,6 +280,9 @@ public class AgenticChunkingProcessor : IDisposable
         Console.WriteLine($"\u001b[32m  Output:    {outputFile}\u001b[0m");
         Console.WriteLine($"  Final chunks: {stage3Final}");
         Console.WriteLine($"  Time:          {stopwatch.Elapsed.TotalSeconds:F1}s");
+
+        // Flush per-file log to disk
+        PipelineLogger.FlushToFile(sourceFileName, _outputDir);
 
         return new RagingResult(
             inputFilePath,
