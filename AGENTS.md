@@ -49,8 +49,8 @@ dotnet run -- rag --help
 ```
 
 The `embed` subcommand accepts:
-- `<input.json>` — Required. Path to the JSON file with chunks to embed.
-- `[output.json]` — Optional. Alternative output path (auto-generated to `<input>.embedded.json` if omitted).
+- `<input.json>` — Required. Path to the JSON file with chunks to embed (typically a `.ragged.json` from the RAG pipeline).
+- `[output.json]` — Optional. Alternative output path (auto-generated to `<input>.embedded.json` if omitted, e.g. `file.ragged.embedded.json`).
 - `-o <path>` / `--output <path>` — Alternative flag for explicit output path.
 
 The `rag` subcommand accepts:
@@ -59,6 +59,9 @@ The `rag` subcommand accepts:
 - `--output-dir, -o DIR` — Output directory for `.ragged.json` files (default: `./rag_output`).
 - `--llama-url, -l URL` — llama.cpp server URL (default: `$LLAMA_CPP_URL` or `http://localhost:4000`).
 - `--prompt-dir, -p DIR` — Directory containing prompt templates (default: `./Reference`).
+- `--timeout MIN` — Per-stage timeout in minutes for LLM calls (default: 10). Increase for large files.
+
+The full pipeline is two steps: **RAG** produces `.ragged.json` with chunked content, then **embed** generates vectors and writes `.ragged.embedded.json`. The Python `setup_qdrant.py upsert` reads the embedded file to load into Qdrant.
 
 Required env vars:
 | Var | Default | Purpose |
@@ -111,13 +114,25 @@ Processors/EmbeddingProcessor.cs  ← core ETL: extract chunks, call embedding s
 Services/IEmbeddingService.cs   ← interface (GenerateEmbeddingAsync + EmbeddingDimension)
 Services/LlamaCppEmbeddingService.cs ← real HTTP impl against llama.cpp
 Services/FakeEmbeddingService.cs    ← deterministic hash-based vectors for tests
+Services/RagService.cs            ← rag LLM client with timeout wrapper (WaitAsync)
 Models/QdrantPoint.cs          ← record(Id, Vector, Payload)
+Utils/PipelineLogger.cs        ← structured per-file debug logging (inputs, outputs, errors, flush to .log.txt)
 Tests/                         ← inline test harness (dotnet run)
   Program.cs                   ← 15 PASS/FAIL assertions
-Prompts/prompts.json           ← embedded prompt templates (segment, semantic, chunking)
+Prompts/prompts.json           ← embedded prompt templates loaded as assembly resource at runtime (filesystem fallback if missing)
 setup_qdrant.py                ← Qdrant collection + batch upsert (python3)
 Reference/                     ← non-prompt project assets only
 ```
+
+### RAG Pipeline Stages
+
+The `rag` command runs a three-stage agentic pipeline, with each stage resetting context to avoid LLM rot:
+
+1. **Stage 1 (Segment)** — Splits raw markdown into H2/H3 segments via LLM. Extracts actual source content from the markdown by locating headings and finding next-sibling headings. Produces `.ragged.json` wrapper with segment metadata.
+2. **Stage 2 (Semantic)** — For each segment, generates rich semantic analysis (topic, keywords, entities, technologies, concepts, retrieval queries). **Deduplicates** chunks by exact `source_content` string match before proceeding. Appends a mandatory heading enumeration block to the output JSON.
+3. **Stage 3 (Chunking)** — For each semantically analyzed section, produces RAG-ready chunks with: globally unique IDs (`segmentId-NNN`), verbatim `content` field, contextual `retrieval_content` field (doc title + section path + topic + content), and structured metadata. Each chunk's content is verified against source via the DATA LOSS CHECK before emission.
+
+Each stage writes per-file debug logs (captured in `<filename>_pipeline.log.txt` in the output directory) with inputs, outputs, and errors truncated at 40k chars.
 
 ## Conventions
 
@@ -125,6 +140,7 @@ Reference/                     ← non-prompt project assets only
 - **Type system:** `<Nullable>enable</Nullable>` + `<ImplicitUsings>enable</ImplicitUsings>`. All public APIs have XML doc comments. Records for immutable data (QdrantPoint, ProcessResult, ChunkResult).
 - **Async style:** `async/await` everywhere; HttpClient scoped and disposed at end of Program.cs.
 - **JSON handling:** `System.Text.Json.Nodes` (`JsonNode`, `JsonObject`, `JsonArray`) — NOT the binary serializer. Output preserves original property names.
+- **ANSI escapes:** Use `\u001b` Unicode literals (not `\033` octal) for color codes in console output — they are portable across Windows and Linux terminals.
 
 ## Pitfalls
 
@@ -133,6 +149,10 @@ Reference/                     ← non-prompt project assets only
 3. **`output.json` vs `.embedded.json`.** The Python setup script reads hardcoded `/home/clarorecto/.../output.json`. The C# app writes `<input>.embedded.json`. These are different files.
 4. **Dotnet project name has a space.** `"Embedding Console.csproj"` — always quote paths containing spaces in shell commands.
 5. **Dimension mismatch on first chunk.** If `EMBEDDING_DIMENSION` is set, the first embedding MUST match that dimension or `ProcessAsync` throws. Verify your model before running.
+6. **Stage timeout default is 10 minutes per stage.** Large files may exceed this — use `--timeout 20` to increase. Total wall-clock time = timeout × stages × batches.
+7. **Prompts loaded from embedded resource first, filesystem fallback second.** Modifying only `Reference/[PROMPT] 0N.md` files without syncing to `Prompts/prompts.json` means the compiled binary won't see changes. Run the sync script or rebuild after prompt edits.
+8. **Stage 3 generates globally unique IDs (`segX-NNN`) not UUIDs.** Qdrant payloads use these IDs as `point_string_id`. Do not assume UUID format when querying.
+9. **Output `.ragged.json` now includes a `retrieval_content` field** alongside `content`. The embed command uses `content` for embedding but passes `retrieval_content` through to Qdrant payloads. If the LLM omits `retrieval_content`, the processor generates it from doc title + section path + topic + content.
 
 ## Git Commits
 
