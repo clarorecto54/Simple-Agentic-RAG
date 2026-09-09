@@ -184,6 +184,24 @@ unrelated database configuration
 
 ---
 
+# MANDATORY HEADING ENUMERATION — BEFORE CHUNKS
+
+Before generating the chunks array, explicitly list every H2 (##) and H3 (###) heading found in the source:
+
+```text
+Heading enumeration:
+  ## Heading A        → chunk-1
+  ### Subheading A.1  → chunk-2
+  ## Heading B        → chunk-3
+  ### Subheading B.1  → merged into chunk-3
+  ...
+  [count: N headings → M chunks]
+```
+
+Verify that every heading in the source appears in exactly one chunk assignment. No heading may be omitted. If a heading is dropped, the corresponding section data is permanently lost from the RAG index.
+
+---
+
 # SECTION COVERAGE RULE — CRITICAL
 
 **Every H2 and H3 heading in the source MUST produce at least one chunk entry.**
@@ -668,7 +686,8 @@ Source has 8 H3 headings → each should appear in its own chunk or be merged in
 ```
 
 Also ensure:
-- Every `chunk_id` is unique across all chunks (no duplicates).
+- Every `chunk_id` is unique across all chunks (no duplicates allowed).
+- Duplicate `source_content` values are removed — only one instance of each unique content is kept.
 - `chunk_index` values are sequential starting from 1.
 - No template placeholder strings remain as actual content (e.g., replace "string — ..." with real text, replace the example schema with data derived from the source).
 

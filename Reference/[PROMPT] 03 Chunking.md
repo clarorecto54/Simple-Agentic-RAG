@@ -556,6 +556,39 @@ Do not modify:
 
 ---
 
+# DATA LOSS CHECK
+
+After generating your output, compare every character of `content` against the source content provided. If you modified any character (added `$`, removed backticks, changed casing), include a note.
+
+Example corruption:
+- Source: esbuild must be installed when set to `'esbuild'`.
+- Chunked: esbuild must be installed when it is set to `'esbuild'$  ← extra $
+
+If even one character differs, the LLM has rewritten source content. Regenerate with stricter fidelity.
+
+---
+
+# READING RULE — TWO CONTENT FIELDS
+
+Every chunk MUST have two content fields:
+
+- **`content`**: Exact verbatim source markdown. Never rewritten, never prepended. Used for display and ground-truth fidelity.
+
+- **`retrieval_content`**: Optimized contextual representation for embedding. Format:
+  ```text
+  <Document Title>
+  <Section Path> (heading_path joined with " / ")
+  <Topic Line> (one sentence summarizing the topic)
+
+  <source content from `content` field>
+  ```
+
+The retrieval_content gives the embedding model rich context. A bare chunk starting with "Another value is..." embeds weakly; prepending "build.target: Another value is..." tells the embedding model what topic this belongs to.
+
+If the source content already starts with its heading (e.g., "## build.target"), you still prepend the document title and section path for maximum embedding quality.
+
+---
+
 # CHUNK IDENTIFIERS
 
 Create deterministic IDs.
@@ -615,6 +648,8 @@ Use this structure:
       "id": "document-section-001",
 
       "content": "EXACT ORIGINAL MARKDOWN",
+
+      "retrieval_content": "Document title + section path + topic + source content (see READING RULE above)",
 
       "metadata": {
         "source_file": "example.md",
@@ -732,6 +767,7 @@ Return **ONLY valid JSON** matching this exact schema. Nothing else. No markdown
     {
       "id": "string — deterministic identifier like 'doc-section-001'",
       "content": "string — EXACT original Markdown content from source (not rewritten)",
+      "retrieval_content": "string — document title + section path + topic + source content",
       "metadata": {
         "source_file": "string — filename/path of the original source",
         "document_title": "string — title of the full document",
@@ -760,7 +796,7 @@ Return **ONLY valid JSON** matching this exact schema. Nothing else. No markdown
 
 1. Top-level key MUST be exactly `"chunks"` — no other keys at top level.
 2. `chunks` MUST be a JSON array, even if it contains a single element.
-3. Every chunk object MUST have exactly three top-level keys: `"id"`, `"content"`, `"metadata"`.
+3. Every chunk object MUST have four top-level keys: `"id"`, `"content"`, `"retrieval_content"`, `"metadata"`.
 4. Every field in `metadata` above MUST exist — do not omit any metadata fields.
 5. `"content"` must contain the EXACT original Markdown text — verbatim, never paraphrased or summarized.
 6. `"chunk_index"` is a 1-based integer counting chunks in source order within this segment.
