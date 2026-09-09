@@ -12,9 +12,10 @@ A .NET 10 C# console application that reads a JSON file containing text chunks, 
 | 4 | [Embedding Services](04-embedding-services.md) | IEmbeddingService interface, LlamaCppEmbeddingService, FakeEmbeddingService |
 | 5 | [Qdrant Integration](05-qdrant-integration.md) | Collection schema, vector params, quantization, upsert workflow |
 | 6 | [CLI Reference](06-cli-reference.md) | Command-line arguments, output paths, auto-naming conventions |
-| 7 | [Testing](07-testing.md) | Inline test suite (15 assertions), FakeEmbeddingService usage, test scenarios |
+| 7 | [Testing](07-testing.md) | Inline test suite (20 assertions), FakeEmbeddingService usage, test scenarios |
 | 8 | [Prompts & RAG Pipeline](08-prompts-reference.md) | Original spec + segmentation/semantic/chunking agent prompts |
 | 9 | [Troubleshooting](09-troubleshooting.md) | Common errors, pitfall list, dimension mismatch, HTTP failures |
+| 10 | [Embed Batch Processing](10-embed-batch-processing.md) | Multi-file input, `--input-dir`, merged output structure, error reporting |
 
 ## Quick Navigation
 

@@ -13,6 +13,8 @@ dotnet run -- --help
 ```bash
 # Embed command — JSON embedding pipeline
 dotnet run -- embed <input.json> [output.json]
+             or: dotnet run -- embed file1.json file2.json -o ./output/
+             or: dotnet run -- embed --input-dir DIR -o ./output/
 dotnet run -- embed --help
 
 # RAG command — agentic markdown chunking pipeline
@@ -21,6 +23,24 @@ dotnet run -- rag --help
 ```
 
 All subcommands and the top-level help support `--help` / `-h`. Help text is centralised in `HelpText.cs` for easy maintenance.
+
+### Embed Subcommand Options
+
+| Flag | Default | Required | Description |
+|------|---------|----------|-------------|
+| `<input.json> [file2.json ...]` | _(none)_ | No | One or more JSON files with chunks to embed. If multiple, they are merged into a single output. |
+| `--input-dir, -d DIR` | _(none)_ | No | Directory to scan recursively for `.json` files (sorted by path). Overrides positional args. |
+| `--output-dir, -o DIR` | current dir (`.`) | No | Output directory for merged embedded.json. If multiple inputs, writes a single `embedded.json`. |
+
+**Single-file mode:** When exactly one input file is provided (and no `--input-dir`), behavior matches the legacy single-file path — output filename is auto-generated as `<input>.embedded.json`.
+
+**Batch mode:** When multiple input files are specified or `--input-dir` is used:
+- Files are processed sequentially; each successful file's chunks are collected
+- A single merged `embedded.json` is written to the output directory containing all chunks
+- Each failed input produces a `<basename>.embed_errors.json` error report in the output directory
+- Summary prints total files processed, successful/failed chunk counts, and any full-file errors
+
+### Embed Subcommand Examples
 
 ### RAG Subcommand Options
 
@@ -99,6 +119,79 @@ Results
   Output:       ./output/embedded.json
   Completed successfully.
 ```
+
+### Console Output — Single-File Embed
+
+Example — single file embed success:
+```
+=== JSON Embedding Pipeline ===
+  Input file:   ./Reference/Chunked Data.json
+  Output file:  ./output/embedded.json
+  Server URL:   http://localhost:4000
+  Model ID:     (auto)
+
+Generating embeddings...
+Processed: 33/33
+
+Results
+  Input:   ./Reference/Chunked Data.json
+  Dimension: 4096
+  Chunks processed: 33
+  Successful:         33
+  Failed:             0
+  Embedding dimension: 4096
+  Time elapsed:        12.4s
+
+  Output:       ./output/embedded.json
+  Completed successfully.
+```
+
+### Console Output — Batch Embed Success
+
+Example — batch embed with multiple files:
+```
+
+[1/3] Processing: ./files/doc-a.ragged.json
+  ✓ Processed: 10/10 chunks successful
+
+[2/3] Processing: ./files/doc-b.ragged.json
+  ✓ Processed: 8/8 chunks successful
+
+[3/3] Processing: ./files/doc-c.ragged.json
+  ✓ Processed: 7/8 chunks successful
+
+=== Batch Complete ===
+  Files processed:   3
+  Total chunks:      25
+  Successful:        25
+  Failed:            1
+```
+
+Error report for doc-c written to `./doc-c.embed_errors.json`.
+
+### Console Output — Batch Embed with Full-File Error
+
+Example — one file could not be parsed:
+```
+
+[1/3] Processing: ./files/good.ragged.json
+  ✓ Processed: 10/10 chunks successful
+
+[2/3] Processing: ./files/broken.json
+  ✗ Error: Unexpected end of input
+
+[3/3] Processing: ./files/also-good.ragged.json
+  ✓ Processed: 5/5 chunks successful
+
+=== Batch Complete ===
+  Files processed:   3
+  Total chunks:      15
+  Successful:        15
+  Failed:            0
+  - ./files/broken.json: Unexpected end of input
+```
+
+Error reports written to `./broken.embed_errors.json`. Merged output contains 15 successful chunks.
 
 ### Console Output on Failure
 

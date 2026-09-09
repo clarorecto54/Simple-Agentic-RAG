@@ -28,7 +28,7 @@ Before committing any changes, always:
 3. **Verify build**: Run the build and test commands above to confirm everything works
 4. **Update documentation**: If you've added/modified functionality, update this AGENTS.md file accordingly
 
-The test project (`Tests/Tests.csproj`) references the main project via `<ProjectReference>`. It runs 16 inline assertions — not a test framework, just `try/catch` with PASS/FAIL output. Exit code 1 means failures.
+The test project (`Tests/Tests.csproj`) references the main project via `<ProjectReference>`. It runs 20 inline assertions — not a test framework, just `try/catch` with PASS/FAIL output. Exit code 1 means failures.
 
 ## Running the App
 
@@ -39,8 +39,9 @@ The app uses a command dispatch system. Available commands: `embed` and `rag`.
 dotnet run -- --help
 
 # Embed command
-dotnet run -- embed <input.json> [output.json]
-dotnet run -- embed <input.json> -o <output.json>
+dotnet run -- embed <input.json> [output.json]                  # single file (backward compat)
+dotnet run -- embed file1.json file2.json -o ./output/          # batch mode
+dotnet run -- embed --input-dir DIR -o ./output/                # directory scan
 dotnet run -- embed --help
 
 # RAG command
@@ -49,9 +50,14 @@ dotnet run -- rag --help
 ```
 
 The `embed` subcommand accepts:
-- `<input.json>` — Required. Path to the JSON file with chunks to embed (typically a `.ragged.json` from the RAG pipeline).
-- `[output.json]` — Optional. Alternative output path (auto-generated to `<input>.embedded.json` if omitted, e.g. `file.ragged.embedded.json`).
-- `-o <path>` / `--output <path>` — Alternative flag for explicit output path.
+- `<input.json> [file2.json ...]` — One or more paths to JSON files with chunks to embed (typically `.ragged.json` from the RAG pipeline). If multiple are provided, they are **merged** into a single output.
+- `[output.json]` — Optional. Alternative output path (only relevant in single-file mode; ignored in batch mode which always writes `embedded.json`).
+- `-o <path>` / `--output <path>` — Output directory for merged/embedded output file.
+- `--input-dir, -d DIR` — Directory to scan recursively for `*.json` files (sorted by path). Overrides positional args when used.
+
+**Single-file mode:** One input file → legacy behavior preserved; output auto-named `<input>.embedded.json`.
+
+**Batch mode:** Multiple inputs → single merged `embedded.json` with metadata (`total_chunks`, `source_files`, `successful_chunks`). Each failed file produces a `<basename>.embed_errors.json` error report.
 
 The `rag` subcommand accepts:
 - `[file1.md ...]` — Optional. One or more markdown files to process.
@@ -108,8 +114,9 @@ The collection is configured with float32 vectors, COSINE distance, single-segme
 
 ```
 Embedding Console.csproj   ← main project (net10.0, ImplicitUsings+Nullable)
-Program.cs                 ← CLI entry: arg parsing → env config → processor pipeline
+Program.cs                 ← CLI entry: arg parsing → env config → processor pipeline (embed + rag)
 HelpText.cs                ← centralised --help text constants and print methods
+BatchEmbedHelpers.cs       ← batch orchestrator helpers (ExtractChunksForMerge for merging multiple inputs)
 Processors/EmbeddingProcessor.cs  ← core ETL: extract chunks, call embedding service, build Qdrant points
 Services/IEmbeddingService.cs   ← interface (GenerateEmbeddingAsync + EmbeddingDimension)
 Services/LlamaCppEmbeddingService.cs ← real HTTP impl against llama.cpp
@@ -154,6 +161,7 @@ Each stage writes per-file debug logs (captured in `<filename>_pipeline.log.txt`
 17. **Stage 3 generates globally unique IDs (`segX-NNN`) not UUIDs.** Qdrant payloads use these IDs as `point_string_id`. Do not assume UUID format when querying.
 18. **SanitizeJsonOutput escapes control chars in LLM output.** Before parsing LLM JSON responses, `SanitizeJsonOutput` (in `AgenticChunkingProcessor.cs`) now escapes literal `\n`, `\r`, and `\t` bytes inside JSON string values. LLMs sometimes emit raw newlines instead of escaped `\n` sequences (e.g., `"Vite Documentation\nbuild.modulePreload"`), causing `System.Text.Json` to throw `'0x0A' is an invalid escapable character`. The method walks the text left-to-right, tracking quote boundaries and escaping control chars only inside strings. This fix applies to both Stage 2 and Stage 3 outputs.
 19. **Output `.ragged.json` now includes a `retrieval_content` field** alongside `content`. The embed command uses `content` for embedding but passes `retrieval_content` through to Qdrant payloads. If the LLM omits `retrieval_content`, the processor generates it from doc title + section path + topic + content.
+20. **Batch embed merges outputs with metadata.** When processing multiple files, the orchestrator writes a single `embedded.json` with `chunks`, `total_chunks`, `source_files`, and `successful_chunks` fields. Each failed input produces a `<basename>.embed_errors.json` error report. Exit code is 1 if any chunks or files failed. See [Embed Batch Processing](Docs/10-embed-batch-processing.md) for full details.
 
 ## Git Commits
 

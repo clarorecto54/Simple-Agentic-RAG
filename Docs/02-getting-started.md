@@ -66,7 +66,7 @@ dotnet run -- embed "./Reference/Chunked Data.json" "./output/embedded.json"
 cd "Tests" && dotnet run
 ```
 
-The test project runs **15 inline assertions** (no test framework). It uses `FakeEmbeddingService` so no network calls are made. Exit code 1 means failures.
+The test project runs **20 inline tests** (no test framework). It uses `FakeEmbeddingService` so no network calls are made. Exit code 1 means failures.
 
 **Note:** Tests assume `./Chunked Data.json` exists in the working directory (`Tests/`). Copy it there first if needed:
 ```bash

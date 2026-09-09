@@ -2,7 +2,7 @@
 
 ## Test Architecture
 
-The project uses **inline tests** — a simple `try/catch` harness in `Tests/Program.cs` with 16 assertions. No test framework (xUnit, NUnit, etc.) is used. The program prints `[PASS]` or `[FAIL]` for each test and exits with code 1 if any fail.
+The project uses **inline tests** — a simple `try/catch` harness in `Tests/Program.cs` with 20 assertions. No test framework (xUnit, NUnit, etc.) is used. The program prints `[PASS]` or `[FAIL]` for each test and exits with code 1 if any fail.
 
 ### Why Inline Tests?
 
@@ -39,7 +39,12 @@ cp "../Reference/Chunked Data.json" "Tests/"
 | 12 | Qdrant point creation | `QdrantPoint` record with correct type constraints | Fake (256 dim) |
 | 13 | Dimension mismatch | Processor throws when configured dimension ≠ actual | Fake (256 dim, expects 1024) |
 | 14 | Deterministic vectors | Two separate service instances produce identical vectors | Fake × 2 (512 dim each) |
-|| 15 | Output round-trip | Output JSON re-parses with all 33 chunks intact, every chunk has `id`, `content`, `points` | Fake (64 dim) || 16 | SanitizeJsonOutput control chars | LLM output with literal `\n`/`\r`/`\t` bytes inside JSON strings parses after sanitization | Internal (AgenticChunkingProcessor) |
+| 15 | Output round-trip | Output JSON re-parses with all 33 chunks intact, every chunk has `id`, `content`, `points` | Fake (64 dim) |
+| 16 | SanitizeJsonOutput control chars | LLM output with literal `\n`/`\r`/`\t` bytes inside JSON strings parses after sanitization | Internal (AgenticChunkingProcessor) |
+| 17 | ExtractChunksForMerge root-level chunks | `ExtractChunksForMerge` finds `"chunks"` array at root and returns them | — |
+| 18 | Batch orchestrator merges files | Multiple processed files' chunks are combined via `ExtractChunksForMerge` | Fake (128 dim) |
+| 19 | Single-file backward compat | Legacy single-file path still works with no regressions | Fake (64 dim) |
+| 20 | Merged output structure valid | Batch merged JSON includes `chunks`, `total_chunks`, `source_files`, `successful_chunks` and round-trips | Fake (32 dim) |
 
 ## Test Configurations
 
@@ -49,7 +54,10 @@ Different tests use different vector dimensions to exercise various code paths:
 |-----------|---------|-----|
 | 1024 | Tests 4-8 | Default dimension; normal operation |
 | 256 | Tests 9-13 | Small enough for fast execution; Test 13 uses mismatch (expects 1024) |
-| 64 | Test 15 | Minimal dimension for fastest round-trip test |
+| 64 | Tests 15, 19 | Minimal dimension for fastest round-trip and compat tests |
+| 512 | Test 14 | Cross-instance determinism comparison |
+| 128 | Test 18 | Batch merge test |
+| 32 | Test 20 | Merged output structure validation (smallest viable) |
 
 ## Key Test Details
 
@@ -86,6 +94,22 @@ Runs full pipeline with small dimensions (64), writes output, re-parses it as `J
 ### Test 16 — SanitizeJsonOutput Control Character Escaping
 
 Builds a JSON string with literal `\n` (0x0A) bytes inside a quoted value (`"Vite Documentation\nbuild.modulePreload"`), passes it through `AgenticChunkingProcessor.SanitizeJsonOutput`, and verifies the sanitized result parses successfully. Confirms the fix for Stage 2/3 parse errors caused by unescaped control characters in LLM output.
+
+### Test 17 — ExtractChunksForMerge Root-Level Chunks
+
+Creates a minimal JSON document with `"chunks"` at root, calls `BatchEmbedHelpers.ExtractChunksForMerge()`, and verifies all chunk nodes are returned with correct properties. This is the core extraction helper used by the batch orchestrator.
+
+### Test 18 — Batch Orchestrator Merges Files
+
+Processes two separate files with `FakeEmbeddingService`, extracts their chunks via `ExtractChunksForMerge`, and verifies the combined list contains all 3 chunks. Tests the multi-file accumulation logic.
+
+### Test 19 — Single-File Backward Compat
+
+Runs a single file through the pipeline with `FakeEmbeddingService(64)` and verifies all one chunk succeeds, failure count is zero, and no regressions in the legacy code path. Ensures existing workflows remain unaffected by the batch feature.
+
+### Test 20 — Merged Output Structure Valid
+
+Builds a merged output JSON matching the batch orchestrator's format (`chunks`, `total_chunks`, `source_files`, `successful_chunks`), writes it to disk, re-parses, and verifies all metadata fields are present and correct values. Tests the final output serialization contract.
 
 ## Fail vs Fail-Soft: Test 13
 
