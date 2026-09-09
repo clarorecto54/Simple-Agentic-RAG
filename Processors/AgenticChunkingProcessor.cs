@@ -819,7 +819,13 @@ public class AgenticChunkingProcessor : IDisposable
         return File.ReadAllText(promptPath);
     }
 
-    private static string SanitizeJsonOutput(string raw)
+    /// <summary>
+    /// Sanitizes raw LLM output for JSON parsing. Strips markdown fences and escapes
+    /// literal control characters (\n, \r, \t) inside string values that LLMs sometimes
+    /// emit instead of their escaped equivalents (e.g., "Vite Documentation\nbuild.modulePreload").
+    /// This prevents System.Text.Json errors like "'0x0A' is an invalid escapable character within a JSON string."
+    /// </summary>
+    internal static string SanitizeJsonOutput(string raw)
     {
         // Remove markdown code fences (```) that LLMs sometimes add
         var trimmed = raw.Trim();
@@ -840,7 +846,41 @@ public class AgenticChunkingProcessor : IDisposable
             trimmed = trimmed.Substring(0, lastFenceStart).Trim();
         }
 
-        return trimmed;
+        // Escape literal control characters inside JSON string values.
+        // Walk the text left-to-right; when inside a quoted string ("..."),
+        // replace raw \n, \r, \t with their escaped equivalents.
+        var sb = new StringBuilder(trimmed.Length);
+        bool inString = false;
+
+        for (int i = 0; i < trimmed.Length; i++)
+        {
+            char c = trimmed[i];
+
+            // Track string boundaries: toggle on unescaped "
+            if (c == '"' && (i == 0 || trimmed[i - 1] != '\\'))
+            {
+                inString = !inString;
+                sb.Append(c);
+                continue;
+            }
+
+            // Inside a string, escape control characters
+            if (inString)
+            {
+                switch (c)
+                {
+                    case '\n':  sb.Append("\\n"); continue;
+                    case '\r':  sb.Append("\\r"); continue;
+                    case '\t':  sb.Append("\\t"); continue;
+                    default:    sb.Append(c);     continue;
+                }
+            }
+
+            // Outside a string, keep as-is
+            sb.Append(c);
+        }
+
+        return sb.ToString();
     }
 
     private static string? GetStringValue(JsonNode node, string key)

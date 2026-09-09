@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="obj/**" />
     <Compile Remove="Tests/**" />
   </ItemGroup>

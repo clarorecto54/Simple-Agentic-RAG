@@ -1,6 +1,7 @@
 using Embedding_Console.Models;
 using Embedding_Console.Processors;
 using Embedding_Console.Services;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -470,6 +471,40 @@ async Task RunTests()
     catch (Exception ex)
     {
         Console.WriteLine($"[FAIL] Test 15 - Round-trip: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 16: SanitizeJsonOutput escapes literal control chars ───
+    try
+    {
+        // Simulate LLM output with raw (literal) newline bytes inside JSON string values —
+        // this is exactly what the log shows on line 4266.
+        var sb = new StringBuilder();
+        sb.Append("{\"chunks\":[");
+        sb.Append("{\"content\":\"The list of chunks to preload for each dynamic import is computed by Vite.\",");
+        sb.Append("\"retrieval_content\":\"Vite Documentation"); // literal newline follows (0x0A)
+        sb.Append("\u000A");
+        sb.Append("build.modulePreload\"}]}");
+        string rawWithLiteralNewlines = sb.ToString();
+
+        // Pass through SanitizeJsonOutput to escape the control chars
+        var sanitized = Embedding_Console.Processors.AgenticChunkingProcessor.SanitizeJsonOutput(rawWithLiteralNewlines);
+
+        // This should now parse successfully after sanitization
+        try
+        {
+            JsonNode.Parse(sanitized);
+            Console.WriteLine("[PASS] Test 16 - SanitizeJsonOutput escapes literal newlines");
+            passed++;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"SanitizeJsonOutput failed to fix: {ex.Message}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 16 - SanitizeJsonOutput: {ex.Message}");
         failed++;
     }
 
