@@ -71,7 +71,13 @@ The `RagService.HttpClient` has its own separate 15-minute HTTP timeout (configu
 
 ### 6. Timeout on Embed Command
 
-### 6. Invalid JSON Input
+**Symptom:** `TimeoutException` or HTTP timeout during embedding.
+
+**Cause:** The default 5-minute HTTP timeout per chunk is exceeded, typically for very large chunks sent to llama.cpp.
+
+**Fix:** If using a custom server, verify the server's performance. For embedded JSON processing, consider pre-chunking into smaller segments before running the embed command.
+
+### 7. Invalid JSON Input
 
 **Symptom:** `Error: Invalid JSON in input file: ...`
 
@@ -82,7 +88,7 @@ The `RagService.HttpClient` has its own separate 15-minute HTTP timeout (configu
 python3 -c "import json; json.load(open('input.json'))" && echo "Valid JSON"
 ```
 
-### 7. No Chunks Found
+### 8. No Chunks Found
 
 **Symptom:** `InvalidOperationException: No chunks found in input JSON. Expected a 'chunks' array at the root level.`
 
@@ -98,7 +104,7 @@ python3 -c "import json; json.load(open('input.json'))" && echo "Valid JSON"
 ```
 If chunks are nested under a different key, the fallback logic scans root values for any array of objects.
 
-### 8. Rag Pipeline OOM — Intermediate Files Not Found
+### 9. Rag Pipeline OOM — Intermediate Files Not Found
 
 **Symptom:** After an OOM during Chunk stage, re-running `rag` says "No intermediate results found — restarting from Segment."
 
@@ -109,7 +115,7 @@ If chunks are nested under a different key, the fallback logic scans root values
 ls ./rag_output/segment_output.json ./rag_output/semantic_groups.json
 ```
 
-### 9. Rag Service Returns Empty Object `{}` or Null
+### 10. Rag Service Returns Empty Object `{}` or Null
 
 **Symptom:** `NullReferenceException` during rag processing when parsing LLM output.
 
@@ -121,7 +127,7 @@ ls ./rag_output/segment_output.json ./rag_output/semantic_groups.json
 ```
 If the model returns valid content but not structured JSON, adjust the prompt to enforce a specific JSON schema.
 
-### 10. Rag Reasoning Tokens Format Mismatch
+### 11. Rag Reasoning Tokens Format Mismatch
 
 **Symptom:** llama.cpp rejects the request with a format error about `reasoning_tokens`.
 
@@ -134,6 +140,30 @@ model["reasoning_tokens"] = -1;
 // For other models:
 model["thinking"] = "enabled";  // or model["reasoning"] = true;
 ```
+
+### 12. Pipeline Logger Log File Not Appearing
+
+**Symptom:** After running `rag` or `embed`, the expected `<filename>_pipeline.log.txt` does not appear in the output directory.
+
+**Cause:** The logger only flushes to disk when `Dispose()` is called (end of processing), when an error occurs, or when the 40k-char truncation threshold is hit mid-stream. If the process crashes before disposal, the log may be incomplete.
+
+**Fix:** Check for partial log content in the output directory. For live debugging, examine the stderr console output which mirrors the logger's stage transitions.
+
+### 13. Stage 3 DATA LOSS CHECK Failures
+
+**Symptom:** Processing completes but `stage3_final_chunks` differs from expected, or chunks appear truncated compared to source.
+
+**Cause:** If the LLM rewrites content instead of copying it verbatim, the DATA LOSS CHECK compares generated chunks against source markdown headings. Mismatches may indicate content loss.
+
+**Fix:** Check the `<filename>_pipeline.log.txt` for DATA LOSS CHECK results. Adjust prompt template (`03 Chunking.md`) to enforce stricter "copy verbatim" instructions.
+
+### 14. Embed Command Missing `retrieval_content` in Qdrant Payload
+
+**Symptom:** After upsert, Qdrant payloads lack the `retrieval_content` field even though the `.ragged.json` has it.
+
+**Cause:** The embed processor copies all properties from the chunk into the Qdrant point payload except `"points"`. If a custom script or older embedded JSON format is used, `retrieval_content` may be stripped during transformation.
+
+**Fix:** Verify that `EmbeddingProcessor.BuildQdrantPoint()` preserves all original chunk properties. The processor does a `DeepClone()` on the original chunk's properties — `retrieval_content` should pass through automatically if present in the input JSON.
 
 ## Error Handling Reference
 
@@ -152,7 +182,9 @@ model["thinking"] = "enabled";  // or model["reasoning"] = true;
 | Rag: server URL required | AgenticChunkingProcessor | `Error: --llama-url required (LLAMA_CPP_URL is not set).` |
 | Rag: segment failed | AgenticChunkingProcessor | `Error: Failed to segment file '{file}': {error}` |
 | Rag: semantic grouping failed | AgenticChunkingProcessor | `Error: Failed to group segments for '{file}': {error}` |
-| Rag: chunk generation failed | AgenticChunkingProcessor | `Error: Failed to generate chunks for '{file}' stage {stage}: {error}` |
+|| Rag: chunk generation failed | AgenticChunkingProcessor | `Error: Failed to generate chunks for '{file}' stage {stage}: {error}` |
+|| Stage 3 DATA LOSS CHECK | AgenticChunkingProcessor | `Stage 3 data loss check: N of M chunks verified` (logged) |
+|| Pipeline logger write error | Utils/PipelineLogger | `Error writing pipeline log to {path}: {message}` |
 
 ## Troubleshooting Strategy
 

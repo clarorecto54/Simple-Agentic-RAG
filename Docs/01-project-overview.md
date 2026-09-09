@@ -25,8 +25,8 @@ The companion Python script (`setup_qdrant.py`) then reads that enriched output 
 ```
 Markdown files
     → Stage 1: Segment — split into logical segments using LLM-assisted parsing
-    → Stage 2: Semantic — analyze each segment for context and meaning
-    → Stage 3: Chunking — produce final RAG-ready chunks with metadata
+    → Stage 2: Semantic — analyze each segment for context and meaning; deduplicates chunks by exact `source_content` string match
+    → Stage 3: Chunking — produce final RAG-ready chunks with metadata (globally unique IDs `segX-NNN`, `content` + `retrieval_content` fields)
     → Write <filename>.ragged.json per file (one per source markdown)
 ```
 
@@ -48,11 +48,11 @@ Each stage independently calls llama.cpp with `reasoning_tokens: -1` (unlimited 
     │                   │         │                      │
     │ EmbeddingProcessor│         │ AgenticChunkingProc. │
     │ EmbeddingService  │         │ RagService           │
-    └─────────┬─────────┘         └──────────┬──────────┘
-              │                               │
-      HTTP POST /v1/embeddings      HTTP POST /v1/chat/completions
-      (embeddings API)              (chat completions with reasoning)
-              │                               │
+    │ PipelineLogger    │         └──────────┬──────────┘
+    └─────────┬─────────┘                    │
+              │                       HTTP POST /v1/chat/completions
+      HTTP POST /v1/embeddings            (chat completions with reasoning)
+      (embeddings API)                         │
               ▼                               ▼
      float[] embedding vector      JSON output per markdown file
               │                      (.ragged.json per source file)
@@ -99,6 +99,8 @@ Services/
     AgenticChunkingOptions.cs     ← Configuration: max tokens, output dir, prompt dir, URL
 Models/
     QdrantPoint.cs                ← Record(Id, Vector, Payload)
+Utils/
+    PipelineLogger.cs             ← Structured per-file debug logging (inputs, outputs, errors, flush to .log.txt)
 Tests/                            ← Inline test harness (dotnet run)
     Program.cs                    ← 15 PASS/FAIL assertions
     Tests.csproj                  ← ProjectReference to main project
@@ -122,25 +124,28 @@ Reference/                        ← Prompts and sample data used during develo
 }
 ```
 
-**Output JSON** (`*.embedded.json`) — same structure with added `points` array per chunk:
+**Output JSON** (`*.embedded.json`) — same structure with added `points` array per chunk. The `.ragged.json` input from the RAG pipeline also includes a `retrieval_content` field alongside `content` — `content` is used for embedding, `retrieval_content` is passed through to Qdrant payloads:
 ```json
 {
   "chunks": [
     {
       "id": "build-options-build-target-001",
       "content": "...",
+      "retrieval_content": "Document Title » Section Path — topic: ... content excerpt...",
       "metadata": { ... },
       "points": [
         {
           "id": "build-options-build-target-001",
           "vector": [0.123, -0.456, 0.789, ...],
-          "payload": { "id": "...", "content": "...", "metadata": { ... } }
+          "payload": { "id": "...", "content": "...", "retrieval_content": "...", "metadata": { ... }, "point_string_id": "..." }
         }
       ]
     }
   ]
 }
 ```
+
+The RAG pipeline produces `.ragged.json` with globally unique IDs (`segX-NNN`) and both `content` (verbatim source) and `retrieval_content` (structured path + topic + content for search context). See [RAG Pipeline Docs](04-rag-pipeline.md) for the full stage-by-stage format.
 
 ## Related Documents
 

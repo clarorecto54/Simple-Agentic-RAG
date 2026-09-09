@@ -63,15 +63,19 @@ Embedding vectors → points array → Qdrant batch upsert
 - No overlap by default; only use when preserving context across boundaries
 - Semantic boundaries over fixed token counts
 - Source content must be EXACT original Markdown (no rewriting)
-- Output: JSON with `chunks[]`, each containing `id`, `content`, and full `metadata` object
+- **Two-content model:** Each chunk MUST include both `content` (verbatim source for embedding) and `retrieval_content` (structured path + topic + content excerpt for search context). If the LLM omits `retrieval_content`, the C# processor generates it from doc title + section path + topic + content.
+- **DATA LOSS CHECK:** Verify each chunk's content against source markdown before emission — ensure no truncation or rewriting occurred.
+
+**Output format:** JSON with `chunks[]`, each containing `id` (globally unique `segX-NNN`), `content`, `retrieval_content`, and full `metadata` object:
 
 **Qdrant-ready output structure:**
 ```json
 {
   "chunks": [
     {
-      "id": "document-section-001",
+      "id": "seg0-001",
       "content": "EXACT ORIGINAL MARKDOWN",
+      "retrieval_content": "Document Title » Section Path — topic: ... content excerpt...",
       "metadata": {
         "source_file": "...",
         "document_title": "...",
@@ -90,6 +94,8 @@ Embedding vectors → points array → Qdrant batch upsert
   ]
 }
 ```
+
+Note: The Qdrant payload includes a `point_string_id` field (the chunk's unique ID) in addition to the above. See [Qdrant Integration](05-qdrant-integration.md) for full payload details.
 
 ### `Prompt.md` — Original Implementation Spec
 

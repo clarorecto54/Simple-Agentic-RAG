@@ -128,16 +128,17 @@ quantization_config = models.TurboQuantization(
 
 ### Step 1: Extract Points from Embedded JSON
 
-The script reads `output.json` and iterates over all chunks:
+The script reads the embedded JSON and iterates over all chunks:
 
 ```python
 for chunk in data.get("chunks", []):
     payload = {
         "string_id": chunk["id"],
         "content": chunk["content"],
+        "retrieval_content": chunk.get("retrieval_content"),
         "metadata": chunk.get("metadata", {}),
     }
-    
+
     for point_entry in chunk.get("points", []):
         all_points.append(models.PointStruct(
             id=next_id,
@@ -174,12 +175,13 @@ Each upserted point carries this payload:
 {
   "string_id": "build-options-build-target-001",
   "content": "... original chunk text ...",
+  "retrieval_content": "... structured path + topic + content excerpt ...",
   "metadata": { "source": "..." },
   "point_string_id": "build-options-build-target-001"
 }
 ```
 
-The `content` field in the payload enables direct retrieval of the source text after a vector search (no need for a secondary lookup).
+The `content` field contains the verbatim source text for embedding, while `retrieval_content` provides structured search context (`Doc Title » Section Path — topic: ...`). The combination enables both dense vector retrieval and rich metadata filtering. The payload also includes `string_id` (original chunk ID) and `point_string_id` (Qdrant point identifier).
 
 ## Collection Status Output
 

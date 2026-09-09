@@ -24,15 +24,16 @@ All subcommands and the top-level help support `--help` / `-h`. Help text is cen
 
 ### RAG Subcommand Options
 
-| Argument / Flag | Required | Description |
-|-----------------|----------|-------------|
-| `[file1.md ...]` | No | One or more markdown files to process. If omitted, use `--input-dir`. |
-| `--input-dir, -d DIR` | No | Directory to scan recursively for `.md`/`.markdown` files |
-| `--output-dir, -o DIR` | No | Output directory for `.ragged.json` files (default: `./rag_output`) |
-| `--llama-url, -l URL` | No | llama.cpp server URL (default: `$LLAMA_CPP_URL` or `http://localhost:4000`) |
-| `--prompt-dir, -p DIR` | No | Directory containing prompt templates (default: `./Reference`) |
+| Flag | Default | Required | Description |
+|------|---------|----------|-------------|
+| `[file1.md ...]` | _(none)_ | No | One or more markdown files to process. If omitted, use `--input-dir`. |
+| `--input-dir, -d DIR` | _(none)_ | No | Directory to scan recursively for `.md`/`.markdown` files |
+| `--output-dir, -o DIR` | `./rag_output` | No | Output directory for `.ragged.json` and intermediate files |
+| `--llama-url, -l URL` | `$LLAMA_CPP_URL` or `http://localhost:4000` | No | llama.cpp server URL (default: `$LLAMA_CPP_URL` or `http://localhost:4000`) |
+| `--prompt-dir, -p DIR` | `./Reference` | No | Directory containing prompt templates (default: `./Reference`) |
+| `--timeout MIN` | `10` | No | Per-stage timeout in minutes for LLM calls (default: 10; increase for large files) |
 
-When `--input-dir` is used, the app finds all `.md` and `.markdown` files recursively and processes them in sorted order. Per-file results are saved as `<filename>.ragged.json`. Each file goes through 3 stages: Segment → Semantic → Chunk, with intermediate results saved so OOM errors preserve progress.
+When `--input-dir` is used, the app finds all `.md` and `.markdown` files recursively and processes them in sorted order. Per-file results are saved as `<filename>.ragged.json`. Each file goes through 3 stages: Segment → Semantic → Chunk, with intermediate results saved so OOM errors preserve progress. Output includes `retrieval_content` field and globally unique IDs (`segX-NNN`).
 
 ### Subcommand Arguments
 
