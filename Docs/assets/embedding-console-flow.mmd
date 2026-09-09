@@ -1,0 +1,96 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#2d3748', 'primaryBorderColor': '#4a5568', 'primaryTextColor': '#e2e8f0', 'secondaryColor': '#1a202c', 'tertiaryColor': '#171923', 'lineColor': '#4a5568', 'textColor': '#e2e8f0', 'fontFamily': 'monospace' }, 'flowchart': { 'curve': 'basis', 'nodeSpacing': 80, 'rankSpacing': 100 } } }%%
+
+graph TD
+    classDef input fill:#1a365d,stroke:#2b6cb0,color:#e2e8f0,stroke-width:2px
+    classDef stage1 fill:#2c5282,stroke:#4299e1,color:#e2e8f0,stroke-width:2px
+    classDef stage2 fill:#3c7a2c,stroke:#48bb78,color:#e2e8f0,stroke-width:2px
+    classDef stage3 fill:#744210,stroke:#ed8936,color:#e2e8f0,stroke-width:2px
+    classDef embed fill:#553c9a,stroke:#9f7aea,color:#e2e8f0,stroke-width:2px
+    classDef output fill:#1a365d,stroke:#4299e1,color:#e2e8f0,stroke-width:2px
+    classDef db fill:#2d3748,stroke:#4a5568,color:#e2e8f0,stroke-width:3px
+    classDef external fill:#1a202c,stroke:#4a5568,color:#a0aec0,stroke-width:2px
+
+    subgraph INPUT["INPUT LAYER"]
+        M[Markdown Files]:::input
+    end
+
+    subgraph RAG_PIPELINE["RAG CHUNKING PIPELINE"]
+        direction TB
+        
+        subgraph STAGE1["Stage 1: Document Segmentation"]
+            S1_LL[LLM Analysis]:::stage1
+            S1_OUT[S1 Output - Segments with metadata]:::stage1
+        end
+
+        subgraph STAGE2["Stage 2: Semantic Extraction"]
+            S2_LL[LLM Analysis]:::stage2
+            S2_DUP{Deduplicate}:::stage2
+            S2_OUT[S2 Output - Keywords, entities, concepts]:::stage2
+        end
+
+        subgraph STAGE3["Stage 3: RAG Chunking"]
+            S3_LL[LLM Analysis]:::stage3
+            S3_CHECK{Data Loss Check}:::stage3
+            S3_OUT[S3 Output - RAG-ready chunks]:::stage3
+        end
+
+        M --> S1_LL
+        S1_LL --> S1_OUT
+        S1_OUT --> S2_LL
+        S2_LL --> S2_DUP
+        S2_DUP --> S2_OUT
+        S2_OUT --> S3_LL
+        S3_LL --> S3_CHECK
+        S3_CHECK --> S3_OUT
+    end
+
+    subgraph EMBED["EMBEDDING PIPELINE"]
+        direction TB
+        
+        subgraph EXTRACT["Data Extraction"]
+            EXT_EX[Extract chunks from ragged.json]:::embed
+        end
+
+        subgraph EMBSRV["Embedding Service"]
+            EMB_LL[Llama.cpp Server - Qwen3-Embedding-8B]:::embed
+            EMB_VEC[Generate vectors - 4096-dim float32]:::embed
+        end
+
+        EXT_EX --> EMB_LL
+        EMB_LL --> EMB_VEC
+    end
+
+    subgraph OUTPUT["OUTPUT LAYER"]
+        RAG_OUT[RAGGED.json - Segmented chunks]:::output
+        EMB_OUT[EMBEDDED.json - Chunks + vectors]:::output
+    end
+
+    S3_OUT --> RAG_OUT
+    RAG_OUT --> EXT_EX
+    EMB_VEC --> EMB_OUT
+
+    subgraph QDRANT_INTEGRATION["VECTOR DATABASE"]
+        QC[Create Collection]:::db
+        US[Upsert points with Qdrant payloads]:::db
+        QS{Similarity Search}:::db
+    end
+
+    EMB_OUT --> QC
+    QC --> US
+    US --> QS
+
+    subgraph EXTERNAL["EXTERNAL SERVICES"]
+        LLAMA[Llama.cpp Server - CUDA + Graph backend]:::external
+        QDRANT[Qdrant Server - localhost:6333]:::external
+    end
+
+    S1_LL -.- LLAMA
+    S2_LL -.- LLAMA
+    S3_LL -.- LLAMA
+    EMB_LL -.- LLAMA
+    US -.- QDRANT
+    QS -.- QDRANT
+
+    style RAG_PIPELINE fill:#171923,stroke:#4a5568,stroke-width:2px
+    style EMBED fill:#171923,stroke:#4a5568,stroke-width:2px
+    style QDRANT_INTEGRATION fill:#171923,stroke:#4a5568,stroke-width:2px
