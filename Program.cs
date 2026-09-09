@@ -376,7 +376,7 @@ static async Task<int> RunRagAsync(string[] subArgs)
     string outputDir = "./rag_output";
     string llamaUrl = Environment.GetEnvironmentVariable("LLAMA_CPP_URL") ?? "http://localhost:4000";
     TimeSpan llamaTimeout = TimeSpan.FromMinutes(10); // Increased default for large files; per-stage limit
-    string promptDir = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ".", "Reference");
+    string promptDir = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ".", "Prompts");
 
     int i = 0;
     while (i < subArgs.Length)

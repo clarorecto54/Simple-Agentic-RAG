@@ -812,7 +812,7 @@ public class AgenticChunkingProcessor : IDisposable
             return embedded;
 
         // Fallback: read from file system at custom prompt directory
-        var promptPath = Path.Combine(_promptDir, $"[PROMPT] {promptFilename}");
+        var promptPath = Path.Combine(_promptDir, $"[RAG] {promptFilename}");
         if (!File.Exists(promptPath))
             throw new AgenticChunkingException($"Prompt file not found: {promptPath}");
 
