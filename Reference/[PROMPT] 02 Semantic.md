@@ -662,7 +662,8 @@ Source has 8 H3 headings → each should appear in its own chunk or be merged in
 ```
 
 Also ensure:
-- Every `chunk_id` is unique across all chunks (no duplicates allowed).
+- Every `chunk_id` is unique across all chunks (no duplicates).
+- Duplicate `source_content` values are removed — only one instance of each unique content is kept.
 - `chunk_index` values are sequential starting from 1.
 - No template placeholder strings remain (e.g., "string — ...", "... — ...").
 - Every chunk's `source_content` contains actual markdown text, not a description of the format.
