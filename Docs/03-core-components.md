@@ -160,7 +160,7 @@ RagService handles the chat completions API for the RAG pipeline's three-stage c
 ```csharp
 public record AgenticChunkingOptions(
     int MaxTokens = 8192,
-    string PromptDir = "./Reference",
+    string PromptDir = "./Prompts",
     string OutputDir = "./rag_output");
 ```
 

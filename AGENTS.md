@@ -64,7 +64,7 @@ The `rag` subcommand accepts:
 - `--input-dir, -d DIR` — Directory to scan recursively for `.md`/`.markdown` files.
 - `--output-dir, -o DIR` — Output directory for `.ragged.json` files (default: `./rag_output`).
 - `--llama-url, -l URL` — llama.cpp server URL (default: `$LLAMA_CPP_URL` or `http://localhost:4000`).
-- `--prompt-dir, -p DIR` — Directory containing prompt templates (default: `./Reference`).
+- `--prompt-dir, -p DIR` — Directory containing prompt templates (default: `./Prompts`).
 - `--timeout MIN` — Per-stage timeout in minutes for LLM calls (default: 10). Increase for large files.
 
 The full pipeline is two steps: **RAG** produces `.ragged.json` with chunked content, then **embed** generates vectors and writes `.ragged.embedded.json`. The Python `setup_qdrant.py upsert` reads the embedded file to load into Qdrant.
@@ -115,20 +115,19 @@ The collection is configured with float32 vectors, COSINE distance, single-segme
 ```
 Embedding Console.csproj   ← main project (net10.0, ImplicitUsings+Nullable)
 Program.cs                 ← CLI entry: arg parsing → env config → processor pipeline (embed + rag)
-HelpText.cs                ← centralised --help text constants and print methods
-BatchEmbedHelpers.cs       ← batch orchestrator helpers (ExtractChunksForMerge for merging multiple inputs)
 Processors/EmbeddingProcessor.cs  ← core ETL: extract chunks, call embedding service, build Qdrant points
 Services/IEmbeddingService.cs   ← interface (GenerateEmbeddingAsync + EmbeddingDimension)
 Services/LlamaCppEmbeddingService.cs ← real HTTP impl against llama.cpp
 Services/FakeEmbeddingService.cs    ← deterministic hash-based vectors for tests
 Services/RagService.cs            ← rag LLM client with timeout wrapper (WaitAsync)
 Models/QdrantPoint.cs          ← record(Id, Vector, Payload)
-Utils/PipelineLogger.cs        ← structured per-file debug logging (inputs, outputs, errors, flush to .log.txt)
-- `Tests/`                         ← inline test harness (dotnet run)
-  - Program.cs                   ← 16 PASS/FAIL assertions
+Utils/BatchEmbedHelpers.cs       ← batch orchestrator helpers (ExtractChunksForMerge for merging multiple inputs)
+Utils/HelpText.cs                ← centralised --help text constants and print methods
+Utils/PipelineLogger.cs          ← structured per-file debug logging (inputs, outputs, errors, flush to .log.txt)
+- `Tests/`                              ← inline test harness (dotnet run)
+  - Program.cs                          ← PASS/FAIL assertions
 Prompts/prompts.json           ← embedded prompt templates loaded as assembly resource at runtime (filesystem fallback if missing)
 setup_qdrant.py                ← Qdrant collection + batch upsert (python3)
-Reference/                     ← non-prompt project assets only
 ```
 
 ### RAG Pipeline Stages
@@ -157,7 +156,7 @@ Each stage writes per-file debug logs (captured in `<filename>_pipeline.log.txt`
 4. **Dotnet project name has a space.** `"Embedding Console.csproj"` — always quote paths containing spaces in shell commands.
 5. **Dimension mismatch on first chunk.** If `EMBEDDING_DIMENSION` is set, the first embedding MUST match that dimension or `ProcessAsync` throws. Verify your model before running.
 15. **Stage timeout default is 10 minutes per stage.** Large files may exceed this — use `--timeout 20` to increase. Total wall-clock time = timeout × stages × batches.
-16. **Prompts loaded from embedded resource first, filesystem fallback second.** Modifying only `Reference/[PROMPT] 0N.md` files without syncing to `Prompts/prompts.json` means the compiled binary won't see changes. Run the sync script or rebuild after prompt edits.
+16. **Prompts loaded from embedded resource first, filesystem fallback second.** Modifying only `Prompts/[RAG] 0N.md` files without syncing to `Prompts/prompts.json` means the compiled binary won't see changes. Run the sync script or rebuild after prompt edits.
 17. **Stage 3 generates globally unique IDs (`segX-NNN`) not UUIDs.** Qdrant payloads use these IDs as `point_string_id`. Do not assume UUID format when querying.
 18. **SanitizeJsonOutput escapes control chars in LLM output.** Before parsing LLM JSON responses, `SanitizeJsonOutput` (in `AgenticChunkingProcessor.cs`) now escapes literal `\n`, `\r`, and `\t` bytes inside JSON string values. LLMs sometimes emit raw newlines instead of escaped `\n` sequences (e.g., `"Vite Documentation\nbuild.modulePreload"`), causing `System.Text.Json` to throw `'0x0A' is an invalid escapable character`. The method walks the text left-to-right, tracking quote boundaries and escaping control chars only inside strings. This fix applies to both Stage 2 and Stage 3 outputs.
 19. **Output `.ragged.json` now includes a `retrieval_content` field** alongside `content`. The embed command uses `content` for embedding but passes `retrieval_content` through to Qdrant payloads. If the LLM omits `retrieval_content`, the processor generates it from doc title + section path + topic + content.

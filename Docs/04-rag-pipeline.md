@@ -107,7 +107,7 @@ Orchestrates the three-stage pipeline. Each stage calls `RagService.SendAsync()`
 | Parameter | Default | Purpose |
 |-----------|---------|---------|
 | `ragService` | (required) | Injected RagService instance for LLM calls |
-| `promptDir` | `"./Reference"` | Directory containing prompt template files |
+| `promptDir` | `"./Prompts"` | Directory containing prompt template files |
 | `maxChunkTokens` | `8000` | Token budget per markdown batch and Stage 3 input |
 | `outputDir` | `"./rag_output"` | Where `.ragged.json` and intermediate files are written |
 | `llamaTimeout` | `TimeSpan.FromMinutes(10)` | Per-stage timeout (used via CancellationTokenSource); configurable via `--timeout` CLI flag |

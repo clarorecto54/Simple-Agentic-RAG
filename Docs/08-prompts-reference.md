@@ -4,7 +4,7 @@ This document collects the prompts and spec files used during the project's deve
 
 ## Overview: The Three-Agent RAG Pipeline
 
-The original spec (`Reference/Prompt.md`) describes a three-stage agent pipeline for processing Markdown documentation into Qdrant-ready chunks:
+The original spec (`[DEV] Initial Prompt.md`) describes a three-stage agent pipeline for processing Markdown documentation into Qdrant-ready chunks:
 
 ```
 Source Markdown Document
@@ -28,7 +28,7 @@ Embedding vectors → points array → Qdrant batch upsert
 
 ## Reference Files
 
-### `[PROMPT] 01 Segment.md` — Document Segmentation Agent
+### `[RAG] 01 Segment.md` — Document Segmentation Agent
 
 **Purpose:** Split a source Markdown document into multiple smaller files for downstream RAG processing.
 
@@ -40,7 +40,7 @@ Embedding vectors → points array → Qdrant batch upsert
 
 **Filename convention:** Lowercase kebab-case. Deterministic and filesystem-safe.
 
-### `[PROMPT] 02 Semantic.md` — Semantic Extraction Agent
+### `[RAG] 02 Semantic.md` — Semantic Extraction Agent
 
 **Purpose:** Analyze a segmented Markdown document deeply to produce structured metadata suitable for semantic chunking, embedding, and Qdrant indexing.
 
@@ -54,7 +54,7 @@ Embedding vectors → points array → Qdrant batch upsert
 
 **Output format:** JSON with `document` metadata and `chunks[]` array. No embeddings generated here — that's the next agent's job.
 
-### `[PROMPT] 03 Chunking.md` — Chunking + Metadata Agent
+### `[RAG] 03 Chunking.md` — Chunking + Metadata Agent
 
 **Purpose:** Take already-semantic-analyzed sections and produce final embedding-ready chunks with retrieval metadata. This is the downstream stage after segmentation and semantic extraction.
 
@@ -97,7 +97,7 @@ Embedding vectors → points array → Qdrant batch upsert
 
 Note: The Qdrant payload includes a `point_string_id` field (the chunk's unique ID) in addition to the above. See [Qdrant Integration](05-qdrant-integration.md) for full payload details.
 
-### `Prompt.md` — Original Implementation Spec
+### `[DEV] Initial Prompt.md` — Original Implementation Spec
 
 **Purpose:** The comprehensive spec that defined the C# console application. Contains 30 requirements covering CLI input, ETL stage, llama.cpp HTTP client, embedding service abstraction, Qdrant point structure, error handling, test requirements, and architecture.
 
