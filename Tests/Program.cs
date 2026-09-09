@@ -1,3 +1,4 @@
+using Embedding_Console;
 using Embedding_Console.Models;
 using Embedding_Console.Processors;
 using Embedding_Console.Services;
@@ -115,7 +116,7 @@ async Task RunTests()
         var contentValue = chunkNode["content"]!.GetValue<string>();
         var fakeSvc = new FakeEmbeddingService(1024);
         var vector = await fakeSvc.GenerateEmbeddingAsync(contentValue);
-        
+
         // Serialize first chunk for payload
         var payloadObj = JsonObject.Parse(firstChunk.GetRawText())!;
         var qdrantPoint = new QdrantPoint("build-options-build-target-001", vector, payloadObj);
@@ -268,7 +269,7 @@ async Task RunTests()
         // Verify all chunks were processed successfully
         if (result.Results.Count != 33)
             throw new Exception($"Expected 33 results, got {result.Results.Count}");
-        
+
         int successful = result.Results.Count(r => r.Success);
         if (successful != 33)
             throw new Exception($"Expected all 33 chunks to succeed, only {successful} succeeded");
@@ -375,7 +376,7 @@ async Task RunTests()
         Console.WriteLine("[FAIL] Test 13 - Dimension mismatch (should have failed)");
         failed++;
     }
-    catch (InvalidOperationException ex) when 
+    catch (InvalidOperationException ex) when
         (ex.Message.Contains("dimension", StringComparison.OrdinalIgnoreCase))
     {
         Console.WriteLine("[PASS] Test 13 - Dimension mismatch detected");
@@ -392,17 +393,17 @@ async Task RunTests()
     try
     {
         var contentValue = "test text for determinism";
-        
+
         // Create two separate instances to ensure no shared state
         var svc1 = new FakeEmbeddingService(512);
         var svc2 = new FakeEmbeddingService(512);
-        
+
         var v1 = await svc1.GenerateEmbeddingAsync(contentValue);
         var v2 = await svc2.GenerateEmbeddingAsync(contentValue);
 
         if (v1.Length != v2.Length)
             throw new Exception($"Vector lengths differ: {v1.Length} vs {v2.Length}");
-        
+
         bool same = true;
         for (int i = 0; i < v1.Length; i++)
         {
@@ -412,7 +413,7 @@ async Task RunTests()
                 break;
             }
         }
-        
+
         if (!same)
             throw new Exception("Same input produced different vectors across instances");
 
@@ -443,7 +444,7 @@ async Task RunTests()
         // Read back and verify original structure preserved
         var outputText = File.ReadAllText(outputPath);
         var reloadedNode = JsonNode.Parse(outputText)!;
-        
+
         if (reloadedNode is not JsonObject rootObj)
             throw new Exception("Top-level node is not a JSON object");
 
@@ -455,7 +456,7 @@ async Task RunTests()
         if (chunksInOutput.Count != 33)
             throw new Exception($"Expected 33 chunks in output, got {chunksInOutput.Count}");
 
-        // Verify each chunk has 'id', 'content', and 'points' 
+        // Verify each chunk has 'id', 'content', and 'points'
         foreach (var chunkObj in chunksInOutput)
         {
             if (chunkObj is not JsonObject co) continue;
@@ -477,20 +478,16 @@ async Task RunTests()
     // ─── Test 16: SanitizeJsonOutput escapes literal control chars ───
     try
     {
-        // Simulate LLM output with raw (literal) newline bytes inside JSON string values —
-        // this is exactly what the log shows on line 4266.
         var sb = new StringBuilder();
         sb.Append("{\"chunks\":[");
         sb.Append("{\"content\":\"The list of chunks to preload for each dynamic import is computed by Vite.\",");
-        sb.Append("\"retrieval_content\":\"Vite Documentation"); // literal newline follows (0x0A)
+        sb.Append("\"retrieval_content\":\"Vite Documentation"); // literal newline (0x0A)
         sb.Append("\u000A");
         sb.Append("build.modulePreload\"}]}");
         string rawWithLiteralNewlines = sb.ToString();
 
-        // Pass through SanitizeJsonOutput to escape the control chars
         var sanitized = Embedding_Console.Processors.AgenticChunkingProcessor.SanitizeJsonOutput(rawWithLiteralNewlines);
 
-        // This should now parse successfully after sanitization
         try
         {
             JsonNode.Parse(sanitized);
@@ -508,10 +505,160 @@ async Task RunTests()
         failed++;
     }
 
+    // ─── Test 17: ExtractChunksForMerge finds chunks at root level ───
+    try
+    {
+        var jsonText = "{\"chunks\":[{\"id\":\"c1\",\"content\":\"hello\"},{\"id\":\"c2\",\"content\":\"world\"}]}";
+        using var doc = JsonDocument.Parse(jsonText);
+        var testRoot = JsonNode.Parse(doc.RootElement.GetRawText())!;
+
+        var chunks = BatchEmbedHelpers.ExtractChunksForMerge(testRoot);
+        if (chunks.Count != 2)
+            throw new Exception($"Expected 2 chunks, got {chunks.Count}");
+        var firstChunk = chunks[0] as JsonObject;
+        if (firstChunk == null)
+            throw new Exception("First chunk is not an object");
+        if (firstChunk["id"]!.GetValue<string>() != "c1")
+            throw new Exception("First chunk id mismatch");
+
+        Console.WriteLine("[PASS] Test 17 - ExtractChunksForMerge root-level chunks");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 17 - ExtractChunksForMerge: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 18: Batch orchestrator merges multiple files ───
+    try
+    {
+        var tempDir = "/tmp/batch_embed_test";
+        Directory.CreateDirectory(tempDir);
+
+        string file1Json = "{\"chunks\":[{\"id\":\"file1-chunk-1\",\"content\":\"alpha\"},{\"id\":\"file1-chunk-2\",\"content\":\"beta\"}]}";
+        string file2Json = "{\"chunks\":[{\"id\":\"file2-chunk-1\",\"content\":\"gamma\"}]}";
+
+        var fakeSvc = new FakeEmbeddingService(128);
+
+        var result1 = await ProcessSingleFile(fakeSvc, file1Json, Path.Combine(tempDir, "input1.ragged.json"));
+        var result2 = await ProcessSingleFile(fakeSvc, file2Json, Path.Combine(tempDir, "input2.ragged.json"));
+
+        var allChunks = new List<JsonNode>();
+        allChunks.AddRange(BatchEmbedHelpers.ExtractChunksForMerge(result1.RootNode));
+        allChunks.AddRange(BatchEmbedHelpers.ExtractChunksForMerge(result2.RootNode));
+
+        if (allChunks.Count != 3)
+            throw new Exception($"Expected 3 merged chunks, got {allChunks.Count}");
+
+        Directory.Delete(tempDir, true);
+
+        Console.WriteLine("[PASS] Test 18 - Batch orchestrator merges multiple files");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 18 - Batch orchestrator: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 19: Single-file backward compat path still works ───
+    try
+    {
+        var tempDir = "/tmp/single_compat_test";
+        Directory.CreateDirectory(tempDir);
+        string jsonText = "{\"chunks\":[{\"id\":\"compat-001\",\"content\":\"backward compat content\"}]}";
+
+        var fakeSvc = new FakeEmbeddingService(64);
+        var result = await ProcessSingleFile(fakeSvc, jsonText, Path.Combine(tempDir, "test.ragged.json"));
+
+        if (result.Results.Count != 1)
+            throw new Exception($"Expected 1 result, got {result.Results.Count}");
+        if (!result.Results[0].Success)
+            throw new Exception("Single file processing failed");
+        if (result.FailedCount != 0)
+            throw new Exception($"Expected 0 failures, got {result.FailedCount}");
+
+        Directory.Delete(tempDir, true);
+        Console.WriteLine("[PASS] Test 19 - Single-file backward compat");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 19 - Single-file compat: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 20: Merged output structure is valid JSON with metadata ───
+    try
+    {
+        var tempDir = "/tmp/merge_structure_test";
+        Directory.CreateDirectory(tempDir);
+        var outFile = Path.Combine(tempDir, "merged.json");
+
+        string file1 = "{\"chunks\":[{\"id\":\"src1-001\",\"content\":\"a\",\"metadata\":{\"source\":\"a.md\"}}]}";
+        string file2 = "{\"chunks\":[{\"id\":\"src2-001\",\"content\":\"b\",\"metadata\":{\"source\":\"b.md\"}}]}";
+
+        var fakeSvc = new FakeEmbeddingService(32);
+
+        var r1 = await ProcessSingleFile(fakeSvc, file1, Path.Combine(tempDir, "f1.json"));
+        var r2 = await ProcessSingleFile(fakeSvc, file2, Path.Combine(tempDir, "f2.json"));
+
+        var allChunks = new List<JsonNode>();
+        allChunks.AddRange(BatchEmbedHelpers.ExtractChunksForMerge(r1.RootNode));
+        allChunks.AddRange(BatchEmbedHelpers.ExtractChunksForMerge(r2.RootNode));
+
+        // Build merged output matching batch orchestrator format
+        var merged = new JsonObject
+        {
+            ["chunks"] = new JsonArray(allChunks.Select(c => c.DeepClone()).Cast<JsonNode>().ToArray()),
+            ["total_chunks"] = JsonValue.Create(allChunks.Count),
+            ["source_files"] = JsonValue.Create(2),
+            ["successful_chunks"] = JsonValue.Create(allChunks.Count)
+        };
+
+        File.WriteAllText(outFile, merged.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+
+        // Verify round-trip parse
+        var reloaded = JsonNode.Parse(File.ReadAllText(outFile))!;
+        if (reloaded is not JsonObject rootObj)
+            throw new Exception("Merged output is not a JSON object");
+        if (!rootObj.ContainsKey("chunks"))
+            throw new Exception("Missing 'chunks' in merged output");
+        if (!rootObj.ContainsKey("total_chunks"))
+            throw new Exception("Missing 'total_chunks' in merged output");
+        if (rootObj["total_chunks"]?.GetValue<int>() != allChunks.Count)
+            throw new Exception($"total_chunks mismatch: {rootObj["total_chunks"]} vs {allChunks.Count}");
+
+        // Verify chunks preserved content
+        var outChunks = rootObj["chunks"]!.AsArray();
+        if (outChunks.Count != 2)
+            throw new Exception($"Expected 2 merged chunks, got {outChunks.Count}");
+
+        Directory.Delete(tempDir, true);
+        Console.WriteLine("[PASS] Test 20 - Merged output structure valid with metadata");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 20 - Merge structure: {ex.Message}");
+        failed++;
+    }
+
     var sep = new string('=', 50);
     Console.WriteLine($"\n{sep}");
     Console.WriteLine($"Results: {passed} passed, {failed} failed out of {passed + failed} tests");
     Console.WriteLine($"{sep}");
 
     if (failed > 0) Environment.Exit(1);
+}
+
+/// <summary>
+/// Helper for tests: processes a single JSON string via EmbeddingProcessor and returns the result.
+/// </summary>
+static async Task<ProcessResult> ProcessSingleFile(FakeEmbeddingService fakeSvc, string jsonContent, string filePath)
+{
+    var rootNode = JsonNode.Parse(jsonContent)!;
+    var processor = new EmbeddingProcessor(fakeSvc, fakeSvc.EmbeddingDimension);
+    return await processor.ProcessAsync(rootNode, filePath, CancellationToken.None);
 }

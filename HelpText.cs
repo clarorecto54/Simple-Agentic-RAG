@@ -26,11 +26,24 @@ internal static class HelpText
     internal const string EmbedInlineHelp =
         """
         Usage: dotnet run -- embed <input.json> [output.json]
+             or: dotnet run -- embed file1.json file2.json -o ./output/
+             or: dotnet run -- embed --input-dir DIR -o ./output/
 
-          input.json   Path to the JSON file with chunks to embed.
-          output.json  Optional. Path for the embedded output file.
+          input.json     Path(s) to the JSON file(s) with chunks to embed.
+          output.json    Optional. Output directory for the embedded output.
 
-        If output path is omitted, <input>.embedded.json will be generated.
+        Options:
+          --input-dir, -d DIR   Directory to scan recursively for *.json files
+          --output-dir, -o DIR  Output directory for merged embedded.json (default: current dir)
+
+        If multiple inputs are specified, a single merged output file 'embedded.json' is created
+        in the output directory containing chunks from all successfully processed files.
+        Each failed input file also produces a '<basename>.embed_errors.json' error report.
+
+        Environment variables:
+          LLAMA_CPP_URL         llama.cpp server URL (default: http://localhost:4000)
+          LLAMA_CPP_MODEL       Model ID string for embedding
+          EMBEDDING_DIMENSION   Expected vector dimension (0 = auto-detect)
         """;
 
     internal const string EmbedNoInputError = "Error: Input file path is required.";

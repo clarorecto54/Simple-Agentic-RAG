@@ -2,6 +2,7 @@
 using Embedding_Console.Processors;
 using Embedding_Console.Services;
 using System;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -42,8 +43,9 @@ switch (command)
 static async Task<int> RunEmbedAsync(string[] subArgs)
 {
     // ── Embed subcommand argument parsing ──────────────
-    string inputPath = "";
-    string outputPath = ""; // sentinel: auto-generate if empty
+    string? inputDir = null;
+    List<string> inputFiles = new();
+    string outputPath = "";
 
     int i = 0;
     for (; i < subArgs.Length; i++)
@@ -54,33 +56,72 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
                 HelpText.PrintEmbedHelp();
                 return 0;
 
-            case "--output":
+            case "--output-dir":
             case "-o":
                 if (i + 1 >= subArgs.Length)
                 {
-                    Console.Error.WriteLine("Error: --output requires a file path argument.");
+                    Console.Error.WriteLine("Error: --output-dir requires a directory path argument.");
                     return 1;
                 }
                 outputPath = subArgs[++i];
                 break;
 
-            default:
-                // Treat first non-flag arg as inputPath
-                if (string.IsNullOrEmpty(inputPath))
-                    inputPath = subArgs[i];
-                else if (!string.IsNullOrEmpty(outputPath))
+            case "--input-dir":
+            case "-d":
+                if (i + 1 >= subArgs.Length)
                 {
-                    Console.Error.WriteLine($"Error: Unexpected argument '{subArgs[i]}'.");
+                    Console.Error.WriteLine("Error: --input-dir requires a directory path argument.");
                     return 1;
                 }
+                inputDir = subArgs[++i];
+                break;
+
+            default:
+                // Treat first non-flag arg as input file(s)
+                if (!subArgs[i].StartsWith("--"))
+                    inputFiles.Add(subArgs[i]);
                 else
-                    outputPath = subArgs[i];
+                {
+                    Console.Error.WriteLine($"Error: Unknown option '{subArgs[i]}'.");
+                    return 1;
+                }
                 break;
         }
     }
 
-    // Validate input file required
-    if (string.IsNullOrEmpty(inputPath))
+    // Resolve directory-based input if specified
+    if (inputDir is not null)
+    {
+        if (!Directory.Exists(inputDir))
+        {
+            Console.Error.WriteLine($"Error: Directory not found: {inputDir}");
+            return 1;
+        }
+
+        try
+        {
+            var dirFiles = Directory.GetFiles(inputDir, "*.json", SearchOption.AllDirectories)
+                                    .OrderBy(f => f)
+                                    .ToList();
+
+            if (dirFiles.Count == 0)
+            {
+                Console.Error.WriteLine($"Error: No JSON files found in directory: {inputDir}");
+                return 1;
+            }
+
+            Console.WriteLine($"  Scanning directory: {inputDir} → found {dirFiles.Count} JSON file(s)");
+            inputFiles.AddRange(dirFiles);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Error: Access denied scanning directory: {ex.Message}");
+            return 1;
+        }
+    }
+
+    // Validate inputs required
+    if (inputFiles.Count == 0 && string.IsNullOrEmpty(inputDir))
     {
         Console.Error.WriteLine(HelpText.EmbedNoInputError);
         Console.WriteLine();
@@ -88,19 +129,22 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
         return 1;
     }
 
-    if (!File.Exists(inputPath))
+    // Validate that input files exist (for direct file args)
+    foreach (var f in inputFiles.Where(f => !f.Contains('/')))
     {
-        Console.Error.WriteLine($"Error: Input file not found: {inputPath}");
-        return 1;
+        if (!File.Exists(f))
+        {
+            Console.Error.WriteLine($"Error: Input file not found: {f}");
+            return 1;
+        }
     }
 
-    // Auto-generate output path: chunks.json → chunks.embedded.json
-    if (string.IsNullOrEmpty(outputPath))
-    {
-        var dir = Path.GetDirectoryName(inputPath) ?? ".";
-        var nameWithoutExt = Path.GetFileNameWithoutExtension(inputPath);
-        outputPath = Path.Combine(dir, $"{nameWithoutExt}.embedded.json");
-    }
+    // Output directory: use provided path or current dir
+    string outputDir = string.IsNullOrEmpty(outputPath) ? "." : outputPath;
+    Directory.CreateDirectory(outputDir);
+
+    // Auto-generate merged output filename
+    string mergedOutputFile = Path.Combine(outputDir, "embedded.json");
 
     // ── Configuration ──────────────────────────────────
     var embeddingOptions = new LlamaCppEmbeddingOptions
@@ -113,11 +157,31 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
             ? dim : 0, // 0 means auto-detect on first response
     };
 
-    // ── Load JSON ──────────────────────────────────────
+    // Batch processing for multiple files
+    if (inputFiles.Count > 1 || inputDir is not null)
+    {
+        return await RunBatchEmbedAsync(
+            inputFiles.Where(f => f.Contains('/') || File.Exists(f)).ToList(),
+            outputDir,
+            mergedOutputFile,
+            embeddingOptions);
+    }
+
+    // ── Single-file mode (backward compat) ────────────
+    string singleInput = inputFiles[0];
+
+    Console.WriteLine();
+    Console.WriteLine("=== JSON Embedding Pipeline ===");
+    Console.WriteLine($"  Input file:   {singleInput}");
+    Console.WriteLine($"  Output file:  {mergedOutputFile}");
+    Console.WriteLine($"  Server URL:   {embeddingOptions.ServerUrl}");
+    Console.WriteLine($"  Model ID:     {embeddingOptions.ModelId ?? "(auto)"}");
+    Console.WriteLine();
+
     string jsonText;
     try
     {
-        jsonText = File.ReadAllText(inputPath);
+        jsonText = File.ReadAllText(singleInput);
     }
     catch (IOException ex)
     {
@@ -151,28 +215,19 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
     var embeddingService = new LlamaCppEmbeddingService(embeddingOptions, httpClient);
     var processor = new EmbeddingProcessor(embeddingService, embeddingOptions.ExpectedDimension);
 
-    // ── Process ────────────────────────────────────────
     try
     {
-        Console.WriteLine();
-        Console.WriteLine("=== JSON Embedding Pipeline ===");
-        Console.WriteLine($"  Input file:   {inputPath}");
-        Console.WriteLine($"  Output file:  {outputPath}");
-        Console.WriteLine($"  Server URL:   {embeddingOptions.ServerUrl}");
-        Console.WriteLine($"  Model ID:     {embeddingOptions.ModelId ?? "(auto)"}");
-        Console.WriteLine();
-
         ProcessResult result = await processor.ProcessAsync(
             rootNode,
-            inputPath,
+            singleInput,
             CancellationToken.None);
 
         // ── Write output ─────────────────────────────────
         try
         {
-            EmbeddingProcessor.WriteOutput(result, outputPath);
+            EmbeddingProcessor.WriteOutput(result, mergedOutputFile);
             Console.WriteLine();
-            Console.WriteLine($"  Output:       {outputPath}");
+            Console.WriteLine($"  Output:       {mergedOutputFile}");
             Console.WriteLine("  Completed successfully.");
             return 0;
         }
@@ -188,6 +243,128 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
         Console.WriteLine(ex.StackTrace);
         return 1;
     }
+}
+
+// ─────────────── Batch Embed Orchestrator ───────────────
+static async Task<int> RunBatchEmbedAsync(
+    List<string> inputFiles,
+    string outputDir,
+    string mergedOutputFile,
+    LlamaCppEmbeddingOptions embeddingOptions)
+{
+    var httpClient = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+    var embeddingService = new LlamaCppEmbeddingService(embeddingOptions, httpClient);
+
+    // Shared state for merging
+    var allChunks = new List<JsonNode>();
+    var failedFiles = new List<(string file, string error)>();
+    int totalChunksProcessed = 0;
+    int totalChunksFailed = 0;
+
+    for (int fi = 0; fi < inputFiles.Count; fi++)
+    {
+        string inputFile = inputFiles[fi];
+        Console.WriteLine($"\n[{fi + 1}/{inputFiles.Count}] Processing: {inputFile}");
+
+        try
+        {
+            string jsonText = File.ReadAllText(inputFile);
+            JsonNode rootNode = JsonNode.Parse(jsonText)!;
+
+            var processor = new EmbeddingProcessor(embeddingService, embeddingOptions.ExpectedDimension);
+            ProcessResult result = await processor.ProcessAsync(rootNode, inputFile, CancellationToken.None);
+
+            // Check per-chunk results for failures
+            int fileSuccessCount = result.Results.Count(r => r.Success);
+            int fileFailed = result.FailedCount;
+            totalChunksProcessed += fileSuccessCount;
+            totalChunksFailed += fileFailed;
+
+            // If any chunks failed, write error report
+            if (fileFailed > 0)
+            {
+                string baseName = Path.GetFileNameWithoutExtension(inputFile);
+                string errorPath = Path.Combine(outputDir, $"{baseName}.embed_errors.json");
+
+                var errorDoc = new JsonObject
+                {
+                    ["source_file"] = JsonValue.Create(inputFile),
+                    ["error_chunks"] = new JsonArray(),
+                    ["success_count"] = JsonValue.Create(fileSuccessCount),
+                    ["failure_count"] = JsonValue.Create(fileFailed)
+                };
+
+                foreach (var cr in result.Results.Where(c => !c.Success))
+                {
+                    var errorChunk = new JsonObject
+                    {
+                        ["id"] = JsonValue.Create(cr.ChunkId),
+                        ["content_key"] = JsonValue.Create(cr.ContentKey),
+                        ["error"] = JsonValue.Create(cr.Error ?? "Unknown error")
+                    };
+                    (errorDoc["error_chunks"] as JsonArray)!.Add(errorChunk);
+                }
+
+                File.WriteAllText(errorPath, errorDoc.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+            }
+
+            // Collect successful chunks for merged output
+            var chunks = BatchEmbedHelpers.ExtractChunksForMerge(rootNode);
+            foreach (var chunk in chunks)
+            {
+                allChunks.Add(chunk.DeepClone());
+            }
+
+            Console.WriteLine($"  ✓ Processed: {fileSuccessCount}/{result.Results.Count} chunks successful");
+        }
+        catch (Exception ex)
+        {
+            string baseName = Path.GetFileNameWithoutExtension(inputFile);
+            string errorPath = Path.Combine(outputDir, $"{baseName}.embed_errors.json");
+
+            var errorDoc = new JsonObject
+            {
+                ["source_file"] = JsonValue.Create(inputFile),
+                ["error"] = JsonValue.Create(ex.Message),
+                ["success_count"] = JsonValue.Create(0),
+                ["failure_count"] = JsonValue.Create(-1) // Unknown total
+            };
+
+            File.WriteAllText(errorPath, errorDoc.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+            failedFiles.Add((inputFile, ex.Message));
+            Console.WriteLine($"  ✗ Error: {ex.Message}");
+        }
+    }
+
+    httpClient.Dispose();
+
+    // Write merged output if we have any chunks
+    if (allChunks.Count > 0)
+    {
+        var merged = new JsonObject
+        {
+            ["chunks"] = new JsonArray(allChunks.Select(c => c.DeepClone()).Cast<JsonNode>().ToArray()),
+            ["total_chunks"] = JsonValue.Create(totalChunksProcessed),
+            ["source_files"] = JsonValue.Create(inputFiles.Count),
+            ["successful_chunks"] = JsonValue.Create(totalChunksProcessed)
+        };
+
+        File.WriteAllText(mergedOutputFile, merged.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    // Summary
+    Console.WriteLine($"\n=== Batch Complete ===");
+    Console.WriteLine($"  Files processed:   {inputFiles.Count}");
+    Console.WriteLine($"  Total chunks:      {totalChunksProcessed + totalChunksFailed}");
+    Console.WriteLine($"  Successful:        {totalChunksProcessed}");
+    Console.WriteLine($"  Failed:            {totalChunksFailed}");
+    if (failedFiles.Any())
+    {
+        foreach (var (file, err) in failedFiles)
+            Console.WriteLine($"  - {file}: {err}");
+    }
+
+    return totalChunksFailed > 0 ? 1 : 0;
 }
 
 // ─────────────── RAG Command ───────────────
