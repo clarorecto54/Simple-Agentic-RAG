@@ -1,0 +1,2001 @@
+{
+  "source_file": "/home/clarorecto/My Projects/RAG/Embedding Console/Samples/build-options.source.md",
+  "document_title": "build-options.source",
+  "stage1_segments": 30,
+  "stage2_semantic_chunks": 47,
+  "stage3_final_chunks": 47,
+  "processing_time_seconds": 310.453559,
+  "chunks": [
+    {
+      "id": "segment-1-001",
+      "content": "# Build Options\n\nUnless noted, the options in this section are only applied to build.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Options",
+        "document_type": "documentation",
+        "section": "Build Options",
+        "heading_path": [
+          "Build Options"
+        ],
+        "topic": "Build configuration scope",
+        "summary": "Defines the scope of build options, stating they apply only to build unless noted otherwise.",
+        "keywords": [
+          "build",
+          "options",
+          "configuration",
+          "scope"
+        ],
+        "entities": [],
+        "technologies": [],
+        "concepts": [
+          "build configuration",
+          "option scope"
+        ],
+        "retrieval_queries": [
+          "What is the scope of build options?",
+          "Do build options apply to other contexts?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Options\nBuild Options\nBuild configuration options\n\n# Build Options\n\nUnless noted, the options in this section are only applied to build."
+    },
+    {
+      "id": "segment-2-002",
+      "content": "## build.target\n\n- **Type:** \u0060string | string[]\u0060\n- **Default:** \u0060\u0027baseline-widely-available\u0027\u0060\n- **Related:** [Browser Compatibility](/guide/build#browser-compatibility)",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Configuration",
+        "document_type": "Technical Documentation",
+        "section": "build.target",
+        "heading_path": [
+          "build.target"
+        ],
+        "topic": "build.target configuration option",
+        "summary": "Defines the browser compatibility target for the final bundle with default and custom options.",
+        "keywords": [
+          "build.target",
+          "browser compatibility",
+          "bundle",
+          "transpiling"
+        ],
+        "entities": [
+          "build.target"
+        ],
+        "technologies": [],
+        "concepts": [
+          "browser compatibility",
+          "bundle configuration"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.target?",
+          "What types are accepted for build.target?",
+          "How do I configure browser compatibility in build.target?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.target configuration option\n\n## build.target\n\n- **Type:** \u0060string | string[]\u0060\n- **Default:** \u0060\u0027baseline-widely-available\u0027\u0060\n- **Related:** [Browser Compatibility](/guide/build#browser-compatibility)"
+    },
+    {
+      "id": "segment-2-003",
+      "content": "- **Default:** \u0060\u0027baseline-widely-available\u0027\u0060\n- **Related:** [Browser Compatibility](/guide/build#browser-compatibility)\n\nBrowser compatibility target for the final bundle. The default value is a Vite special value, \u0060\u0027baseline-widely-available\u0027\u0060, which targets the minimum browser versions compatible with [Baseline](https://web-platform-dx.github.io/baseline/) Widely Available as of a date fixed for each major release ([2026-01-01 for this major](https://web-platform-dx.github.io/supported-browsers/?widelyAvailableOnDate=2026-01-01)). Specifically, it is \u0060[\u0027chrome111\u0027, \u0027edge111\u0027, \u0027firefox114\u0027, \u0027safari16.4\u0027, \u0027ios16.4\u0027]\u0060.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "Default Value",
+        "heading_path": [
+          "build.target",
+          "Default Value"
+        ],
+        "topic": "Default value for build.target",
+        "summary": "Explains the default \u0027baseline-widely-available\u0027 value and its relation to Browser Compatibility.",
+        "keywords": [
+          "baseline-widely-available",
+          "default",
+          "Browser Compatibility",
+          "Vite",
+          "Baseline"
+        ],
+        "entities": [
+          "baseline-widely-available",
+          "Browser Compatibility",
+          "Vite",
+          "Baseline"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Browser Compatibility",
+          "Baseline Widely Available",
+          "Bundle Targeting"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.target?",
+          "What browsers are targeted by the baseline-widely-available setting?",
+          "How does build.target relate to Browser Compatibility?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.target: Default Value\nbuild.target / Default Value\nExplains the default \u0027baseline-widely-available\u0027 value and its relation to Browser Compatibility.\n\n- **Default:** \u0060\u0027baseline-widely-available\u0027\u0060\n- **Related:** [Browser Compatibility](/guide/build#browser-compatibility)\n\nBrowser compatibility target for the final bundle. The default value is a Vite special value, \u0060\u0027baseline-widely-available\u0027\u0060, which targets the minimum browser versions compatible with [Baseline](https://web-platform-dx.github.io/baseline/) Widely Available as of a date fixed for each major release ([2026-01-01 for this major](https://web-platform-dx.github.io/supported-browsers/?widelyAvailableOnDate=2026-01-01)). Specifically, it is \u0060[\u0027chrome111\u0027, \u0027edge111\u0027, \u0027firefox114\u0027, \u0027safari16.4\u0027, \u0027ios16.4\u0027]\u0060."
+    },
+    {
+      "id": "segment-2-004",
+      "content": "Another special value is \u0060\u0027esnext\u0027\u0060 - which assumes native dynamic imports support and will only perform minimal transpiling.",
+      "metadata": {
+        "source_file": "build.target.md",
+        "document_title": "Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "esnext Value",
+        "heading_path": [
+          "build.target",
+          "esnext Value"
+        ],
+        "topic": "esnext special value for build.target",
+        "summary": "Describes the \u0027esnext\u0027 special value and its implications for transpiling.",
+        "keywords": [
+          "esnext",
+          "dynamic imports",
+          "transpiling"
+        ],
+        "entities": [
+          "esnext"
+        ],
+        "technologies": [],
+        "concepts": [
+          "native dynamic imports",
+          "minimal transpiling"
+        ],
+        "retrieval_queries": [
+          "What does the esnext value do for build.target?",
+          "How does esnext handle transpiling?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.target: Another special value is \u0027esnext\u0027 - which assumes native dynamic imports support and will only perform minimal transpiling."
+    },
+    {
+      "id": "segment-2-005",
+      "content": "The transform is performed with Oxc Transformer and the value should be a valid [Oxc Transformer target option](https://oxc.rs/docs/guide/usage/transformer/lowering#target). Custom targets can either be an ES version (e.g. \u0060es2015\u0060), a browser with version (e.g. \u0060chrome58\u0060), or an array of multiple target strings.",
+      "metadata": {
+        "source_file": "build.target",
+        "document_title": "Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "Custom Targets",
+        "heading_path": [
+          "build.target",
+          "Custom Targets"
+        ],
+        "topic": "Custom target options for build.target",
+        "summary": "Explains how to specify custom targets using Oxc Transformer options.",
+        "keywords": [
+          "custom targets",
+          "Oxc Transformer",
+          "ES version",
+          "browser version"
+        ],
+        "entities": [
+          "Oxc Transformer"
+        ],
+        "technologies": [
+          "Oxc Transformer"
+        ],
+        "concepts": [
+          "ES version targeting",
+          "browser version targeting",
+          "multi-target configuration"
+        ],
+        "retrieval_queries": [
+          "What are the valid formats for build.target custom options?",
+          "How do I specify a browser version for build.target?",
+          "Can I use multiple targets in build.target?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Custom Targets\nbuild.target \u2192 Custom Targets\nExplains how to specify custom targets using Oxc Transformer options.\n\nThe transform is performed with Oxc Transformer and the value should be a valid [Oxc Transformer target option](https://oxc.rs/docs/guide/usage/transformer/lowering#target). Custom targets can either be an ES version (e.g. \u0060es2015\u0060), a browser with version (e.g. \u0060chrome58\u0060), or an array of multiple target strings."
+    },
+    {
+      "id": "segment-2-006",
+      "content": "Note the build will output a warning if the code contains features that cannot be safely transpiled by Oxc. See [Oxc docs](https://oxc.rs/docs/guide/usage/transformer/lowering#warnings) for more details.",
+      "metadata": {
+        "source_file": "build.target",
+        "document_title": "build.target",
+        "document_type": "Configuration",
+        "section": "Warnings",
+        "heading_path": [
+          "build.target",
+          "Warnings"
+        ],
+        "topic": "Warnings for unsupported features",
+        "summary": "Notes about warnings when code contains features that cannot be safely transpiled.",
+        "keywords": [
+          "warnings",
+          "transpiling",
+          "Oxc"
+        ],
+        "entities": [
+          "Oxc"
+        ],
+        "technologies": [
+          "Oxc"
+        ],
+        "concepts": [
+          "transpilation",
+          "build warnings"
+        ],
+        "retrieval_queries": [
+          "What happens if code contains features that cannot be safely transpiled?",
+          "Where can I find more details about Oxc warnings?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.target: Warnings\nbuild.target / Warnings\nWarnings for unsupported features\n\nNote the build will output a warning if the code contains features that cannot be safely transpiled by Oxc. See [Oxc docs](https://oxc.rs/docs/guide/usage/transformer/lowering#warnings) for more details."
+    },
+    {
+      "id": "segment-3-007",
+      "content": "## build.modulePreload\n\n- **Type:** \u0060boolean | { polyfill?: boolean, resolveDependencies?: ResolveModulePreloadDependenciesFn }\u0060\n- **Default:** \u0060{ polyfill: true }\u0060",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "Module Preload Configuration Overview",
+        "heading_path": [
+          "build.modulePreload"
+        ],
+        "topic": "Module Preload Configuration Type and Default",
+        "summary": "Defines the type and default value for the modulePreload configuration option.",
+        "keywords": [
+          "modulePreload",
+          "boolean",
+          "polyfill",
+          "resolveDependencies"
+        ],
+        "entities": [
+          "modulePreload",
+          "polyfill",
+          "ResolveModulePreloadDependenciesFn"
+        ],
+        "technologies": [],
+        "concepts": [
+          "Configuration Types",
+          "Default Values"
+        ],
+        "retrieval_queries": [
+          "What is the type of the modulePreload option?",
+          "What is the default value for modulePreload?",
+          "How do I configure polyfill in modulePreload?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.modulePreload\nbuild.modulePreload\nDefines the type and default value for the modulePreload configuration option.\n\n## build.modulePreload\n\n- **Type:** \u0060boolean | { polyfill?: boolean, resolveDependencies?: ResolveModulePreloadDependenciesFn }\u0060\n- **Default:** \u0060{ polyfill: true }\u0060"
+    },
+    {
+      "id": "segment-3-008",
+      "content": "By default, a [module preload polyfill](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill) is automatically injected. The polyfill is auto injected into the proxy module of each \u0060index.html\u0060 entry. If the build is configured to use a non-HTML custom entry via \u0060build.rolldownOptions.input\u0060, then it is necessary to manually import the polyfill in your custom entry:\n\n\u0060\u0060\u0060js\nimport \u0027vite/modulepreload-polyfill\u0027\n\u0060\u0060\u0060\n\nNote: the polyfill does **not** apply to [Library Mode](/guide/build#library-mode). If you need to support browsers without native dynamic import, you should probably avoid using it in your library.\n\nThe polyfill can be disabled using \u0060{ polyfill: false }\u0060.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Vite Build Configuration",
+        "document_type": "Documentation",
+        "section": "Module Preload Polyfill",
+        "heading_path": [
+          "build",
+          "modulePreload",
+          "Module Preload Polyfill"
+        ],
+        "topic": "Automatic injection of module preload polyfill into proxy modules and custom entries",
+        "summary": "Explains the automatic injection of the module preload polyfill into proxy modules and entry points.",
+        "keywords": [
+          "polyfill",
+          "injection",
+          "proxy module",
+          "index.html",
+          "custom entry",
+          "modulepreload-polyfill",
+          "Library Mode"
+        ],
+        "entities": [
+          "module preload polyfill",
+          "index.html",
+          "build.rolldownOptions.input",
+          "vite/modulepreload-polyfill",
+          "Library Mode"
+        ],
+        "technologies": [
+          "Vite",
+          "ES Modules"
+        ],
+        "concepts": [
+          "Automatic polyfill injection",
+          "Proxy module",
+          "Custom entry configuration",
+          "Library Mode limitations",
+          "Dynamic import support"
+        ],
+        "retrieval_queries": [
+          "How is the module preload polyfill injected by default?",
+          "How do I manually import the polyfill for a custom entry?",
+          "Does the polyfill apply to Library Mode?",
+          "How do I disable the polyfill?",
+          "What happens if I use a non-HTML custom entry?"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.modulePreload \u2192 Module Preload Polyfill\nAutomatic Polyfill Injection\n\nBy default, a [module preload polyfill](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill) is automatically injected. The polyfill is auto injected into the proxy module of each \u0060index.html\u0060 entry. If the build is configured to use a non-HTML custom entry via \u0060build.rolldownOptions.input\u0060, then it is necessary to manually import the polyfill in your custom entry:\n\n\u0060\u0060\u0060js\nimport \u0027vite/modulepreload-polyfill\u0027\n\u0060\u0060\u0060\n\nNote: the polyfill does **not** apply to [Library Mode](/guide/build#library-mode). If you need to support browsers without native dynamic import, you should probably avoid using it in your library.\n\nThe polyfill can be disabled using \u0060{ polyfill: false }\u0060."
+    },
+    {
+      "id": "segment-3-009",
+      "content": "The list of chunks to preload for each dynamic import is computed by Vite. By default, an absolute path including the \u0060base\u0060 will be used when loading these dependencies. If the \u0060base\u0060 is relative (\u0060\u0027\u0027\u0060 or \u0060\u0027./\u0027\u0060), \u0060import.meta.url\u0060 is used at runtime to avoid absolute paths that depend on the final deployed base.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Vite Build Configuration",
+        "document_type": "Technical Documentation",
+        "section": "Dependency Path Computation",
+        "heading_path": [
+          "build",
+          "modulePreload",
+          "Dependency Path Computation"
+        ],
+        "topic": "Vite dynamic import preload path computation",
+        "summary": "Explains how Vite computes preload paths for dynamic imports and handles relative base configurations.",
+        "keywords": [
+          "preload",
+          "dynamic import",
+          "base",
+          "import.meta.url",
+          "chunks"
+        ],
+        "entities": [
+          "Vite",
+          "base",
+          "import.meta.url",
+          "build.outDir"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Dependency resolution",
+          "Path computation",
+          "Base path configuration"
+        ],
+        "retrieval_queries": [
+          "How does Vite compute preload paths for dynamic imports?",
+          "What happens when the base path is relative in Vite?",
+          "How does Vite handle absolute paths for dynamic imports?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.modulePreload \u2192 Dependency Path Computation\nBase Path and Dependency Resolution\nThe list of chunks to preload for each dynamic import is computed by Vite. By default, an absolute path including the \u0060base\u0060 will be used when loading these dependencies. If the \u0060base\u0060 is relative (\u0060\u0027\u0027\u0060 or \u0060\u0027./\u0027\u0060), \u0060import.meta.url\u0060 is used at runtime to avoid absolute paths that depend on the final deployed base."
+    },
+    {
+      "id": "segment-3-010",
+      "content": "There is experimental support for fine grained control over the dependencies list and their paths using the \u0060resolveDependencies\u0060 function. [Give Feedback](https://github.com/vitejs/vite/discussions/13841). It expects a function of type \u0060ResolveModulePreloadDependenciesFn\u0060:\n\n\u0060\u0060\u0060ts\ntype ResolveModulePreloadDependenciesFn = (\n  url: string,\n  deps: string[],\n  context: {\n    hostId: string\n    hostType: \u0027html\u0027 | \u0027js\u0027\n  },\n) =\u003E string[]\n\u0060\u0060\u0060",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Vite Configuration",
+        "document_type": "Documentation",
+        "section": "Fine Grained Control",
+        "heading_path": [
+          "build",
+          "modulePreload",
+          "Fine Grained Control"
+        ],
+        "topic": "Custom Dependency Resolution via resolveDependencies",
+        "summary": "Introduces experimental support for fine-grained control over dependencies using the resolveDependencies function.",
+        "keywords": [
+          "experimental",
+          "resolveDependencies",
+          "dependencies list",
+          "paths",
+          "ResolveModulePreloadDependenciesFn"
+        ],
+        "entities": [
+          "resolveDependencies",
+          "ResolveModulePreloadDependenciesFn"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Custom Dependency Resolution",
+          "Module Preload Configuration",
+          "TypeScript Function Types"
+        ],
+        "retrieval_queries": [
+          "How to implement fine-grained control over dependencies in Vite?",
+          "What is the signature of the resolveDependencies function?",
+          "What does ResolveModulePreloadDependenciesFn expect as arguments?"
+        ],
+        "code_languages": [
+          "TypeScript"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.modulePreload \u2192 Fine Grained Control\nCustom Dependency Resolution\nThere is experimental support for fine grained control over the dependencies list and their paths using the \u0060resolveDependencies\u0060 function. It expects a function of type \u0060ResolveModulePreloadDependenciesFn\u0060:\n\n\u0060\u0060\u0060ts\ntype ResolveModulePreloadDependenciesFn = (\n  url: string,\n  deps: string[],\n  context: {\n    hostId: string\n    hostType: \u0027html\u0027 | \u0027js\u0027\n  },\n) =\u003E string[]\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "segment-3-011",
+      "content": "The \u0060resolveDependencies\u0060 function will be called for each dynamic import with a list of the chunks it depends on, and it will also be called for each chunk imported in entry HTML files. A new dependencies array can be returned with these filtered or more dependencies injected, and their paths modified. The \u0060deps\u0060 paths are relative to the \u0060build.outDir\u0060. The return value should be a relative path to the \u0060build.outDir\u0060.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Technical Documentation",
+        "section": "resolveDependencies Function Behavior",
+        "heading_path": [
+          "build",
+          "modulePreload",
+          "resolveDependencies Function Behavior"
+        ],
+        "topic": "resolveDependencies function invocation and return values",
+        "summary": "Explains when and how the resolveDependencies function is called and what it returns.",
+        "keywords": [
+          "resolveDependencies",
+          "dynamic import",
+          "entry HTML",
+          "deps",
+          "build.outDir"
+        ],
+        "entities": [
+          "resolveDependencies",
+          "dynamic import",
+          "entry HTML",
+          "build.outDir"
+        ],
+        "technologies": [],
+        "concepts": [
+          "dependency injection",
+          "path modification",
+          "chunk dependencies"
+        ],
+        "retrieval_queries": [
+          "When is the resolveDependencies function called?",
+          "What does the resolveDependencies function return?",
+          "How are dependency paths relative to build.outDir?",
+          "Can I filter dependencies in resolveDependencies?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.modulePreload \u2192 resolveDependencies Function Behavior\nFunction Invocation and Return Values\n\nThe \u0060resolveDependencies\u0060 function will be called for each dynamic import with a list of the chunks it depends on, and it will also be called for each chunk imported in entry HTML files. A new dependencies array can be returned with these filtered or more dependencies injected, and their paths modified. The \u0060deps\u0060 paths are relative to the \u0060build.outDir\u0060. The return value should be a relative path to the \u0060build.outDir\u0060."
+    },
+    {
+      "id": "segment-3-012",
+      "content": "\u0060\u0060\u0060js twoslash\n/** @type {import(\u0027vite\u0027).UserConfig} */\nconst config = {\n  // prettier-ignore\n  build: {\n// ---cut-before---\nmodulePreload: {\n  resolveDependencies: (filename, deps, { hostId, hostType }) =\u003E {\n    return deps.filter(condition)\n  },\n},\n// ---cut-after---\n  },\n}\n\u0060\u0060\u0060",
+      "metadata": {
+        "source_file": "vite-config.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Example Configuration",
+        "heading_path": [
+          "build",
+          "modulePreload",
+          "Example Configuration"
+        ],
+        "topic": "Using resolveDependencies in Vite Config",
+        "summary": "Provides a code example of configuring resolveDependencies in the Vite user config.",
+        "keywords": [
+          "resolveDependencies",
+          "modulePreload",
+          "UserConfig",
+          "filter",
+          "condition"
+        ],
+        "entities": [
+          "UserConfig",
+          "modulePreload",
+          "resolveDependencies"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Module Preloading",
+          "Dependency Filtering",
+          "Vite Configuration"
+        ],
+        "retrieval_queries": [
+          "How to configure resolveDependencies in Vite?",
+          "What is the signature of resolveDependencies in Vite?",
+          "How to filter dependencies in Vite module preload?"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Vite Module Preload Example Configuration\nbuild.modulePreload / Example Configuration\nUsing resolveDependencies in Vite Config\n\n\u0060\u0060\u0060js twoslash\n/** @type {import(\u0027vite\u0027).UserConfig} */\nconst config = {\n  // prettier-ignore\n  build: {\n// ---cut-before---\nmodulePreload: {\n  resolveDependencies: (filename, deps, { hostId, hostType }) =\u003E {\n    return deps.filter(condition)\n  },\n},\n// ---cut-after---\n  },\n}\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "segment-3-013",
+      "content": "The resolved dependency paths can be further modified using [\u0060experimental.renderBuiltUrl\u0060](../guide/build.md#advanced-base-options).",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "build.modulePreload",
+        "document_type": "Documentation",
+        "section": "Path Modification",
+        "heading_path": [
+          "build.modulePreload",
+          "Path Modification"
+        ],
+        "topic": "Modifying Resolved Dependency Paths",
+        "summary": "Explains how to further modify resolved dependency paths using experimental.renderBuiltUrl.",
+        "keywords": [
+          "resolved dependency paths",
+          "experimental.renderBuiltUrl",
+          "advanced base options"
+        ],
+        "entities": [
+          "experimental.renderBuiltUrl",
+          "resolved dependency paths"
+        ],
+        "technologies": [],
+        "concepts": [
+          "dependency path modification",
+          "build configuration"
+        ],
+        "retrieval_queries": [
+          "How can I modify resolved dependency paths?",
+          "What is experimental.renderBuiltUrl used for?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.modulePreload \u2192 Path Modification\nModifying Resolved Dependency Paths\nExplains how to further modify resolved dependency paths using experimental.renderBuiltUrl.\nThe resolved dependency paths can be further modified using [\u0060experimental.renderBuiltUrl\u0060](../guide/build.md#advanced-base-options)."
+    },
+    {
+      "id": "segment-4-014",
+      "content": "## build.polyfillModulePreload\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n- **Deprecated** use \u0060build.modulePreload.polyfill\u0060 instead\n\nWhether to automatically inject a [module preload polyfill](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill).",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Configuration Reference",
+        "document_type": "Documentation",
+        "section": "build.polyfillModulePreload",
+        "heading_path": [
+          "build.polyfillModulePreload"
+        ],
+        "topic": "Module Preload Polyfill Configuration",
+        "summary": "Defines whether to automatically inject a module preload polyfill, noting that this option is deprecated in favor of a new configuration.",
+        "keywords": [
+          "build.polyfillModulePreload",
+          "module preload polyfill",
+          "deprecated",
+          "automatic injection"
+        ],
+        "entities": [
+          "build.polyfillModulePreload",
+          "build.modulePreload.polyfill",
+          "module preload polyfill"
+        ],
+        "technologies": [],
+        "concepts": [
+          "Module Preloading",
+          "Polyfill Injection",
+          "Configuration Deprecation"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.polyfillModulePreload?",
+          "How do I configure automatic module preload polyfill injection?",
+          "Is build.polyfillModulePreload still supported?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.polyfillModulePreload\nbuild.polyfillModulePreload\nDefines whether to automatically inject a module preload polyfill, noting that this option is deprecated in favor of a new configuration.\n\n## build.polyfillModulePreload\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n- **Deprecated** use \u0060build.modulePreload.polyfill\u0060 instead\n\nWhether to automatically inject a [module preload polyfill](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill)."
+    },
+    {
+      "id": "segment-5-015",
+      "content": "## build.outDir\n\n- **Type:** \u0060string\u0060\n- **Default:** \u0060dist\u0060\n\nSpecify the output directory (relative to [project root](/guide/#index-html-and-project-root)).",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "build.outDir",
+        "heading_path": [
+          "build.outDir"
+        ],
+        "topic": "Build output directory configuration",
+        "summary": "Describes the build.outDir setting, its type, default value, and purpose.",
+        "keywords": [
+          "build.outDir",
+          "output directory",
+          "default",
+          "project root"
+        ],
+        "entities": [
+          "build.outDir",
+          "project root"
+        ],
+        "technologies": [],
+        "concepts": [
+          "build configuration",
+          "directory structure"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.outDir?",
+          "How do I configure the build output directory?",
+          "What type is the build.outDir setting?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Configuration\nbuild.outDir\nDescribes the build.outDir setting, its type, default value, and purpose.\n\n## build.outDir\n\n- **Type:** \u0060string\u0060\n- **Default:** \u0060dist\u0060\n\nSpecify the output directory (relative to [project root](/guide/#index-html-and-project-root))."
+    },
+    {
+      "id": "segment-6-016",
+      "content": "## build.assetsDir\n\n- **Type:** \u0060string\u0060\n- **Default:** \u0060assets\u0060\n\nSpecify the directory to nest generated assets under (relative to \u0060build.outDir\u0060). This is not used in [Library Mode](/guide/build#library-mode).",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.assetsDir",
+        "heading_path": [
+          "build.assetsDir"
+        ],
+        "topic": "Asset directory configuration",
+        "summary": "Defines the directory name for generated assets relative to build.outDir.",
+        "keywords": [
+          "assetsDir",
+          "directory",
+          "generated assets",
+          "build output"
+        ],
+        "entities": [
+          "build.assetsDir",
+          "assets",
+          "Library Mode",
+          "build.outDir"
+        ],
+        "technologies": [],
+        "concepts": [
+          "asset directory configuration",
+          "build output structure"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.assetsDir?",
+          "How do I specify the directory for generated assets?",
+          "Where are generated assets nested by default?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Configuration\nbuild.assetsDir\nConfigures the directory name for generated assets relative to build.outDir.\n\n## build.assetsDir\n\n- **Type:** \u0060string\u0060\n- **Default:** \u0060assets\u0060\n\nSpecify the directory to nest generated assets under (relative to \u0060build.outDir\u0060). This is not used in [Library Mode](/guide/build#library-mode)."
+    },
+    {
+      "id": "segment-7-017",
+      "content": "## build.assetsInlineLimit\n\n- **Type:** \u0060number\u0060 | \u0060((filePath: string, content: Buffer) =\u003E boolean | undefined)\u0060\n- **Default:** \u00604096\u0060 (4 KiB)\n\nImported or referenced assets that are smaller than this threshold will be inlined as base64 URLs to avoid extra http requests. Set to \u00600\u0060 to disable inlining altogether.\n\nIf a callback is passed, a boolean can be returned to opt-in or opt-out. If nothing is returned the default logic applies.\n\nGit LFS placeholders are automatically excluded from inlining because they do not contain the content of the file they represent.\n\n::: tip Note\nIf you specify \u0060build.lib\u0060, \u0060build.assetsInlineLimit\u0060 will be ignored and assets will always be inlined, regardless of file size or being a Git LFS placeholder.\n:::",
+      "metadata": {
+        "source_file": "build.config.md",
+        "document_title": "Build Configuration Reference",
+        "document_type": "Configuration Guide",
+        "section": "build.assetsInlineLimit",
+        "heading_path": [
+          "build.assetsInlineLimit"
+        ],
+        "topic": "Asset inlining configuration threshold",
+        "summary": "Defines the size threshold for inlining assets as base64 URLs.",
+        "keywords": [
+          "assetsInlineLimit",
+          "inlining",
+          "base64",
+          "threshold",
+          "Git LFS",
+          "build.lib"
+        ],
+        "entities": [
+          "build.assetsInlineLimit"
+        ],
+        "technologies": [
+          "Git LFS"
+        ],
+        "concepts": [
+          "asset optimization",
+          "base64 encoding",
+          "HTTP request reduction",
+          "configuration callbacks"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.assetsInlineLimit?",
+          "How do I disable asset inlining?",
+          "Can I use a callback to control asset inlining?",
+          "Are Git LFS placeholders inlined by default?",
+          "When is build.assetsInlineLimit ignored?"
+        ],
+        "code_languages": [
+          "TypeScript"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Asset inlining configuration\nbuild.assetsInlineLimit\nDefines the size threshold for inlining assets as base64 URLs.\n\n## build.assetsInlineLimit\n\n- **Type:** \u0060number\u0060 | \u0060((filePath: string, content: Buffer) =\u003E boolean | undefined)\u0060\n- **Default:** \u00604096\u0060 (4 KiB)\n\nImported or referenced assets that are smaller than this threshold will be inlined as base64 URLs to avoid extra http requests. Set to \u00600\u0060 to disable inlining altogether.\n\nIf a callback is passed, a boolean can be returned to opt-in or opt-out. If nothing is returned the default logic applies.\n\nGit LFS placeholders are automatically excluded from inlining because they do not contain the content of the file they represent.\n\n::: tip Note\nIf you specify \u0060build.lib\u0060, \u0060build.assetsInlineLimit\u0060 will be ignored and assets will always be inlined, regardless of file size or being a Git LFS placeholder.\n:::"
+    },
+    {
+      "id": "segment-8-018",
+      "content": "## build.cssCodeSplit\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nEnable/disable CSS code splitting. When enabled, CSS imported in async JS chunks will be preserved as chunks and fetched together when the chunk is fetched.\n\nIf disabled, all CSS in the entire project will be extracted into a single CSS file.\n\n::: tip Note\nIf you specify \u0060build.lib\u0060, \u0060build.cssCodeSplit\u0060 will be \u0060false\u0060 as default.\n:::",
+      "metadata": {
+        "source_file": "build-options.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.cssCodeSplit",
+        "heading_path": [
+          "build.cssCodeSplit"
+        ],
+        "topic": "CSS code splitting configuration",
+        "summary": "Configuration option to enable or disable CSS code splitting for async JS chunks.",
+        "keywords": [
+          "cssCodeSplit",
+          "code splitting",
+          "CSS",
+          "async chunks"
+        ],
+        "entities": [
+          "build.cssCodeSplit"
+        ],
+        "technologies": [],
+        "concepts": [
+          "CSS code splitting",
+          "async JS chunks",
+          "build configuration"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.cssCodeSplit?",
+          "How does build.cssCodeSplit affect CSS in async JS chunks?",
+          "When is build.cssCodeSplit automatically set to false?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.cssCodeSplit\nbuild.cssCodeSplit\nConfiguration option to enable or disable CSS code splitting for async JS chunks.\n\n## build.cssCodeSplit\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nEnable/disable CSS code splitting. When enabled, CSS imported in async JS chunks will be preserved as chunks and fetched together when the chunk is fetched.\n\nIf disabled, all CSS in the entire project will be extracted into a single CSS file.\n\n::: tip Note\nIf you specify \u0060build.lib\u0060, \u0060build.cssCodeSplit\u0060 will be \u0060false\u0060 as default.\n:::"
+    },
+    {
+      "id": "segment-9-019",
+      "content": "## build.cssTarget\n\n- **Type:** \u0060string | string[]\u0060\n- **Default:** the same as [\u0060build.target\u0060](#build-target)\n\nThis option allows users to set a different browser target for CSS minification from the one used for JavaScript transpilation.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.cssTarget",
+        "heading_path": [
+          "build.cssTarget"
+        ],
+        "topic": "CSS minification browser target configuration",
+        "summary": "Defines the build.cssTarget option, its type, default value, and its relationship to the JavaScript build target.",
+        "keywords": [
+          "build.cssTarget",
+          "CSS minification",
+          "browser target",
+          "default"
+        ],
+        "entities": [
+          "build.cssTarget",
+          "build.target"
+        ],
+        "technologies": [],
+        "concepts": [
+          "CSS minification",
+          "JavaScript transpilation",
+          "browser target configuration"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.cssTarget?",
+          "How do I set a different browser target for CSS minification?",
+          "What types are accepted for build.cssTarget?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.cssTarget: Defines the build.cssTarget option, its type, default value, and its relationship to the JavaScript build target.\n\n## build.cssTarget\n\n- **Type:** \u0060string | string[]\u0060\n- **Default:** the same as [\u0060build.target\u0060](#build-target)\n\nThis option allows users to set a different browser target for CSS minification from the one used for JavaScript transpilation."
+    },
+    {
+      "id": "segment-9-020",
+      "content": "When \u0060build.cssMinify\u0060 is \u0060\u0027lightningcss\u0027\u0060 (the default), this option takes precedence over [\u0060css.lightningcss.targets\u0060](./shared-options.md#css-lightningcss) for the minification step.",
+      "metadata": {
+        "source_file": "shared-options.md",
+        "document_title": "Shared Options",
+        "document_type": "Configuration Reference",
+        "section": "build.cssTarget",
+        "heading_path": [
+          "build.cssTarget"
+        ],
+        "topic": "Precedence of build.cssTarget over css.lightningcss.targets",
+        "summary": "Explains that when build.cssMinify is set to \u0027lightningcss\u0027, build.cssTarget takes precedence over css.lightningcss.targets.",
+        "keywords": [
+          "build.cssMinify",
+          "lightningcss",
+          "precedence",
+          "css.lightningcss.targets"
+        ],
+        "entities": [
+          "build.cssMinify",
+          "css.lightningcss.targets"
+        ],
+        "technologies": [
+          "lightningcss"
+        ],
+        "concepts": [
+          "configuration precedence",
+          "minification step"
+        ],
+        "retrieval_queries": [
+          "Does build.cssTarget override css.lightningcss.targets?",
+          "What happens when build.cssMinify is set to lightningcss?",
+          "Which option takes precedence for minification when using lightningcss?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.cssTarget\nbuild.cssTarget / build.cssMinify / css.lightningcss.targets\nExplains that when build.cssMinify is set to \u0027lightningcss\u0027, build.cssTarget takes precedence over css.lightningcss.targets.\n\nWhen \u0060build.cssMinify\u0060 is \u0060\u0027lightningcss\u0027\u0060 (the default), this option takes precedence over [\u0060css.lightningcss.targets\u0060](./shared-options.md#css-lightningcss) for the minification step."
+    },
+    {
+      "id": "segment-9-021",
+      "content": "It should only be used when you are targeting a non-mainstream browser.\nOne example is Android WeChat WebView, which supports most modern JavaScript features but not the [\u0060#RGBA\u0060 hexadecimal color notation in CSS](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb_colors).\nIn this case, you need to set \u0060build.cssTarget\u0060 to \u0060chrome61\u0060 to prevent Vite from transforming \u0060rgba()\u0060 colors into \u0060#RGBA\u0060 hexadecimal notations.",
+      "metadata": {
+        "source_file": "build.cssTarget",
+        "document_title": "Vite Configuration",
+        "document_type": "Configuration Guide",
+        "section": "build.cssTarget",
+        "heading_path": [
+          "build.cssTarget"
+        ],
+        "topic": "Configuring build.cssTarget for non-mainstream browsers",
+        "summary": "Explains when to use build.cssTarget and how to configure it for Android WeChat WebView.",
+        "keywords": [
+          "build.cssTarget",
+          "non-mainstream browser",
+          "Android WeChat WebView",
+          "#RGBA",
+          "rgba()",
+          "Vite"
+        ],
+        "entities": [
+          "Android WeChat WebView",
+          "#RGBA",
+          "rgba()",
+          "Vite"
+        ],
+        "technologies": [
+          "Vite",
+          "CSS",
+          "JavaScript"
+        ],
+        "concepts": [
+          "CSS color notation",
+          "browser compatibility",
+          "build configuration"
+        ],
+        "retrieval_queries": [
+          "How do I configure Vite for Android WeChat WebView?",
+          "What is build.cssTarget used for?",
+          "How to prevent Vite from transforming rgba() colors?",
+          "Which browsers require build.cssTarget configuration?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.cssTarget\nbuild.cssTarget\nUse case for non-mainstream browser targeting\n\nIt should only be used when you are targeting a non-mainstream browser.\nOne example is Android WeChat WebView, which supports most modern JavaScript features but not the [\u0060#RGBA\u0060 hexadecimal color notation in CSS](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb_colors).\nIn this case, you need to set \u0060build.cssTarget\u0060 to \u0060chrome61\u0060 to prevent Vite from transforming \u0060rgba()\u0060 colors into \u0060#RGBA\u0060 hexadecimal notations."
+    },
+    {
+      "id": "segment-10-022",
+      "content": "## build.cssMinify\n\n- **Type:** \u0060boolean | \u0027lightningcss\u0027 | \u0027esbuild\u0027\u0060\n- **Default:** \u0060\u0027lightningcss\u0027\u0060, but \u0060false\u0060 if [\u0060build.minify\u0060](#build-minify) is disabled for client build\n\nThis option allows users to override CSS minification specifically instead of defaulting to \u0060build.minify\u0060, so you can configure minification for JS and CSS separately. Vite uses [Lightning CSS](https://lightningcss.dev/minification.html) by default to minify CSS. It can be configured using [\u0060css.lightningcss\u0060](./shared-options.md#css-lightningcss). Set the option to \u0060\u0027esbuild\u0027\u0060 to use esbuild instead.\n\nesbuild must be installed when it is set to \u0060\u0027esbuild\u0027\u0060.",
+      "metadata": {
+        "source_file": "build-options.md",
+        "document_title": "Vite Configuration Options",
+        "document_type": "Documentation",
+        "section": "build.cssMinify",
+        "heading_path": [
+          "build.cssMinify"
+        ],
+        "topic": "CSS Minification Configuration Option",
+        "summary": "Defines the build.cssMinify option, its type, default behavior, and relationship to build.minify.",
+        "keywords": [
+          "cssMinify",
+          "minification",
+          "configuration",
+          "override",
+          "default"
+        ],
+        "entities": [
+          "build.cssMinify",
+          "build.minify"
+        ],
+        "technologies": [
+          "Vite",
+          "Lightning CSS",
+          "esbuild"
+        ],
+        "concepts": [
+          "CSS minification",
+          "Configuration override",
+          "Build optimization"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.cssMinify?",
+          "How do I configure CSS minification separately from JS minification?",
+          "Can I use esbuild for CSS minification in Vite?",
+          "What happens if build.minify is disabled for client build?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.cssMinify\nbuild.cssMinify\nDefines the build.cssMinify option, its type, default behavior, and relationship to build.minify.\n\n## build.cssMinify\n\n- **Type:** \u0060boolean | \u0027lightningcss\u0027 | \u0027esbuild\u0027\u0060\n- **Default:** \u0060\u0027lightningcss\u0027\u0060, but \u0060false\u0060 if [\u0060build.minify\u0060](#build-minify) is disabled for client build\n\nThis option allows users to override CSS minification specifically instead of defaulting to \u0060build.minify\u0060, so you can configure minification for JS and CSS separately. Vite uses [Lightning CSS](https://lightningcss.dev/minification.html) by default to minify CSS. It can be configured using [\u0060css.lightningcss\u0060](./shared-options.md#css-lightningcss). Set the option to \u0060\u0027esbuild\u0027\u0060 to use esbuild instead.\n\nesbuild must be installed when it is set to \u0060\u0027esbuild\u0027\u0060."
+    },
+    {
+      "id": "segment-11-023",
+      "content": "## build.sourcemap\n\n- **Type:** \u0060boolean | \u0027inline\u0027 | \u0027hidden\u0027\u0060\n- **Default:** \u0060false\u0060\n\nGenerate production source maps. If \u0060true\u0060, a separate sourcemap file will be created. If \u0060\u0027inline\u0027\u0060, the sourcemap will be appended to the resulting output file as a data URI. \u0060\u0027hidden\u0027\u0060 works like \u0060true\u0060 except that the corresponding sourcemap comments in the bundled files are suppressed.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.sourcemap",
+        "heading_path": [
+          "build.sourcemap"
+        ],
+        "topic": "Source map generation configuration",
+        "summary": "Defines the build.sourcemap configuration option, its type, default value, and the three modes of operation for generating source maps.",
+        "keywords": [
+          "build.sourcemap",
+          "sourcemap",
+          "production",
+          "inline",
+          "hidden",
+          "bundled files"
+        ],
+        "entities": [
+          "build.sourcemap",
+          "sourcemap file",
+          "data URI",
+          "bundled files"
+        ],
+        "technologies": [],
+        "concepts": [
+          "source map generation",
+          "production builds",
+          "inline sourcemaps",
+          "hidden sourcemaps"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.sourcemap?",
+          "How do I generate inline sourcemaps?",
+          "What is the difference between hidden and true sourcemap modes?",
+          "What types of values can build.sourcemap accept?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.sourcemap\nbuild.sourcemap\nDefines the build.sourcemap configuration option, its type, default value, and the three modes of operation for generating source maps.\n\n## build.sourcemap\n\n- **Type:** \u0060boolean | \u0027inline\u0027 | \u0027hidden\u0027\u0060\n- **Default:** \u0060false\u0060\n\nGenerate production source maps. If \u0060true\u0060, a separate sourcemap file will be created. If \u0060\u0027inline\u0027\u0060, the sourcemap will be appended to the resulting output file as a data URI. \u0060\u0027hidden\u0027\u0060 works like \u0060true\u0060 except that the corresponding sourcemap comments in the bundled files are suppressed."
+    },
+    {
+      "id": "segment-12-024",
+      "content": "## build.chunkImportMap\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060false\u0060\n- **Experimental**\n- **Related:** [Chunk Import Map Optimization](/guide/features#chunk-import-map-optimization)\n\nWhether to use import maps feature to optimize chunk caching efficiency.\n\nNote that this option requires [\u0060import.meta.resolve\u0060 support](https://caniuse.com/mdn-javascript_operators_import_meta_resolve). If you need to support older browsers, check out [\u0060@vitejs/plugin-legacy\u0060](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy).",
+      "metadata": {
+        "source_file": "build.config.md",
+        "document_title": "Vite Build Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Chunk Import Map Optimization Configuration",
+        "heading_path": [
+          "build.chunkImportMap"
+        ],
+        "topic": "build.chunkImportMap configuration option",
+        "summary": "Describes the build.chunkImportMap boolean flag for enabling import maps to optimize chunk caching.",
+        "keywords": [
+          "build.chunkImportMap",
+          "import maps",
+          "chunk caching",
+          "optimization",
+          "experimental",
+          "import.meta.resolve"
+        ],
+        "entities": [
+          "build.chunkImportMap",
+          "Chunk Import Map Optimization",
+          "import.meta.resolve",
+          "@vitejs/plugin-legacy"
+        ],
+        "technologies": [
+          "Vite",
+          "JavaScript",
+          "ES Modules"
+        ],
+        "concepts": [
+          "Import Maps",
+          "Chunk Caching",
+          "Browser Compatibility",
+          "Experimental Features"
+        ],
+        "retrieval_queries": [
+          "How do I enable import maps in Vite build?",
+          "What is the default value for build.chunkImportMap?",
+          "Does build.chunkImportMap require import.meta.resolve support?",
+          "How can I support older browsers with import maps in Vite?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Configuration\nbuild.chunkImportMap\nConfiguration option to enable import maps for optimizing chunk caching efficiency.\n\n## build.chunkImportMap\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060false\u0060\n- **Experimental**\n- **Related:** [Chunk Import Map Optimization](/guide/features#chunk-import-map-optimization)\n\nWhether to use import maps feature to optimize chunk caching efficiency.\n\nNote that this option requires [\u0060import.meta.resolve\u0060 support](https://caniuse.com/mdn-javascript_operators_import_meta_resolve). If you need to support older browsers, check out [\u0060@vitejs/plugin-legacy\u0060](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy)."
+    },
+    {
+      "id": "segment-13-025",
+      "content": "## build.rolldownOptions\n\n- **Type:** [\u0060RolldownOptions\u0060](https://rolldown.rs/reference/)",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Rolldown Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "build.rolldownOptions",
+        "heading_path": [
+          "Rolldown Configuration",
+          "build.rolldownOptions"
+        ],
+        "topic": "Direct customization of Rolldown bundling options",
+        "summary": "Describes the build.rolldownOptions configuration field and its relationship to RolldownOptions.",
+        "keywords": [
+          "build.rolldownOptions",
+          "RolldownOptions",
+          "customization",
+          "configuration"
+        ],
+        "entities": [
+          "build.rolldownOptions",
+          "RolldownOptions"
+        ],
+        "technologies": [
+          "Rolldown"
+        ],
+        "concepts": [
+          "Bundler configuration",
+          "TypeScript interfaces"
+        ],
+        "retrieval_queries": [
+          "What is the type of build.rolldownOptions?",
+          "How do I configure Rolldown bundling options?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Rolldown Configuration\nbuild.rolldownOptions\nDescribes the build.rolldownOptions configuration field and its relationship to RolldownOptions.\n\n## build.rolldownOptions\n\n- **Type:** [\u0060RolldownOptions\u0060](https://rolldown.rs/reference/)"
+    },
+    {
+      "id": "segment-13-026",
+      "content": "Directly customize the underlying Rolldown bundle. This is the same as options that can be exported from a Rolldown config file and will be merged with Vite\u0027s internal Rolldown options. See [Rolldown options docs](https://rolldown.rs/reference/) for more details.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Vite Configuration",
+        "document_type": "Documentation",
+        "section": "Direct customization of Rolldown bundle",
+        "heading_path": [
+          "build.rolldownOptions",
+          "Direct customization of Rolldown bundle"
+        ],
+        "topic": "Merging Rolldown options with Vite settings",
+        "summary": "Explains that build.rolldownOptions allows direct customization of the underlying Rolldown bundle and how these options are merged with Vite\u0027s internal settings.",
+        "keywords": [
+          "customize",
+          "bundle",
+          "merge",
+          "internal options",
+          "Rolldown config"
+        ],
+        "entities": [
+          "Rolldown bundle",
+          "Vite",
+          "Rolldown options docs"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "Bundle customization",
+          "Option merging",
+          "Configuration inheritance"
+        ],
+        "retrieval_queries": [
+          "How do I customize the Rolldown bundle in Vite?",
+          "What happens when I set build.rolldownOptions?",
+          "How are Rolldown options merged with Vite settings?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.rolldownOptions \u2192 Direct customization of Rolldown bundle\nMerging Rolldown options with Vite settings\nDirectly customize the underlying Rolldown bundle. This is the same as options that can be exported from a Rolldown config file and will be merged with Vite\u0027s internal Rolldown options. See [Rolldown options docs](https://rolldown.rs/reference/) for more details."
+    },
+    {
+      "id": "segment-13-027",
+      "content": "Instead of \u0060build.rolldownOptions.input\u0060, it is recommended to set the top-level [\u0060input\u0060](/config/shared-options#input) option, because it will be used in dev as well. If \u0060build.rolldownOptions.input\u0060 is set, it overrides the top-level \u0060input\u0060 option for build only.",
+      "metadata": {
+        "source_file": "unknown.md",
+        "document_title": "Unknown",
+        "document_type": "Configuration Guide",
+        "section": "Recommended input option usage",
+        "heading_path": [
+          "build.rolldownOptions",
+          "Recommended input option usage"
+        ],
+        "topic": "Using the top-level input option for build and dev",
+        "summary": "Recommends setting the top-level input option instead of build.rolldownOptions.input because it works in dev mode as well.",
+        "keywords": [
+          "input",
+          "top-level",
+          "dev",
+          "build",
+          "rolldownOptions"
+        ],
+        "entities": [
+          "input option",
+          "build.rolldownOptions.input"
+        ],
+        "technologies": [
+          "Rolldown"
+        ],
+        "concepts": [
+          "Configuration hierarchy",
+          "Dev mode compatibility",
+          "Option override behavior"
+        ],
+        "retrieval_queries": [
+          "Should I use build.rolldownOptions.input or the top-level input option?",
+          "Why is the top-level input option recommended over build.rolldownOptions.input?",
+          "How does build.rolldownOptions.input affect the top-level input option?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.rolldownOptions \u2192 Recommended input option usage\nUsing the top-level input option for build and dev\nInstead of \u0060build.rolldownOptions.input\u0060, it is recommended to set the top-level [\u0060input\u0060](/config/shared-options#input) option, because it will be used in dev as well. If \u0060build.rolldownOptions.input\u0060 is set, it overrides the top-level \u0060input\u0060 option for build only."
+    },
+    {
+      "id": "segment-14-028",
+      "content": "## build.rollupOptions\n\n- **Type:** \u0060RolldownOptions\u0060\n- **Deprecated**\n\nThis option is an alias of \u0060build.rolldownOptions\u0060 option. Use \u0060build.rolldownOptions\u0060 option instead.",
+      "metadata": {
+        "source_file": "vite.config.md",
+        "document_title": "Vite Configuration Reference",
+        "document_type": "Configuration Guide",
+        "section": "build.rollupOptions",
+        "heading_path": [
+          "Vite Configuration",
+          "build.rollupOptions"
+        ],
+        "topic": "Deprecated build configuration alias",
+        "summary": "Describes the build.rollupOptions option as a deprecated alias for build.rolldownOptions.",
+        "keywords": [
+          "build.rollupOptions",
+          "deprecated",
+          "alias",
+          "rolldownOptions"
+        ],
+        "entities": [
+          "build.rollupOptions",
+          "build.rolldownOptions",
+          "RolldownOptions"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "Configuration deprecation",
+          "Option aliasing"
+        ],
+        "retrieval_queries": [
+          "Is build.rollupOptions deprecated?",
+          "What is the replacement for build.rollupOptions?",
+          "What type does build.rollupOptions accept?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Vite Configuration\nbuild.rollupOptions\nDeprecated build configuration alias\n\n## build.rollupOptions\n\n- **Type:** \u0060RolldownOptions\u0060\n- **Deprecated**\n\nThis option is an alias of \u0060build.rolldownOptions\u0060 option. Use \u0060build.rolldownOptions\u0060 option instead."
+    },
+    {
+      "id": "segment-15-029",
+      "content": "## build.dynamicImportVarsOptions\n\n- **Type:** \u0060{ include?: string | RegExp | (string | RegExp)[], exclude?: string | RegExp | (string | RegExp)[] }\u0060\n- **Related:** [Dynamic Import](/guide/features#dynamic-import)\n\nWhether to transform dynamic imports with variables.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.dynamicImportVarsOptions",
+        "heading_path": [
+          "build.dynamicImportVarsOptions"
+        ],
+        "topic": "Dynamic Import Variable Transformation Configuration",
+        "summary": "Defines the configuration for transforming dynamic imports that contain variables.",
+        "keywords": [
+          "dynamicImportVarsOptions",
+          "transform",
+          "dynamic imports",
+          "variables",
+          "include",
+          "exclude",
+          "RegExp"
+        ],
+        "entities": [
+          "build.dynamicImportVarsOptions",
+          "Dynamic Import"
+        ],
+        "technologies": [],
+        "concepts": [
+          "Dynamic Import",
+          "Variable Transformation",
+          "Configuration Options"
+        ],
+        "retrieval_queries": [
+          "How do I configure dynamic import variable transformation?",
+          "What is the type of build.dynamicImportVarsOptions?",
+          "How do I include or exclude dynamic imports with variables?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Configuration\nbuild.dynamicImportVarsOptions\nDefines the configuration for transforming dynamic imports that contain variables.\n\n## build.dynamicImportVarsOptions\n\n- **Type:** \u0060{ include?: string | RegExp | (string | RegExp)[], exclude?: string | RegExp | (string | RegExp)[] }\u0060\n- **Related:** [Dynamic Import](/guide/features#dynamic-import)\n\nWhether to transform dynamic imports with variables."
+    },
+    {
+      "id": "segment-17-030",
+      "content": "## build.license\n\n- **Type:** \u0060boolean | { fileName?: string }\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [License](/guide/features#license)\n\nWhen set to \u0060true\u0060, the build will generate a \u0060.vite/license.md\u0060 file that includes all bundled dependencies\u0027 licenses.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "build.license",
+        "heading_path": [
+          "build.license"
+        ],
+        "topic": "build.license configuration option",
+        "summary": "Defines the build.license option, its type, default value, and related documentation link.",
+        "keywords": [
+          "build.license",
+          "boolean",
+          "fileName",
+          "default"
+        ],
+        "entities": [
+          "build.license"
+        ],
+        "technologies": [],
+        "concepts": [
+          "license generation",
+          "bundled dependencies"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.license?",
+          "How do I configure build.license to generate a license file?",
+          "What type does build.license accept?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.license configuration option\n\n## build.license\n\n- **Type:** \u0060boolean | { fileName?: string }\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [License](/guide/features#license)\n\nWhen set to \u0060true\u0060, the build will generate a \u0060.vite/license.md\u0060 file that includes all bundled dependencies\u0027 licenses."
+    },
+    {
+      "id": "segment-17-031",
+      "content": "If \u0060fileName\u0060 is passed, it will be used as the license file name relative to the \u0060outDir\u0060. If it ends with \u0060.json\u0060, the raw JSON metadata will be generated instead and can be used for further processing. For example:\n\n\u0060\u0060\u0060json\n[\n  {\n    \u0022name\u0022: \u0022dep-1\u0022,\n    \u0022version\u0022: \u00221.2.3\u0022,\n    \u0022identifier\u0022: \u0022CC0-1.0\u0022,\n    \u0022text\u0022: \u0022CC0 1.0 Universal\\n\\n...\u0022\n  },\n  {\n    \u0022name\u0022: \u0022dep-2\u0022,\n    \u0022version\u0022: \u00224.5.6\u0022,\n    \u0022identifier\u0022: \u0022MIT\u0022,\n    \u0022text\u0022: \u0022MIT License\\n\\n...\u0022\n  }\n]\n\u0060\u0060\u0060",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Technical Documentation",
+        "section": "Customizing the license file name",
+        "heading_path": [
+          "build.license",
+          "fileName"
+        ],
+        "topic": "Customizing license file name and JSON metadata generation",
+        "summary": "Explains how to use the fileName property to customize the license file name and generate JSON metadata.",
+        "keywords": [
+          "fileName",
+          "outDir",
+          "JSON metadata",
+          "processing"
+        ],
+        "entities": [
+          "fileName",
+          "outDir"
+        ],
+        "technologies": [],
+        "concepts": [
+          "license file naming",
+          "JSON metadata generation"
+        ],
+        "retrieval_queries": [
+          "How do I customize the license file name?",
+          "How can I generate raw JSON metadata for licenses?",
+          "What happens if fileName ends with .json?"
+        ],
+        "code_languages": [
+          "json"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Customizing the license file name\nbuild.license / fileName\nExplains how to use the fileName property to customize the license file name and generate JSON metadata.\n\nIf \u0060fileName\u0060 is passed, it will be used as the license file name relative to the \u0060outDir\u0060. If it ends with \u0060.json\u0060, the raw JSON metadata will be generated instead and can be used for further processing. For example:\n\n\u0060\u0060\u0060json\n[\n  {\n    \u0022name\u0022: \u0022dep-1\u0022,\n    \u0022version\u0022: \u00221.2.3\u0022,\n    \u0022identifier\u0022: \u0022CC0-1.0\u0022,\n    \u0022text\u0022: \u0022CC0 1.0 Universal\\n\\n...\u0022\n  },\n  {\n    \u0022name\u0022: \u0022dep-2\u0022,\n    \u0022version\u0022: \u00224.5.6\u0022,\n    \u0022identifier\u0022: \u0022MIT\u0022,\n    \u0022text\u0022: \u0022MIT License\\n\\n...\u0022\n  }\n]\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "segment-17-032",
+      "content": "::: tip\n\nIf you\u0027d like to reference the license file in the built code, you can use [\u0060build.rolldownOptions.output.postBanner\u0060](https://rolldown.rs/reference/OutputOptions.postBanner#postbanner) to inject a comment at the top of the files. For example:\n\n\u0060\u0060\u0060js twoslash [vite.config.js]\nimport { defineConfig } from \u0027vite\u0027\n\nexport default defineConfig({\n  build: {\n    license: true,\n    rolldownOptions: {\n      output: {\n        postBanner:\n          \u0027/* See licenses of bundled dependencies at https://example.com/license.md */\u0027,\n      },\n    },\n  },\n})\n\u0060\u0060\u0060\n\n:::",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Rolldown Configuration",
+        "document_type": "Documentation",
+        "section": "postBanner",
+        "heading_path": [
+          "build.license",
+          "postBanner"
+        ],
+        "topic": "Injecting license file references into built code",
+        "summary": "Explains how to use build.rolldownOptions.output.postBanner to inject a comment referencing the license file.",
+        "keywords": [
+          "postBanner",
+          "rolldownOptions",
+          "comment injection",
+          "license reference"
+        ],
+        "entities": [
+          "build.rolldownOptions.output.postBanner"
+        ],
+        "technologies": [
+          "Vite",
+          "Rolldown"
+        ],
+        "concepts": [
+          "Code injection",
+          "License attribution",
+          "Build configuration"
+        ],
+        "retrieval_queries": [
+          "How do I add a license comment to my built files?",
+          "How can I reference the license file in the output code?",
+          "What is the postBanner option in rolldownOptions?"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.license \u2192 postBanner\nReferencing the license file in built code\n\n::: tip\n\nIf you\u0027d like to reference the license file in the built code, you can use [\u0060build.rolldownOptions.output.postBanner\u0060](https://rolldown.rs/reference/OutputOptions.postBanner#postbanner) to inject a comment at the top of the files. For example:\n\n\u0060\u0060\u0060js twoslash [vite.config.js]\nimport { defineConfig } from \u0027vite\u0027\n\nexport default defineConfig({\n  build: {\n    license: true,\n    rolldownOptions: {\n      output: {\n        postBanner:\n          \u0027/* See licenses of bundled dependencies at https://example.com/license.md */\u0027,\n      },\n    },\n  },\n})\n\u0060\u0060\u0060\n\n:::"
+    },
+    {
+      "id": "segment-18-033",
+      "content": "## build.manifest\n\n- **Type:** \u0060boolean | string\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [Backend Integration](/guide/backend-integration)\n\nWhether to generate a manifest file that contains a mapping of non-hashed asset filenames to their hashed versions, which can then be used by a server framework to render the correct asset links.\n\nWhen the value is a string, it will be used as the manifest file path relative to \u0060build.outDir\u0060. When set to \u0060true\u0060, the path would be \u0060.vite/manifest.json\u0060.\n\nIf you are writing a plugin and need to inspect each output chunk or asset\u0027s related CSS and static assets during the build, you can also use [\u0060viteMetadata\u0060 output bundle metadata API](/guide/api-plugin#output-bundle-metadata).",
+      "metadata": {
+        "source_file": "build-options.md",
+        "document_title": "Vite Build Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "build.manifest",
+        "heading_path": [
+          "build.manifest"
+        ],
+        "topic": "Manifest file generation configuration",
+        "summary": "Defines the build.manifest option to control whether a manifest file is generated and where it is saved.",
+        "keywords": [
+          "build.manifest",
+          "manifest file",
+          "hashed versions",
+          "asset links",
+          "viteMetadata"
+        ],
+        "entities": [
+          "build.manifest",
+          "manifest file",
+          "viteMetadata"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Asset mapping",
+          "Build output configuration",
+          "Plugin development"
+        ],
+        "retrieval_queries": [
+          "How do I configure the build.manifest option?",
+          "What is the default value for build.manifest?",
+          "How do I specify a custom manifest file path?",
+          "How can I inspect output chunks and assets during the build?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Manifest Configuration\nbuild.manifest\nDefines the build.manifest option to control whether a manifest file is generated and where it is saved.\n\n## build.manifest\n\n- **Type:** \u0060boolean | string\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [Backend Integration](/guide/backend-integration)\n\nWhether to generate a manifest file that contains a mapping of non-hashed asset filenames to their hashed versions, which can then be used by a server framework to render the correct asset links.\n\nWhen the value is a string, it will be used as the manifest file path relative to \u0060build.outDir\u0060. When set to \u0060true\u0060, the path would be \u0060.vite/manifest.json\u0060.\n\nIf you are writing a plugin and need to inspect each output chunk or asset\u0027s related CSS and static assets during the build, you can also use [\u0060viteMetadata\u0060 output bundle metadata API](/guide/api-plugin#output-bundle-metadata)."
+    },
+    {
+      "id": "segment-19-034",
+      "content": "## build.ssrManifest\n\n- **Type:** \u0060boolean | string\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [Server-Side Rendering](/guide/ssr)\n\nWhether to generate a SSR manifest file for determining style links and asset preload directives in production.",
+      "metadata": {
+        "source_file": "build.ssrManifest",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.ssrManifest",
+        "heading_path": [
+          "build.ssrManifest"
+        ],
+        "topic": "Server-Side Rendering manifest configuration",
+        "summary": "Defines the build.ssrManifest configuration option, its type, default value, and related documentation links.",
+        "keywords": [
+          "build.ssrManifest",
+          "SSR manifest",
+          "configuration",
+          "default value",
+          "style links",
+          "asset preload"
+        ],
+        "entities": [
+          "build.ssrManifest",
+          "Server-Side Rendering"
+        ],
+        "technologies": [],
+        "concepts": [
+          "SSR manifest generation",
+          "style links",
+          "asset preload directives"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.ssrManifest?",
+          "How do I configure build.ssrManifest to generate a SSR manifest?",
+          "What does build.ssrManifest determine in production?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.ssrManifest\nbuild.ssrManifest\nDefines the build.ssrManifest configuration option, its type, default value, and related documentation links.\n\n## build.ssrManifest\n\n- **Type:** \u0060boolean | string\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [Server-Side Rendering](/guide/ssr)\n\nWhether to generate a SSR manifest file for determining style links and asset preload directives in production."
+    },
+    {
+      "id": "segment-19-035",
+      "content": "When the value is a string, it will be used as the manifest file path relative to \u0060build.outDir\u0060. When set to \u0060true\u0060, the path would be \u0060.vite/ssr-manifest.json\u0060.",
+      "metadata": {
+        "source_file": "build.ssrManifest.md",
+        "document_title": "Vite Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "Customizing SSR manifest file path",
+        "heading_path": [
+          "build.ssrManifest"
+        ],
+        "topic": "Customizing SSR manifest file path",
+        "summary": "Explains the behavior of build.ssrManifest when set to a string value, specifying the manifest file path relative to build.outDir.",
+        "keywords": [
+          "string value",
+          "manifest file path",
+          "build.outDir",
+          "relative path",
+          "ssr-manifest.json"
+        ],
+        "entities": [
+          "build.outDir",
+          ".vite/ssr-manifest.json"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "SSR manifest configuration",
+          "Relative path resolution"
+        ],
+        "retrieval_queries": [
+          "What is the default SSR manifest path when build.ssrManifest is true?",
+          "How do I specify a custom SSR manifest file path?",
+          "Where is the SSR manifest file located relative to build.outDir?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.ssrManifest\nbuild.ssrManifest\nExplains the behavior of build.ssrManifest when set to a string value, specifying the manifest file path relative to build.outDir.\n\nWhen the value is a string, it will be used as the manifest file path relative to \u0060build.outDir\u0060. When set to \u0060true\u0060, the path would be \u0060.vite/ssr-manifest.json\u0060."
+    },
+    {
+      "id": "segment-20-036",
+      "content": "## build.ssrManifest\n\n- **Type:** \u0060boolean | string\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [Server-Side Rendering](/guide/ssr)\n\nWhether to generate a SSR manifest file for determining style links and asset preload directives in production.",
+      "metadata": {
+        "source_file": "build.ssrManifest",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.ssrManifest",
+        "heading_path": [
+          "build.ssrManifest"
+        ],
+        "topic": "Server-Side Rendering manifest configuration",
+        "summary": "Defines the build.ssrManifest configuration option, its type, default value, and related documentation links.",
+        "keywords": [
+          "build.ssrManifest",
+          "SSR manifest",
+          "configuration",
+          "default value",
+          "style links",
+          "asset preload"
+        ],
+        "entities": [
+          "build.ssrManifest",
+          "Server-Side Rendering"
+        ],
+        "technologies": [],
+        "concepts": [
+          "SSR manifest generation",
+          "style links",
+          "asset preload directives"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.ssrManifest?",
+          "How do I configure build.ssrManifest to generate a SSR manifest?",
+          "What does build.ssrManifest determine in production?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.ssrManifest\nbuild.ssrManifest\nDefines the build.ssrManifest configuration option, its type, default value, and related documentation links.\n\n## build.ssrManifest\n\n- **Type:** \u0060boolean | string\u0060\n- **Default:** \u0060false\u0060\n- **Related:** [Server-Side Rendering](/guide/ssr)\n\nWhether to generate a SSR manifest file for determining style links and asset preload directives in production."
+    },
+    {
+      "id": "segment-20-037",
+      "content": "When the value is a string, it will be used as the manifest file path relative to \u0060build.outDir\u0060. When set to \u0060true\u0060, the path would be \u0060.vite/ssr-manifest.json\u0060.",
+      "metadata": {
+        "source_file": "build.ssrManifest.md",
+        "document_title": "Vite Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "Customizing SSR manifest file path",
+        "heading_path": [
+          "build.ssrManifest"
+        ],
+        "topic": "Customizing SSR manifest file path",
+        "summary": "Explains the behavior of build.ssrManifest when set to a string value, specifying the manifest file path relative to build.outDir.",
+        "keywords": [
+          "string value",
+          "manifest file path",
+          "build.outDir",
+          "relative path",
+          "ssr-manifest.json"
+        ],
+        "entities": [
+          "build.outDir",
+          ".vite/ssr-manifest.json"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "SSR manifest configuration",
+          "Relative path resolution"
+        ],
+        "retrieval_queries": [
+          "What is the default SSR manifest path when build.ssrManifest is true?",
+          "How do I specify a custom SSR manifest file path?",
+          "Where is the SSR manifest file located relative to build.outDir?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.ssrManifest\nbuild.ssrManifest\nExplains the behavior of build.ssrManifest when set to a string value, specifying the manifest file path relative to build.outDir.\n\nWhen the value is a string, it will be used as the manifest file path relative to \u0060build.outDir\u0060. When set to \u0060true\u0060, the path would be \u0060.vite/ssr-manifest.json\u0060."
+    },
+    {
+      "id": "segment-21-038",
+      "content": "## build.emitAssets\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060false\u0060\n\nDuring non-client builds, static assets aren\u0027t emitted as it is assumed they would be emitted as part of the client build. This option allows frameworks to force emitting them in other environments build. It is responsibility of the framework to merge the assets with a post build step.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Configuration",
+        "document_type": "Technical Documentation",
+        "section": "Asset emission configuration",
+        "heading_path": [
+          "build.emitAssets"
+        ],
+        "topic": "build.emitAssets configuration option",
+        "summary": "Defines the build.emitAssets boolean option and its default behavior regarding static asset emission in non-client builds.",
+        "keywords": [
+          "build.emitAssets",
+          "boolean",
+          "default",
+          "static assets",
+          "non-client builds",
+          "client build"
+        ],
+        "entities": [
+          "build.emitAssets",
+          "static assets",
+          "client build",
+          "non-client builds"
+        ],
+        "technologies": [],
+        "concepts": [
+          "asset emission",
+          "build configuration",
+          "framework integration"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.emitAssets?",
+          "How does build.emitAssets affect static asset emission?",
+          "When should I use build.emitAssets?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Asset emission configuration\nbuild.emitAssets\nDefines the build.emitAssets boolean option and its default behavior regarding static asset emission in non-client builds.\n\n## build.emitAssets\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060false\u0060\n\nDuring non-client builds, static assets aren\u0027t emitted as it is assumed they would be emitted as part of the client build. This option allows frameworks to force emitting them in other environments build. It is responsibility of the framework to merge the assets with a post build step."
+    },
+    {
+      "id": "segment-22-039",
+      "content": "## build.ssrEmitAssets\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060false\u0060\n\nDuring the SSR build, static assets aren\u0027t emitted as it is assumed they would be emitted as part of the client build. This option allows frameworks to force emitting them in both the client and SSR build. It is responsibility of the framework to merge the assets with a post build step. This option will be replaced by \u0060build.emitAssets\u0060 once Environment API is stable.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.ssrEmitAssets",
+        "heading_path": [
+          "build.ssrEmitAssets"
+        ],
+        "topic": "SSR build asset emission configuration",
+        "summary": "Defines the build.ssrEmitAssets option, its type, default value, and behavior regarding static asset emission in SSR builds.",
+        "keywords": [
+          "build.ssrEmitAssets",
+          "SSR",
+          "static assets",
+          "emitAssets",
+          "Environment API"
+        ],
+        "entities": [
+          "build.ssrEmitAssets",
+          "Environment API"
+        ],
+        "technologies": [],
+        "concepts": [
+          "SSR build",
+          "static asset emission",
+          "client build",
+          "post build step"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.ssrEmitAssets?",
+          "How does build.ssrEmitAssets affect static asset emission in SSR builds?",
+          "When will build.ssrEmitAssets be replaced?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.ssrEmitAssets\nbuild.ssrEmitAssets\nDefines the build.ssrEmitAssets option, its type, default value, and behavior regarding static asset emission in SSR builds.\n\n## build.ssrEmitAssets\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060false\u0060\n\nDuring the SSR build, static assets aren\u0027t emitted as it is assumed they would be emitted as part of the client build. This option allows frameworks to force emitting them in both the client and SSR build. It is responsibility of the framework to merge the assets with a post build step. This option will be replaced by \u0060build.emitAssets\u0060 once Environment API is stable."
+    },
+    {
+      "id": "segment-23-040",
+      "content": "## build.minify\n\n- **Type:** \u0060boolean | \u0027oxc\u0027 | \u0027terser\u0027 | \u0027esbuild\u0027\u0060\n- **Default:** \u0060\u0027oxc\u0027\u0060 for client build, \u0060false\u0060 for SSR build\n\nSet to \u0060false\u0060 to disable minification, or specify the minifier to use. The default is [Oxc Minifier](https://oxc.rs/docs/guide/usage/minifier) which is 30 ~ 90x faster than terser and only 0.5 ~ 2% worse compression. [Benchmarks](https://github.com/privatenumber/minification-benchmarks)",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.minify",
+        "heading_path": [
+          "build.minify"
+        ],
+        "topic": "Minification configuration options",
+        "summary": "Defines the build.minify option type, default values for different build modes, and general behavior regarding minification.",
+        "keywords": [
+          "build.minify",
+          "minification",
+          "default",
+          "client build",
+          "SSR build",
+          "Oxc Minifier",
+          "terser",
+          "esbuild"
+        ],
+        "entities": [
+          "build.minify",
+          "Oxc Minifier"
+        ],
+        "technologies": [
+          "Oxc",
+          "Terser",
+          "Esbuild"
+        ],
+        "concepts": [
+          "Code minification",
+          "Build optimization",
+          "Performance benchmarking"
+        ],
+        "retrieval_queries": [
+          "What are the valid values for build.minify?",
+          "What is the default minifier for client builds?",
+          "How do I disable minification?",
+          "Which minifier is faster than Terser?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.minify\nbuild.minify\nDefines the build.minify option type, default values for different build modes, and general behavior regarding minification.\n\n## build.minify\n\n- **Type:** \u0060boolean | \u0027oxc\u0027 | \u0027terser\u0027 | \u0027esbuild\u0027\u0060\n- **Default:** \u0060\u0027oxc\u0027\u0060 for client build, \u0060false\u0060 for SSR build\n\nSet to \u0060false\u0060 to disable minification, or specify the minifier to use. The default is [Oxc Minifier](https://oxc.rs/docs/guide/usage/minifier) which is 30 ~ 90x faster than terser and only 0.5 ~ 2% worse compression. [Benchmarks](https://github.com/privatenumber/minification-benchmarks)"
+    },
+    {
+      "id": "segment-24-041",
+      "content": "## build.terserOptions\n\n- **Type:** \u0060TerserOptions\u0060\n\nAdditional [minify options](https://terser.org/docs/api-reference#minify-options) to pass on to Terser.\n\nIn addition, you can also pass a \u0060maxWorkers: number\u0060 option to specify the max number of workers to spawn. Defaults to the number of CPUs minus 1.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.terserOptions",
+        "heading_path": [
+          "build.terserOptions"
+        ],
+        "topic": "Terser minification configuration options",
+        "summary": "Defines the build.terserOptions property which accepts TerserOptions and allows configuring maxWorkers for parallel processing.",
+        "keywords": [
+          "build.terserOptions",
+          "TerserOptions",
+          "minify options",
+          "maxWorkers"
+        ],
+        "entities": [
+          "build.terserOptions",
+          "TerserOptions",
+          "maxWorkers"
+        ],
+        "technologies": [
+          "Terser"
+        ],
+        "concepts": [
+          "minification",
+          "parallel processing",
+          "worker configuration"
+        ],
+        "retrieval_queries": [
+          "What is the type of build.terserOptions?",
+          "How do I configure maxWorkers for Terser?",
+          "What are the default settings for maxWorkers in Terser?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.terserOptions\nbuild.terserOptions\nDefines the build.terserOptions property which accepts TerserOptions and allows configuring maxWorkers for parallel processing.\n\n## build.terserOptions\n\n- **Type:** \u0060TerserOptions\u0060\n\nAdditional [minify options](https://terser.org/docs/api-reference#minify-options) to pass on to Terser.\n\nIn addition, you can also pass a \u0060maxWorkers: number\u0060 option to specify the max number of workers to spawn. Defaults to the number of CPUs minus 1."
+    },
+    {
+      "id": "segment-25-042",
+      "content": "## build.write\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nSet to \u0060false\u0060 to disable writing the bundle to disk. This is mostly used in [programmatic \u0060build()\u0060 calls](/guide/api-javascript#build) where further post processing of the bundle is needed before writing to disk.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Documentation",
+        "section": "build.write",
+        "heading_path": [
+          "build.write"
+        ],
+        "topic": "build.write configuration option",
+        "summary": "Explains the build.write boolean option, its default value, and when to disable it.",
+        "keywords": [
+          "build.write",
+          "boolean",
+          "bundle",
+          "disk",
+          "programmatic",
+          "post processing"
+        ],
+        "entities": [
+          "build.write",
+          "build()"
+        ],
+        "technologies": [],
+        "concepts": [
+          "bundle writing",
+          "programmatic builds",
+          "disk I/O"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.write?",
+          "How do I disable writing the bundle to disk?",
+          "When should I set build.write to false?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Configuration\nbuild.write\nDefines the build.write boolean option and its default behavior.\n\n## build.write\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nSet to \u0060false\u0060 to disable writing the bundle to disk. This is mostly used in [programmatic \u0060build()\u0060 calls](/guide/api-javascript#build) where further post processing of the bundle is needed before writing to disk."
+    },
+    {
+      "id": "segment-26-043",
+      "content": "## build.emptyOutDir\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060 if \u0060outDir\u0060 is inside \u0060root\u0060\n\nBy default, Vite will empty the \u0060outDir\u0060 on build if it is inside project root. It will emit a warning if \u0060outDir\u0060 is outside of root to avoid accidentally removing important files. You can explicitly set this option to suppress the warning. This is also available via command line as \u0060--emptyOutDir\u0060.",
+      "metadata": {
+        "source_file": "build.config.md",
+        "document_title": "Vite Configuration Reference",
+        "document_type": "Configuration Guide",
+        "section": "build.emptyOutDir",
+        "heading_path": [
+          "build.emptyOutDir"
+        ],
+        "topic": "build.emptyOutDir configuration option",
+        "summary": "Defines the build.emptyOutDir option, its default behavior, and command-line equivalent.",
+        "keywords": [
+          "build.emptyOutDir",
+          "outDir",
+          "root",
+          "Vite",
+          "warning",
+          "command line"
+        ],
+        "entities": [
+          "build.emptyOutDir",
+          "outDir",
+          "root",
+          "Vite",
+          "--emptyOutDir"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "build configuration",
+          "directory management",
+          "safety warnings"
+        ],
+        "retrieval_queries": [
+          "What is the default behavior of build.emptyOutDir?",
+          "How do I suppress the outDir warning in Vite?",
+          "What is the command line flag for build.emptyOutDir?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.emptyOutDir configuration option\nbuild.emptyOutDir\n\n## build.emptyOutDir\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060 if \u0060outDir\u0060 is inside \u0060root\u0060\n\nBy default, Vite will empty the \u0060outDir\u0060 on build if it is inside project root. It will emit a warning if \u0060outDir\u0060 is outside of root to avoid accidentally removing important files. You can explicitly set this option to suppress the warning. This is also available via command line as \u0060--emptyOutDir\u0060."
+    },
+    {
+      "id": "segment-27-044",
+      "content": "## build.copyPublicDir\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nBy default, Vite will copy files from the \u0060publicDir\u0060 into the \u0060outDir\u0060 on build. Set to \u0060false\u0060 to disable this.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Documentation",
+        "section": "build.copyPublicDir",
+        "heading_path": [
+          "build.copyPublicDir"
+        ],
+        "topic": "Public directory copying behavior during build",
+        "summary": "Defines the build.copyPublicDir option, its default value, and its effect on copying public files to the output directory.",
+        "keywords": [
+          "build.copyPublicDir",
+          "publicDir",
+          "outDir",
+          "copy",
+          "Vite"
+        ],
+        "entities": [
+          "build.copyPublicDir",
+          "publicDir",
+          "outDir"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Build configuration",
+          "File copying",
+          "Default options"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.copyPublicDir?",
+          "How do I disable copying public files in Vite build?",
+          "Where are public files copied during Vite build?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Vite Build Configuration\nbuild.copyPublicDir\nDefines the build.copyPublicDir option, its default value, and its effect on copying public files to the output directory.\n\n## build.copyPublicDir\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nBy default, Vite will copy files from the \u0060publicDir\u0060 into the \u0060outDir\u0060 on build. Set to \u0060false\u0060 to disable this."
+    },
+    {
+      "id": "segment-28-045",
+      "content": "## build.reportCompressedSize\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nEnable/disable gzip-compressed size reporting. Compressing large output files can be slow, so disabling this may increase build performance for large projects.",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration Reference",
+        "document_type": "Technical Documentation",
+        "section": "build.reportCompressedSize",
+        "heading_path": [
+          "build.reportCompressedSize"
+        ],
+        "topic": "Gzip-compressed size reporting configuration",
+        "summary": "Configuration option to enable or disable gzip-compressed size reporting in the build process.",
+        "keywords": [
+          "reportCompressedSize",
+          "gzip",
+          "build",
+          "compression",
+          "performance"
+        ],
+        "entities": [
+          "build.reportCompressedSize",
+          "gzip-compressed size reporting"
+        ],
+        "technologies": [],
+        "concepts": [
+          "build optimization",
+          "file compression",
+          "performance tuning"
+        ],
+        "retrieval_queries": [
+          "How do I disable gzip-compressed size reporting?",
+          "What is the default value for reportCompressedSize?",
+          "Does disabling gzip reporting improve build performance?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "build.reportCompressedSize\nbuild.reportCompressedSize\nConfiguration option to enable or disable gzip-compressed size reporting in the build process.\n\n## build.reportCompressedSize\n\n- **Type:** \u0060boolean\u0060\n- **Default:** \u0060true\u0060\n\nEnable/disable gzip-compressed size reporting. Compressing large output files can be slow, so disabling this may increase build performance for large projects."
+    },
+    {
+      "id": "segment-29-046",
+      "content": "## build.chunkSizeWarningLimit\n\n- **Type:** \u0060number\u0060\n- **Default:** \u0060500\u0060\n\nLimit for chunk size warnings (in kB). It is compared against the uncompressed chunk size as the [JavaScript size itself is related to the execution time](https://v8.dev/blog/cost-of-javascript-2019).",
+      "metadata": {
+        "source_file": "build.md",
+        "document_title": "Build Configuration",
+        "document_type": "Configuration Guide",
+        "section": "Chunk size warning configuration",
+        "heading_path": [
+          "build.chunkSizeWarningLimit"
+        ],
+        "topic": "Chunk size warning limit configuration",
+        "summary": "Defines the threshold in kilobytes for triggering warnings about large chunks.",
+        "keywords": [
+          "chunkSizeWarningLimit",
+          "warning",
+          "limit",
+          "kB",
+          "JavaScript size",
+          "execution time"
+        ],
+        "entities": [
+          "build.chunkSizeWarningLimit",
+          "JavaScript size",
+          "execution time"
+        ],
+        "technologies": [],
+        "concepts": [
+          "chunk size limits",
+          "performance warnings",
+          "JavaScript execution cost"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.chunkSizeWarningLimit?",
+          "How is the chunk size warning limit used?",
+          "What is the relationship between JavaScript size and execution time?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Build Configuration\nbuild.chunkSizeWarningLimit\nConfiguration option defining the threshold for chunk size warnings in kilobytes.\n\n## build.chunkSizeWarningLimit\n\n- **Type:** \u0060number\u0060\n- **Default:** \u0060500\u0060\n\nLimit for chunk size warnings (in kB). It is compared against the uncompressed chunk size as the [JavaScript size itself is related to the execution time](https://v8.dev/blog/cost-of-javascript-2019)."
+    },
+    {
+      "id": "segment-30-047",
+      "content": "## build.watch\n\n- **Type:** [\u0060WatcherOptions\u0060](https://rolldown.rs/reference/InputOptions.watch)\u0060| null\u0060\n- **Default:** \u0060null\u0060\n\nSet to \u0060{}\u0060 to enable Rolldown watcher. This is mostly used in cases that involve build-only plugins or integrations processes.",
+      "metadata": {
+        "source_file": "rolldown-config.md",
+        "document_title": "Rolldown Configuration Reference",
+        "document_type": "Configuration Guide",
+        "section": "build.watch",
+        "heading_path": [
+          "Rolldown Configuration",
+          "build.watch"
+        ],
+        "topic": "Watcher configuration option",
+        "summary": "Defines the build.watch option, its type, default value, and usage for enabling the Rolldown watcher.",
+        "keywords": [
+          "build.watch",
+          "WatcherOptions",
+          "watcher",
+          "Rolldown",
+          "build-only plugins",
+          "integrations processes"
+        ],
+        "entities": [
+          "build.watch",
+          "WatcherOptions",
+          "Rolldown"
+        ],
+        "technologies": [
+          "Rolldown"
+        ],
+        "concepts": [
+          "Watcher configuration",
+          "Build-only plugins",
+          "Integration processes"
+        ],
+        "retrieval_queries": [
+          "What is the default value for build.watch?",
+          "How do I enable the Rolldown watcher?",
+          "What type is the build.watch option?",
+          "When should I use build-only plugins with Rolldown?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Rolldown Configuration\nbuild.watch\nDefines the build.watch option, its type, default value, and usage for enabling the Rolldown watcher.\n\n## build.watch\n\n- **Type:** [\u0060WatcherOptions\u0060](https://rolldown.rs/reference/InputOptions.watch)\u0060| null\u0060\n- **Default:** \u0060null\u0060\n\nSet to \u0060{}\u0060 to enable Rolldown watcher. This is mostly used in cases that involve build-only plugins or integrations processes."
+    }
+  ]
+}

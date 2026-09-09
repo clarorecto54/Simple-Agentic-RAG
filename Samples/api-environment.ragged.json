@@ -1,0 +1,820 @@
+{
+  "source_file": "/home/clarorecto/My Projects/RAG/Embedding Console/Samples/api-environment.source.md",
+  "document_title": "api-environment.source",
+  "stage1_segments": 7,
+  "stage2_semantic_chunks": 10,
+  "stage3_final_chunks": 18,
+  "processing_time_seconds": 106.0212638,
+  "chunks": [
+    {
+      "id": "segment-1-001",
+      "content": "# Environment API\n\n:::info Release Candidate\nThe Environment API is generally in the release candidate phase. We\u0027ll maintain stability in the APIs between major releases to allow the ecosystem to experiment and build upon them. However, note that [some specific APIs](/changes/#considering) are still considered experimental.\n\nWe plan to stabilize these new APIs (with potential breaking changes) in a future major release once downstream projects have had time to experiment with the new features and validate them.\n\nResources:\n\n- [Feedback discussion](https://github.com/vitejs/vite/discussions/16358) where we are gathering feedback about the new APIs.\n- [Environment API PR](https://github.com/vitejs/vite/pull/16471) where the new APIs were implemented and reviewed.\n\nPlease share your feedback with us.\n:::",
+      "metadata": {
+        "source_file": "environment-api.md",
+        "document_title": "Vite Documentation",
+        "document_type": "Technical Guide",
+        "section": "Environment API",
+        "heading_path": [
+          "Environment API"
+        ],
+        "topic": "Environment API Overview and Status",
+        "summary": "Introduction to the Vite Environment API, noting its current release candidate status and the commitment to API stability between major releases.",
+        "keywords": [
+          "Environment API",
+          "Vite",
+          "Release Candidate",
+          "Stability",
+          "Experimental APIs"
+        ],
+        "entities": [
+          "Environment API",
+          "Vite"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "API Stability",
+          "Release Candidate",
+          "Experimental Features"
+        ],
+        "retrieval_queries": [
+          "What is the current status of the Vite Environment API?",
+          "Are there any experimental APIs in the Vite Environment API?",
+          "How will the Vite Environment API stability be maintained?",
+          "Where can I provide feedback on the Vite Environment API?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Environment API Overview and Status\nEnvironment API Overview and Status\n\n# Environment API\n\n:::info Release Candidate\nThe Environment API is generally in the release candidate phase. We\u0027ll maintain stability in the APIs between major releases to allow the ecosystem to experiment and build upon them. However, note that [some specific APIs](/changes/#considering) are still considered experimental.\n\nWe plan to stabilize these new APIs (with potential breaking changes) in a future major release once downstream projects have had time to experiment with the new features and validate them.\n\nResources:\n\n- [Feedback discussion](https://github.com/vitejs/vite/discussions/16358) where we are gathering feedback about the new APIs.\n- [Environment API PR](https://github.com/vitejs/vite/pull/16471) where the new APIs were implemented and reviewed.\n\nPlease share your feedback with us.\n:::"
+    },
+    {
+      "id": "segment-2-002",
+      "content": "## Formalizing Environments\n\nVite 6 formalizes the concept of Environments. Until Vite 5, there were two implicit Environments (\u0060client\u0060, and optionally \u0060ssr\u0060). The new Environment API allows users and framework authors to create as many environments as needed to map the way their apps work in production. This new capability required a big internal refactoring, but a lot of effort has been placed on backward compatibility. The initial goal of Vite 6 is to move the ecosystem to the new major as smoothly as possible, delaying the adoption of the APIs until enough users have migrated and frameworks and plugin authors have validated the new design.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Vite 6 Documentation",
+        "document_type": "Release Notes",
+        "section": "Formalizing Environments",
+        "heading_path": [
+          "Formalizing Environments"
+        ],
+        "topic": "Vite 6 Environment API introduction",
+        "summary": "Overview of the new Environment API in Vite 6, the shift from implicit environments, and the focus on backward compatibility.",
+        "keywords": [
+          "Vite 6",
+          "Environments",
+          "Environment API",
+          "backward compatibility",
+          "refactoring"
+        ],
+        "entities": [
+          "Vite 6",
+          "Vite 5",
+          "Environment API",
+          "client environment",
+          "ssr environment"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Environment formalization",
+          "Implicit environments",
+          "Backward compatibility strategy"
+        ],
+        "retrieval_queries": [
+          "What changed in Vite 6 regarding environments?",
+          "How does Vite 6 handle backward compatibility?",
+          "What is the new Environment API in Vite 6?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Vite 6 Environment API introduction\nFormalizing Environments\nOverview of the new Environment API in Vite 6, the shift from implicit environments, and the focus on backward compatibility.\n\n## Formalizing Environments\n\nVite 6 formalizes the concept of Environments. Until Vite 5, there were two implicit Environments (\u0060client\u0060, and optionally \u0060ssr\u0060). The new Environment API allows users and framework authors to create as many environments as needed to map the way their apps work in production. This new capability required a big internal refactoring, but a lot of effort has been placed on backward compatibility. The initial goal of Vite 6 is to move the ecosystem to the new major as smoothly as possible, delaying the adoption of the APIs until enough users have migrated and frameworks and plugin authors have validated the new design."
+    },
+    {
+      "id": "segment-3-003",
+      "content": "## Closing the Gap Between Build and Dev\n\nFor a simple SPA/MPA, no new APIs around environments are exposed to the config. Internally, Vite will apply the options to a \u0060client\u0060 environment, but it\u0027s not necessary to know of this concept when configuring Vite. The config and behavior from Vite 5 should work seamlessly here.",
+      "metadata": {
+        "source_file": "vite-env.md",
+        "document_title": "Vite Environment Handling",
+        "document_type": "Technical Documentation",
+        "section": "Closing the Gap Between Build and Dev",
+        "heading_path": [
+          "Closing the Gap Between Build and Dev"
+        ],
+        "topic": "Vite environment handling for SPAs and MPAs",
+        "summary": "Explains that simple SPA/MPA apps do not require explicit environment configuration in Vite.",
+        "keywords": [
+          "SPA",
+          "MPA",
+          "Vite 5",
+          "client environment"
+        ],
+        "entities": [
+          "client environment",
+          "Vite 5"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "SPA configuration",
+          "MPA configuration",
+          "environment abstraction"
+        ],
+        "retrieval_queries": [
+          "How does Vite handle environments for simple SPAs?",
+          "Do I need to configure environments for a basic SPA in Vite?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Vite Environment Handling\nClosing the Gap Between Build and Dev\nIntroduction to Vite environment handling\n\nFor a simple SPA/MPA, no new APIs around environments are exposed to the config. Internally, Vite will apply the options to a \u0060client\u0060 environment, but it\u0027s not necessary to know of this concept when configuring Vite. The config and behavior from Vite 5 should work seamlessly here."
+    },
+    {
+      "id": "segment-3-004",
+      "content": "When we move to a typical server-side rendered (SSR) app, we\u0027ll have two environments:\n\n- \u0060client\u0060: runs the app in the browser.\n- \u0060ssr\u0060: runs the app in node (or other server runtimes) which renders pages before sending them to the browser.",
+      "metadata": {
+        "source_file": "vite-env.md",
+        "document_title": "Vite Environment Handling",
+        "document_type": "Technical Documentation",
+        "section": "Closing the Gap Between Build and Dev",
+        "heading_path": [
+          "Closing the Gap Between Build and Dev"
+        ],
+        "topic": "SSR environments in Vite",
+        "summary": "Describes the client and SSR environments used in server-side rendered applications.",
+        "keywords": [
+          "SSR",
+          "client",
+          "ssr",
+          "server-side rendered"
+        ],
+        "entities": [
+          "client",
+          "ssr",
+          "node"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "SSR architecture",
+          "client-side rendering",
+          "server-side rendering"
+        ],
+        "retrieval_queries": [
+          "What are the environments in a Vite SSR app?",
+          "How does Vite distinguish between client and SSR environments?"
+        ],
+        "code_languages": [],
+        "chunk_index": 2
+      },
+      "retrieval_content": "Vite Environment Handling\nClosing the Gap Between Build and Dev\nIntroduction to Vite environment handling\n\nWhen we move to a typical server-side rendered (SSR) app, we\u0027ll have two environments:\n\n- \u0060client\u0060: runs the app in the browser.\n- \u0060ssr\u0060: runs the app in node (or other server runtimes) which renders pages before sending them to the browser."
+    },
+    {
+      "id": "segment-3-005",
+      "content": "In dev, Vite executes the server code in the same Node process as the Vite dev server, giving a close approximation to the production environment. However, it is also possible for servers to run in other JS runtimes, like [Cloudflare\u0027s workerd](https://github.com/cloudflare/workerd) which have different constraints. Modern apps may also run in more than two environments, e.g. a browser, a node server, and an edge server. Vite 5 didn\u0027t allow to properly represent these environments.",
+      "metadata": {
+        "source_file": "vite-env.md",
+        "document_title": "Vite Environment Handling",
+        "document_type": "Technical Documentation",
+        "section": "Closing the Gap Between Build and Dev",
+        "heading_path": [
+          "Closing the Gap Between Build and Dev"
+        ],
+        "topic": "Vite 5 environment limitations and multi-runtime support",
+        "summary": "Discusses Vite 5\u0027s limitations in representing multiple environments and different JS runtimes.",
+        "keywords": [
+          "Vite 5",
+          "workerd",
+          "edge server",
+          "JS runtimes"
+        ],
+        "entities": [
+          "Cloudflare\u0027s workerd",
+          "Vite 5",
+          "Node process"
+        ],
+        "technologies": [
+          "Vite",
+          "Cloudflare",
+          "workerd"
+        ],
+        "concepts": [
+          "multi-runtime support",
+          "edge computing",
+          "environment representation"
+        ],
+        "retrieval_queries": [
+          "What are the limitations of Vite 5 regarding environments?",
+          "Can Vite run on non-Node JS runtimes like Cloudflare workerd?"
+        ],
+        "code_languages": [],
+        "chunk_index": 3
+      },
+      "retrieval_content": "Vite Environment Handling\nClosing the Gap Between Build and Dev\nIntroduction to Vite environment handling\n\nIn dev, Vite executes the server code in the same Node process as the Vite dev server, giving a close approximation to the production environment. However, it is also possible for servers to run in other JS runtimes, like [Cloudflare\u0027s workerd](https://github.com/cloudflare/workerd) which have different constraints. Modern apps may also run in more than two environments, e.g. a browser, a node server, and an edge server. Vite 5 didn\u0027t allow to properly represent these environments."
+    },
+    {
+      "id": "segment-4-006",
+      "content": "## Environments Configuration\n\nFor an SPA/MPA, the configuration will look similar to Vite 5. Internally these options are used to configure the \u0060client\u0060 environment.\n\n\u0060\u0060\u0060js\nexport default defineConfig({\n  build: {\n    sourcemap: false,\n  },\n  optimizeDeps: {\n    include: [\u0027lib\u0027],\n  },\n})\n\u0060\u0060\u0060\n\nThis is important because we\u0027d like to keep Vite approachable and avoid exposing new concepts until they are needed.",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Environments Configuration",
+        "heading_path": [
+          "Environments Configuration"
+        ],
+        "topic": "Introduction to Vite environment configuration for SPA/MPA",
+        "summary": "Explains that SPA/MPA configuration resembles Vite 5 and uses options to configure the client environment.",
+        "keywords": [
+          "SPA",
+          "MPA",
+          "Vite 5",
+          "client environment",
+          "defineConfig"
+        ],
+        "entities": [
+          "Vite",
+          "client environment"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "SPA configuration",
+          "MPA configuration",
+          "client environment setup"
+        ],
+        "retrieval_queries": [
+          "How does Vite 5 configure client environments for SPA/MPA?",
+          "What is the purpose of the client environment in Vite configuration?"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Environments Configuration\nEnvironments Configuration / Introduction to Vite environment configuration\nOverview of environment configuration for SPA/MPA, similar to Vite 5, and the use of the \u0060environments\u0060 config option.\n\n## Environments Configuration\n\nFor an SPA/MPA, the configuration will look similar to Vite 5. Internally these options are used to configure the \u0060client\u0060 environment.\n\n\u0060\u0060\u0060js\nexport default defineConfig({\n  build: {\n    sourcemap: false,\n  },\n  optimizeDeps: {\n    include: [\u0027lib\u0027],\n  },\n})\n\u0060\u0060\u0060\n\nThis is important because we\u0027d like to keep Vite approachable and avoid exposing new concepts until they are needed."
+    },
+    {
+      "id": "segment-4-007",
+      "content": "If the app is composed of several environments, then these environments can be configured explicitly with the \u0060environments\u0060 config option.\n\n\u0060\u0060\u0060js\nexport default {\n  build: {\n    sourcemap: false,\n  },\n  optimizeDeps: {\n    include: [\u0027lib\u0027],\n  },\n  environments: {\n    server: {},\n    edge: {\n      resolve: {\n        noExternal: true,\n      },\n    },\n  },\n}\n\u0060\u0060\u0060",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Environments Configuration",
+        "heading_path": [
+          "Environments Configuration"
+        ],
+        "topic": "Explicit configuration of multiple environments using the environments option",
+        "summary": "Demonstrates how to configure multiple environments (server, edge) using the environments config option.",
+        "keywords": [
+          "environments",
+          "server environment",
+          "edge environment",
+          "noExternal",
+          "resolve"
+        ],
+        "entities": [
+          "server environment",
+          "edge environment",
+          "environments config option"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "multi-environment configuration",
+          "server-side rendering",
+          "edge computing"
+        ],
+        "retrieval_queries": [
+          "How do I configure multiple environments in Vite?",
+          "What is the structure of the environments config option?"
+        ],
+        "code_languages": [
+          "JavaScript"
+        ],
+        "chunk_index": 2
+      },
+      "retrieval_content": "Environments Configuration\nEnvironments Configuration / Introduction to Vite environment configuration\nOverview of environment configuration for SPA/MPA, similar to Vite 5, and the use of the \u0060environments\u0060 config option.\n\nIf the app is composed of several environments, then these environments can be configured explicitly with the \u0060environments\u0060 config option.\n\n\u0060\u0060\u0060js\nexport default {\n  build: {\n    sourcemap: false,\n  },\n  optimizeDeps: {\n    include: [\u0027lib\u0027],\n  },\n  environments: {\n    server: {},\n    edge: {\n      resolve: {\n        noExternal: true,\n      },\n    },\n  },\n}\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "segment-4-008",
+      "content": "When not explicitly documented, environment inherits the configured top-level config options (for example, the new \u0060server\u0060 and \u0060edge\u0060 environments will inherit the \u0060build.sourcemap: false\u0060 option). A small number of top-level options, like \u0060optimizeDeps\u0060, only apply to the \u0060client\u0060 environment, as they don\u0027t work well when applied as a default to server environments. Those options have \u003CNonInheritBadge /\u003E badge in [the reference](/config/). The \u0060client\u0060 environment can also be configured explicitly through \u0060environments.client\u0060, but we recommend to do it with the top-level options so the client config remains unchanged when adding new environments.",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Environments Configuration",
+        "heading_path": [
+          "Environments Configuration"
+        ],
+        "topic": "Inheritance rules and best practices for Vite environment configuration",
+        "summary": "Explains how environments inherit top-level options, which options are client-only, and best practices for configuration.",
+        "keywords": [
+          "inheritance",
+          "top-level config",
+          "client environment",
+          "server environment",
+          "NonInheritBadge"
+        ],
+        "entities": [
+          "client environment",
+          "server environment",
+          "edge environment",
+          "optimizeDeps",
+          "NonInheritBadge"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "configuration inheritance",
+          "environment isolation",
+          "best practices"
+        ],
+        "retrieval_queries": [
+          "Do Vite environments inherit top-level configuration options?",
+          "Which options only apply to the client environment?",
+          "How should I configure the client environment when adding new environments?"
+        ],
+        "code_languages": [],
+        "chunk_index": 3
+      },
+      "retrieval_content": "Environments Configuration\nEnvironments Configuration / Introduction to Vite environment configuration\nOverview of environment configuration for SPA/MPA, similar to Vite 5, and the use of the \u0060environments\u0060 config option.\n\nWhen not explicitly documented, environment inherits the configured top-level config options (for example, the new \u0060server\u0060 and \u0060edge\u0060 environments will inherit the \u0060build.sourcemap: false\u0060 option). A small number of top-level options, like \u0060optimizeDeps\u0060, only apply to the \u0060client\u0060 environment, as they don\u0027t work well when applied as a default to server environments. Those options have \u003CNonInheritBadge /\u003E badge in [the reference](/config/). The \u0060client\u0060 environment can also be configured explicitly through \u0060environments.client\u0060, but we recommend to do it with the top-level options so the client config remains unchanged when adding new environments."
+    },
+    {
+      "id": "segment-4-009",
+      "content": "The \u0060EnvironmentOptions\u0060 interface exposes all the per-environment options. There are environment options that apply to both \u0060build\u0060 and \u0060dev\u0060, like \u0060resolve\u0060. And there are \u0060DevEnvironmentOptions\u0060 and \u0060BuildEnvironmentOptions\u0060 for dev and build specific options (like \u0060dev.warmup\u0060 or \u0060build.outDir\u0060). Some options like \u0060optimizeDeps\u0060 only applies to dev, but is kept as top level instead of nested in \u0060dev\u0060 for backward compatibility.",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Environments Configuration",
+        "document_type": "API Reference",
+        "section": "EnvironmentOptions Interface",
+        "heading_path": [
+          "Environments Configuration",
+          "EnvironmentOptions Interface"
+        ],
+        "topic": "EnvironmentOptions interface definition and structure",
+        "summary": "Describes the EnvironmentOptions interface, shared options, and specific dev/build options.",
+        "keywords": [
+          "EnvironmentOptions",
+          "resolve",
+          "optimizeDeps",
+          "DevEnvironmentOptions",
+          "BuildEnvironmentOptions"
+        ],
+        "entities": [
+          "EnvironmentOptions",
+          "resolve",
+          "optimizeDeps",
+          "DevEnvironmentOptions",
+          "BuildEnvironmentOptions"
+        ],
+        "technologies": [],
+        "concepts": [
+          "per-environment options",
+          "shared configuration",
+          "backward compatibility"
+        ],
+        "retrieval_queries": [
+          "What does the EnvironmentOptions interface expose?",
+          "Which options apply to both build and dev environments?",
+          "Why is optimizeDeps kept at the top level?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Environments Configuration \u2192 EnvironmentOptions Interface\nTopic: EnvironmentOptions interface definition\n\nThe \u0060EnvironmentOptions\u0060 interface exposes all the per-environment options. There are environment options that apply to both \u0060build\u0060 and \u0060dev\u0060, like \u0060resolve\u0060. And there are \u0060DevEnvironmentOptions\u0060 and \u0060BuildEnvironmentOptions\u0060 for dev and build specific options (like \u0060dev.warmup\u0060 or \u0060build.outDir\u0060). Some options like \u0060optimizeDeps\u0060 only applies to dev, but is kept as top level instead of nested in \u0060dev\u0060 for backward compatibility."
+    },
+    {
+      "id": "segment-4-010",
+      "content": "\u0060\u0060\u0060ts\ninterface EnvironmentOptions {\n  define?: Record\u003Cstring, any\u003E\n  resolve?: EnvironmentResolveOptions\n  optimizeDeps: DepOptimizationOptions\n  consumer?: \u0027client\u0027 | \u0027server\u0027\n  dev: DevOptions\n  build: BuildOptions\n}\n\u0060\u0060\u0060",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Environments Configuration",
+        "document_type": "API Reference",
+        "section": "EnvironmentOptions Interface",
+        "heading_path": [
+          "Environments Configuration",
+          "EnvironmentOptions Interface"
+        ],
+        "topic": "EnvironmentOptions TypeScript interface definition",
+        "summary": "Shows the TypeScript definition for the EnvironmentOptions interface with all properties.",
+        "keywords": [
+          "EnvironmentOptions",
+          "interface",
+          "define",
+          "resolve",
+          "optimizeDeps",
+          "consumer",
+          "dev",
+          "build"
+        ],
+        "entities": [
+          "EnvironmentOptions",
+          "EnvironmentResolveOptions",
+          "DepOptimizationOptions",
+          "DevOptions",
+          "BuildOptions"
+        ],
+        "technologies": [
+          "TypeScript"
+        ],
+        "concepts": [
+          "interface definition",
+          "type safety",
+          "configuration schema"
+        ],
+        "retrieval_queries": [
+          "What is the structure of the EnvironmentOptions interface?",
+          "What properties does EnvironmentOptions have?",
+          "What is the type of the optimizeDeps property?"
+        ],
+        "code_languages": [
+          "TypeScript"
+        ],
+        "chunk_index": 2
+      },
+      "retrieval_content": "Environments Configuration \u2192 EnvironmentOptions Interface\nTopic: EnvironmentOptions interface definition\n\n\u0060\u0060\u0060ts\ninterface EnvironmentOptions {\n  define?: Record\u003Cstring, any\u003E\n  resolve?: EnvironmentResolveOptions\n  optimizeDeps: DepOptimizationOptions\n  consumer?: \u0027client\u0027 | \u0027server\u0027\n  dev: DevOptions\n  build: BuildOptions\n}\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "segment-4-011",
+      "content": "The \u0060UserConfig\u0060 interface extends from the \u0060EnvironmentOptions\u0060 interface, allowing to configure the client and defaults for other environments, configured through the \u0060environments\u0060 option. The \u0060client\u0060 and a server environment named \u0060ssr\u0060 are always present during dev. This allows backward compatibility with \u0060server.ssrLoadModule(url)\u0060 and \u0060server.moduleGraph\u0060. During build, the \u0060client\u0060 environment is always present, and the \u0060ssr\u0060 environment is only present if it is explicitly configured (using \u0060environments.ssr\u0060 or for backward compatibility \u0060build.ssr\u0060). An app doesn\u0027t need to use the \u0060ssr\u0060 name for its SSR environment, it could name it \u0060server\u0060 for example.",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "UserConfig Interface",
+        "heading_path": [
+          "Environments Configuration",
+          "UserConfig Interface"
+        ],
+        "topic": "UserConfig interface and environment defaults",
+        "summary": "Explains how UserConfig extends EnvironmentOptions, default environments (client, ssr), and backward compatibility.",
+        "keywords": [
+          "UserConfig",
+          "EnvironmentOptions",
+          "environments",
+          "ssr",
+          "client",
+          "server",
+          "backward compatibility"
+        ],
+        "entities": [
+          "UserConfig",
+          "EnvironmentOptions",
+          "environments",
+          "ssr",
+          "client",
+          "server"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Environment configuration",
+          "Backward compatibility",
+          "Development vs Build modes"
+        ],
+        "retrieval_queries": [
+          "What is the UserConfig interface?",
+          "How are default environments configured in Vite?",
+          "What is the difference between dev and build environments?",
+          "How to configure the SSR environment in Vite?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "UserConfig Interface\nEnvironments Configuration \u2192 UserConfig Interface\nExplains how UserConfig extends EnvironmentOptions, default environments (client, ssr), and backward compatibility.\n\nThe \u0060UserConfig\u0060 interface extends from the \u0060EnvironmentOptions\u0060 interface, allowing to configure the client and defaults for other environments, configured through the \u0060environments\u0060 option. The \u0060client\u0060 and a server environment named \u0060ssr\u0060 are always present during dev. This allows backward compatibility with \u0060server.ssrLoadModule(url)\u0060 and \u0060server.moduleGraph\u0060. During build, the \u0060client\u0060 environment is always present, and the \u0060ssr\u0060 environment is only present if it is explicitly configured (using \u0060environments.ssr\u0060 or for backward compatibility \u0060build.ssr\u0060). An app doesn\u0027t need to use the \u0060ssr\u0060 name for its SSR environment, it could name it \u0060server\u0060 for example."
+    },
+    {
+      "id": "segment-4-012",
+      "content": "\u0060\u0060\u0060ts\ninterface UserConfig extends EnvironmentOptions {\n  environments: Record\u003Cstring, EnvironmentOptions\u003E\n  // other options\n}\n\u0060\u0060\u0060",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "UserConfig Interface",
+        "heading_path": [
+          "Environments Configuration",
+          "UserConfig Interface"
+        ],
+        "topic": "UserConfig TypeScript interface definition",
+        "summary": "Shows the TypeScript interface definition for UserConfig extending EnvironmentOptions.",
+        "keywords": [
+          "UserConfig",
+          "EnvironmentOptions",
+          "TypeScript",
+          "interface",
+          "environments"
+        ],
+        "entities": [
+          "UserConfig",
+          "EnvironmentOptions"
+        ],
+        "technologies": [
+          "TypeScript",
+          "Vite"
+        ],
+        "concepts": [
+          "Interface inheritance",
+          "Type definitions"
+        ],
+        "retrieval_queries": [
+          "What is the structure of the UserConfig interface?",
+          "How is UserConfig defined in TypeScript?"
+        ],
+        "code_languages": [
+          "TypeScript"
+        ],
+        "chunk_index": 2
+      },
+      "retrieval_content": "UserConfig Interface\nEnvironments Configuration \u2192 UserConfig Interface\nDefines the TypeScript interface for UserConfig extending EnvironmentOptions.\n\n\u0060\u0060\u0060ts\ninterface UserConfig extends EnvironmentOptions {\n  environments: Record\u003Cstring, EnvironmentOptions\u003E\n  // other options\n}\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "segment-4-013",
+      "content": "Note that the \u0060ssr\u0060 top-level property is going to be deprecated once the Environment API is stable. This option has the same role as \u0060environments\u0060, but for the default \u0060ssr\u0060 environment and only allowed configuring of a small set of options.",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Configuration Guide",
+        "document_type": "Technical Documentation",
+        "section": "UserConfig Interface",
+        "heading_path": [
+          "Environments Configuration",
+          "UserConfig Interface"
+        ],
+        "topic": "Deprecation of ssr top-level property",
+        "summary": "Warns about the deprecation of the ssr top-level property in favor of the environments API.",
+        "keywords": [
+          "ssr",
+          "deprecated",
+          "Environment API",
+          "top-level property"
+        ],
+        "entities": [
+          "ssr",
+          "Environment API"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "API deprecation",
+          "Configuration migration"
+        ],
+        "retrieval_queries": [
+          "Is the ssr top-level property deprecated?",
+          "What is the replacement for the ssr top-level property?",
+          "How to migrate from ssr top-level to environments API?"
+        ],
+        "code_languages": [],
+        "chunk_index": 3
+      },
+      "retrieval_content": "UserConfig Interface\nEnvironments Configuration \u2192 UserConfig Interface\nWarns about the deprecation of the ssr top-level property in favor of the environments API.\n\nNote that the \u0060ssr\u0060 top-level property is going to be deprecated once the Environment API is stable. This option has the same role as \u0060environments\u0060, but for the default \u0060ssr\u0060 environment and only allowed configuring of a small set of options."
+    },
+    {
+      "id": "segment-5-014",
+      "content": "## Custom Environment Instances\n\nLow level configuration APIs are available so runtime providers can provide environments with proper defaults for their runtimes. These environments can also spawn other processes or threads to run the modules during dev in a closer runtime to the production environment.\n\nFor example, the [Cloudflare Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/) uses the Environment API to run code in the Cloudflare Workers runtime (\u0060workerd\u0060) during development.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Runtime Providers Documentation",
+        "document_type": "Technical Guide",
+        "section": "Custom Environment Instances",
+        "heading_path": [
+          "Custom Environment Instances"
+        ],
+        "topic": "Custom Environment Instances",
+        "summary": "Explains the purpose of low-level configuration APIs for runtime providers to define environments with proper defaults and spawn processes for development.",
+        "keywords": [
+          "low level configuration APIs",
+          "runtime providers",
+          "proper defaults",
+          "spawn processes",
+          "dev",
+          "production environment"
+        ],
+        "entities": [
+          "runtime providers",
+          "Environment API",
+          "Cloudflare Vite plugin",
+          "Cloudflare Workers runtime",
+          "workerd"
+        ],
+        "technologies": [
+          "Cloudflare Workers",
+          "Vite",
+          "workerd"
+        ],
+        "concepts": [
+          "environment configuration",
+          "process spawning",
+          "development runtime",
+          "production runtime"
+        ],
+        "retrieval_queries": [
+          "What are low level configuration APIs used for?",
+          "How can runtime providers spawn processes for development?",
+          "What is the Cloudflare Vite plugin used for?",
+          "How does the Environment API run code in Cloudflare Workers?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Custom Environment Instances\nCustom Environment Instances\nExplains the purpose of low-level configuration APIs for runtime providers to define environments with proper defaults and spawn processes for development.\n\n## Custom Environment Instances\n\nLow level configuration APIs are available so runtime providers can provide environments with proper defaults for their runtimes. These environments can also spawn other processes or threads to run the modules during dev in a closer runtime to the production environment.\n\nFor example, the [Cloudflare Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/) uses the Environment API to run code in the Cloudflare Workers runtime (\u0060workerd\u0060) during development."
+    },
+    {
+      "id": "segment-6-015",
+      "content": "## Backward Compatibility\n\nThe current Vite server API is not yet deprecated and is backward compatible with Vite 5.\n\nThe \u0060server.moduleGraph\u0060 returns a mixed view of the client and ssr module graphs. Backward compatible mixed module nodes will be returned from all its methods. The same scheme is used for the module nodes passed to \u0060handleHotUpdate\u0060.",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Vite 6 Migration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Backward Compatibility",
+        "heading_path": [
+          "Backward Compatibility"
+        ],
+        "topic": "Vite 6 API backward compatibility status",
+        "summary": "Explains that the Vite server API remains backward compatible with Vite 5 and details the behavior of server.moduleGraph.",
+        "keywords": [
+          "backward compatible",
+          "Vite 5",
+          "Vite 6",
+          "server.moduleGraph",
+          "handleHotUpdate"
+        ],
+        "entities": [
+          "Vite server API",
+          "Vite 5",
+          "Vite 6",
+          "Environment API",
+          "server.moduleGraph",
+          "handleHotUpdate"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "API compatibility",
+          "Module graph",
+          "SSR module graph",
+          "Client module graph"
+        ],
+        "retrieval_queries": [
+          "Is the Vite server API deprecated in Vite 6?",
+          "How does server.moduleGraph behave in Vite 6?",
+          "Are module nodes passed to handleHotUpdate backward compatible?",
+          "What is the compatibility status of Vite 6 with Vite 5 plugins?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Backward Compatibility\nBackward Compatibility\nOverview of the current Vite server API\u0027s compatibility with Vite 5 and the recommendation to wait for the Environment API.\n\n## Backward Compatibility\n\nThe current Vite server API is not yet deprecated and is backward compatible with Vite 5.\n\nThe \u0060server.moduleGraph\u0060 returns a mixed view of the client and ssr module graphs. Backward compatible mixed module nodes will be returned from all its methods. The same scheme is used for the module nodes passed to \u0060handleHotUpdate\u0060."
+    },
+    {
+      "id": "segment-6-016",
+      "content": "We don\u0027t recommend switching to Environment API yet. We are aiming for a good portion of the user base to adopt Vite 6 before so plugins don\u0027t need to maintain two versions. Checkout the future breaking changes section for information on future deprecations and upgrade path:",
+      "metadata": {
+        "source_file": "example.md",
+        "document_title": "Vite 6 Migration Guide",
+        "document_type": "Technical Documentation",
+        "section": "Backward Compatibility",
+        "heading_path": [
+          "Backward Compatibility"
+        ],
+        "topic": "Recommendation on adopting Environment API in Vite 6",
+        "summary": "Discusses the recommendation to wait before switching to the Environment API to ensure plugin compatibility.",
+        "keywords": [
+          "Environment API",
+          "Vite 6",
+          "plugins",
+          "upgrade path",
+          "breaking changes"
+        ],
+        "entities": [
+          "Environment API",
+          "Vite 6",
+          "plugins"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "API migration",
+          "Plugin compatibility",
+          "Version adoption"
+        ],
+        "retrieval_queries": [
+          "Should I switch to the Environment API immediately in Vite 6?",
+          "Why is it recommended to wait before adopting the Environment API?",
+          "How can plugins avoid maintaining two versions in Vite 6?",
+          "Where can I find information on future deprecations in Vite 6?"
+        ],
+        "code_languages": [],
+        "chunk_index": 2
+      },
+      "retrieval_content": "Backward Compatibility\nBackward Compatibility\nOverview of the current Vite server API\u0027s compatibility with Vite 5 and the recommendation to wait for the Environment API.\n\nWe don\u0027t recommend switching to Environment API yet. We are aiming for a good portion of the user base to adopt Vite 6 before so plugins don\u0027t need to maintain two versions. Checkout the future breaking changes section for information on future deprecations and upgrade path:"
+    },
+    {
+      "id": "segment-6-017",
+      "content": "- [\u0060this.environment\u0060 in Hooks](/changes/this-environment-in-hooks)\n- [HMR \u0060hotUpdate\u0060 Plugin Hook](/changes/hotupdate-hook)\n- [Move to Per-environment APIs](/changes/per-environment-apis)\n- [SSR Using \u0060ModuleRunner\u0060 API](/changes/ssr-using-modulerunner)\n- [Shared Plugins During Build](/changes/shared-plugins-during-build)",
+      "metadata": {
+        "source_file": "breaking-changes.md",
+        "document_title": "Backward Compatibility",
+        "document_type": "Documentation",
+        "section": "Future Breaking Changes",
+        "heading_path": [
+          "Backward Compatibility",
+          "Future Breaking Changes"
+        ],
+        "topic": "List of future breaking changes and migration resources",
+        "summary": "A list of links to documentation regarding future breaking changes, including environment hooks, HMR hooks, per-environment APIs, SSR ModuleRunner, and shared plugins.",
+        "keywords": [
+          "breaking changes",
+          "upgrade path",
+          "deprecations",
+          "hooks",
+          "SSR",
+          "plugins"
+        ],
+        "entities": [
+          "this.environment",
+          "hotUpdate Plugin Hook",
+          "Per-environment APIs",
+          "ModuleRunner",
+          "Shared Plugins"
+        ],
+        "technologies": [],
+        "concepts": [
+          "environment hooks",
+          "HMR hooks",
+          "per-environment APIs",
+          "SSR ModuleRunner",
+          "shared plugins"
+        ],
+        "retrieval_queries": [
+          "What are the future breaking changes for this library?",
+          "Where can I find documentation on the new environment hooks?",
+          "How do I migrate to the new per-environment APIs?",
+          "What changes are coming to SSR with ModuleRunner?",
+          "What is the new behavior for shared plugins during build?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Backward Compatibility \u2192 Future Breaking Changes\nList of future breaking changes and migration resources\n\n- [\u0060this.environment\u0060 in Hooks](/changes/this-environment-in-hooks)\n- [HMR \u0060hotUpdate\u0060 Plugin Hook](/changes/hotupdate-hook)\n- [Move to Per-environment APIs](/changes/per-environment-apis)\n- [SSR Using \u0060ModuleRunner\u0060 API](/changes/ssr-using-modulerunner)\n- [Shared Plugins During Build](/changes/shared-plugins-during-build)"
+    },
+    {
+      "id": "segment-7-018",
+      "content": "## Target Users\n\nThis guide provides the basic concepts about environments for end users.\n\nPlugin authors have a more consistent API available to interact with the current environment configuration. If you\u0027re building on top of Vite, the [Environment API Plugins Guide](./api-environment-plugins.md) guide describes the way extended plugin APIs available to support multiple custom environments.\n\nFrameworks could decide to expose environments at different levels. If you\u0027re a framework author, continue reading the [Environment API Frameworks Guide](./api-environment-frameworks) to learn about the Environment API programmatic side.\n\nFor Runtime providers, the [Environment API Runtimes Guide](./api-environment-runtimes.md) explains how to offer custom environments to be consumed by frameworks and users.",
+      "metadata": {
+        "source_file": "environments.md",
+        "document_title": "Vite Environment API",
+        "document_type": "Documentation",
+        "section": "Target Users",
+        "heading_path": [
+          "Target Users"
+        ],
+        "topic": "Target Users",
+        "summary": "Describes the documentation resources available for end users, plugin authors, framework authors, and runtime providers.",
+        "keywords": [
+          "Target Users",
+          "environments",
+          "plugin authors",
+          "framework authors",
+          "runtime providers"
+        ],
+        "entities": [
+          "Environment API Plugins Guide",
+          "Environment API Frameworks Guide",
+          "Environment API Runtimes Guide"
+        ],
+        "technologies": [
+          "Vite"
+        ],
+        "concepts": [
+          "Environment API",
+          "Custom environments",
+          "Plugin APIs",
+          "Framework environments"
+        ],
+        "retrieval_queries": [
+          "Where can I find documentation for plugin authors?",
+          "Where can I find documentation for framework authors?",
+          "Where can I find documentation for runtime providers?",
+          "What guides are available for Vite environment users?"
+        ],
+        "code_languages": [],
+        "chunk_index": 1
+      },
+      "retrieval_content": "Target Users\nTarget Users\nThis guide provides the basic concepts about environments for end users.\n\nPlugin authors have a more consistent API available to interact with the current environment configuration. If you\u0027re building on top of Vite, the [Environment API Plugins Guide](./api-environment-plugins.md) guide describes the way extended plugin APIs available to support multiple custom environments.\n\nFrameworks could decide to expose environments at different levels. If you\u0027re a framework author, continue reading the [Environment API Frameworks Guide](./api-environment-frameworks) to learn about the Environment API programmatic side.\n\nFor Runtime providers, the [Environment API Runtimes Guide](./api-environment-runtimes.md) explains how to offer custom environments to be consumed by frameworks and users."
+    }
+  ]
+}
