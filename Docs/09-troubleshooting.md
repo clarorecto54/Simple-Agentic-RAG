@@ -104,7 +104,17 @@ python3 -c "import json; json.load(open('input.json'))" && echo "Valid JSON"
 ```
 If chunks are nested under a different key, the fallback logic scans root values for any array of objects.
 
-### 9. Rag Pipeline OOM — Intermediate Files Not Found
+### 9. Stage 2/3 JSON Parse Error — Invalid Escapable Character
+
+**Symptom:** `Stage 3 parse error: '0x0A' is an invalid escapable character within a JSON string. LineNumber: 81 | BytePositionInLine: 847.` (or similar line numbers). Appears in `<filename>_pipeline.log.txt` after processing certain files.
+
+**Cause:** The LLM response contains raw newline bytes (0x0A) inside JSON string values like `retrieval_content`. Example from the log: `"retrieval_content":"Vite Documentation[0x0A]build.modulePreload..."` where `[0x0A]` is a literal newline, not an escaped `\n`. `System.Text.Json` rejects this as invalid JSON.
+
+**Fix:** The `SanitizeJsonOutput` method in `AgenticChunkingProcessor.cs` now escapes these raw control characters before parsing. If the error persists after updating, check for other unescaped control characters (0x00–0x1F) in the LLM output via the pipeline log's raw response section.
+
+**Affected stages:** Both Stage 2 and Stage 3 call `SanitizeJsonOutput`, so either can encounter this error.
+
+### 10. Rag Pipeline OOM — Intermediate Files Not Found
 
 **Symptom:** After an OOM during Chunk stage, re-running `rag` says "No intermediate results found — restarting from Segment."
 
@@ -115,7 +125,7 @@ If chunks are nested under a different key, the fallback logic scans root values
 ls ./rag_output/segment_output.json ./rag_output/semantic_groups.json
 ```
 
-### 10. Rag Service Returns Empty Object `{}` or Null
+### 11. Rag Service Returns Empty Object `{}` or Null
 
 **Symptom:** `NullReferenceException` during rag processing when parsing LLM output.
 
@@ -127,7 +137,7 @@ ls ./rag_output/segment_output.json ./rag_output/semantic_groups.json
 ```
 If the model returns valid content but not structured JSON, adjust the prompt to enforce a specific JSON schema.
 
-### 11. Rag Reasoning Tokens Format Mismatch
+### 12. Rag Reasoning Tokens Format Mismatch
 
 **Symptom:** llama.cpp rejects the request with a format error about `reasoning_tokens`.
 
@@ -141,7 +151,7 @@ model["reasoning_tokens"] = -1;
 model["thinking"] = "enabled";  // or model["reasoning"] = true;
 ```
 
-### 12. Pipeline Logger Log File Not Appearing
+### 13. Pipeline Logger Log File Not Appearing
 
 **Symptom:** After running `rag` or `embed`, the expected `<filename>_pipeline.log.txt` does not appear in the output directory.
 
@@ -149,7 +159,7 @@ model["thinking"] = "enabled";  // or model["reasoning"] = true;
 
 **Fix:** Check for partial log content in the output directory. For live debugging, examine the stderr console output which mirrors the logger's stage transitions.
 
-### 13. Stage 3 DATA LOSS CHECK Failures
+### 14. Stage 3 DATA LOSS CHECK Failures
 
 **Symptom:** Processing completes but `stage3_final_chunks` differs from expected, or chunks appear truncated compared to source.
 
@@ -157,7 +167,7 @@ model["thinking"] = "enabled";  // or model["reasoning"] = true;
 
 **Fix:** Check the `<filename>_pipeline.log.txt` for DATA LOSS CHECK results. Adjust prompt template (`03 Chunking.md`) to enforce stricter "copy verbatim" instructions.
 
-### 14. Embed Command Missing `retrieval_content` in Qdrant Payload
+### 15. Embed Command Missing `retrieval_content` in Qdrant Payload
 
 **Symptom:** After upsert, Qdrant payloads lack the `retrieval_content` field even though the `.ragged.json` has it.
 
@@ -183,7 +193,8 @@ model["thinking"] = "enabled";  // or model["reasoning"] = true;
 | Rag: segment failed | AgenticChunkingProcessor | `Error: Failed to segment file '{file}': {error}` |
 | Rag: semantic grouping failed | AgenticChunkingProcessor | `Error: Failed to group segments for '{file}': {error}` |
 || Rag: chunk generation failed | AgenticChunkingProcessor | `Error: Failed to generate chunks for '{file}' stage {stage}: {error}` |
-|| Stage 3 DATA LOSS CHECK | AgenticChunkingProcessor | `Stage 3 data loss check: N of M chunks verified` (logged) |
+||| Stage 2/3 JSON parse error | AgenticChunkingProcessor | `Stage {N} parse error: {message}\\n\\nRaw:\\n{raw_500_chars}` (includes `'0x0A' is an invalid escapable character`) |
+||| Stage 3 DATA LOSS CHECK | AgenticChunkingProcessor | `Stage 3 data loss check: N of M chunks verified` (logged) |
 || Pipeline logger write error | Utils/PipelineLogger | `Error writing pipeline log to {path}: {message}` |
 
 ## Troubleshooting Strategy

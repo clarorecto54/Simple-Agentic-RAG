@@ -2,7 +2,7 @@
 
 ## Test Architecture
 
-The project uses **inline tests** — a simple `try/catch` harness in `Tests/Program.cs` with 15 assertions. No test framework (xUnit, NUnit, etc.) is used. The program prints `[PASS]` or `[FAIL]` for each test and exits with code 1 if any fail.
+The project uses **inline tests** — a simple `try/catch` harness in `Tests/Program.cs` with 16 assertions. No test framework (xUnit, NUnit, etc.) is used. The program prints `[PASS]` or `[FAIL]` for each test and exits with code 1 if any fail.
 
 ### Why Inline Tests?
 
@@ -39,7 +39,7 @@ cp "../Reference/Chunked Data.json" "Tests/"
 | 12 | Qdrant point creation | `QdrantPoint` record with correct type constraints | Fake (256 dim) |
 | 13 | Dimension mismatch | Processor throws when configured dimension ≠ actual | Fake (256 dim, expects 1024) |
 | 14 | Deterministic vectors | Two separate service instances produce identical vectors | Fake × 2 (512 dim each) |
-| 15 | Output round-trip | Output JSON re-parses with all 33 chunks intact, every chunk has `id`, `content`, `points` | Fake (64 dim) |
+|| 15 | Output round-trip | Output JSON re-parses with all 33 chunks intact, every chunk has `id`, `content`, `points` | Fake (64 dim) || 16 | SanitizeJsonOutput control chars | LLM output with literal `\n`/`\r`/`\t` bytes inside JSON strings parses after sanitization | Internal (AgenticChunkingProcessor) |
 
 ## Test Configurations
 
@@ -82,6 +82,10 @@ Creates two **separate** `FakeEmbeddingService(512)` instances (no shared state)
 ### Test 15 — Output Round-Trip
 
 Runs full pipeline with small dimensions (64), writes output, re-parses it as `JsonNode`, verifies `"chunks"` array exists with 33 elements, and that each chunk contains `id`, `content`, and `points` keys.
+
+### Test 16 — SanitizeJsonOutput Control Character Escaping
+
+Builds a JSON string with literal `\n` (0x0A) bytes inside a quoted value (`"Vite Documentation\nbuild.modulePreload"`), passes it through `AgenticChunkingProcessor.SanitizeJsonOutput`, and verifies the sanitized result parses successfully. Confirms the fix for Stage 2/3 parse errors caused by unescaped control characters in LLM output.
 
 ## Fail vs Fail-Soft: Test 13
 

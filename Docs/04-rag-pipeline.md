@@ -237,12 +237,14 @@ The RagService system role adds: `"You are a precise markdown processing agent. 
 
 ### Markdown Code Fence Handling (`SanitizeJsonOutput`)
 
-LLMs sometimes wrap responses in markdown code fences (```). This method strips them:
+LLMs sometimes wrap responses in markdown code fences (```). This method also escapes literal control characters (`\n`, `\r`, `\t`) inside JSON string values that LLMs occasionally emit as raw bytes instead of escaped equivalents (e.g., `"Vite Documentation\nbuild.modulePreload"` which would cause a `System.Text.Json` parse error).
 
 1. Remove leading ``` if present (including language specifier line)
 2. Remove trailing ``` if present
+3. Walk the cleaned text left-to-right, tracking quote boundaries; escape `\n`, `\r`, and `\t` bytes found inside quoted strings to their escaped equivalents (`\n`, `\r`, `\t`)
+4. After processing, parse with `JsonNode.Parse()`. If parsing fails, an `AgenticChunkingException` is thrown with raw response snippet for debugging.
 
-After stripping, the cleaned text is parsed with `JsonNode.Parse()`. If parsing fails, an `AgenticChunkingException` is thrown with raw response snippet for debugging.
+This method is called by both `ParseStage2Output` and `ParseStage3Output`, protecting both stages from control-character parse errors.
 
 ### Stage Error Messages
 

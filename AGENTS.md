@@ -28,7 +28,7 @@ Before committing any changes, always:
 3. **Verify build**: Run the build and test commands above to confirm everything works
 4. **Update documentation**: If you've added/modified functionality, update this AGENTS.md file accordingly
 
-The test project (`Tests/Tests.csproj`) references the main project via `<ProjectReference>`. It runs 15 inline assertions — not a test framework, just `try/catch` with PASS/FAIL output. Exit code 1 means failures.
+The test project (`Tests/Tests.csproj`) references the main project via `<ProjectReference>`. It runs 16 inline assertions — not a test framework, just `try/catch` with PASS/FAIL output. Exit code 1 means failures.
 
 ## Running the App
 
@@ -117,8 +117,8 @@ Services/FakeEmbeddingService.cs    ← deterministic hash-based vectors for tes
 Services/RagService.cs            ← rag LLM client with timeout wrapper (WaitAsync)
 Models/QdrantPoint.cs          ← record(Id, Vector, Payload)
 Utils/PipelineLogger.cs        ← structured per-file debug logging (inputs, outputs, errors, flush to .log.txt)
-Tests/                         ← inline test harness (dotnet run)
-  Program.cs                   ← 15 PASS/FAIL assertions
+- `Tests/`                         ← inline test harness (dotnet run)
+  - Program.cs                   ← 16 PASS/FAIL assertions
 Prompts/prompts.json           ← embedded prompt templates loaded as assembly resource at runtime (filesystem fallback if missing)
 setup_qdrant.py                ← Qdrant collection + batch upsert (python3)
 Reference/                     ← non-prompt project assets only
@@ -149,10 +149,11 @@ Each stage writes per-file debug logs (captured in `<filename>_pipeline.log.txt`
 3. **`output.json` vs `.embedded.json`.** The Python setup script reads hardcoded `/home/clarorecto/.../output.json`. The C# app writes `<input>.embedded.json`. These are different files.
 4. **Dotnet project name has a space.** `"Embedding Console.csproj"` — always quote paths containing spaces in shell commands.
 5. **Dimension mismatch on first chunk.** If `EMBEDDING_DIMENSION` is set, the first embedding MUST match that dimension or `ProcessAsync` throws. Verify your model before running.
-6. **Stage timeout default is 10 minutes per stage.** Large files may exceed this — use `--timeout 20` to increase. Total wall-clock time = timeout × stages × batches.
-7. **Prompts loaded from embedded resource first, filesystem fallback second.** Modifying only `Reference/[PROMPT] 0N.md` files without syncing to `Prompts/prompts.json` means the compiled binary won't see changes. Run the sync script or rebuild after prompt edits.
-8. **Stage 3 generates globally unique IDs (`segX-NNN`) not UUIDs.** Qdrant payloads use these IDs as `point_string_id`. Do not assume UUID format when querying.
-9. **Output `.ragged.json` now includes a `retrieval_content` field** alongside `content`. The embed command uses `content` for embedding but passes `retrieval_content` through to Qdrant payloads. If the LLM omits `retrieval_content`, the processor generates it from doc title + section path + topic + content.
+15. **Stage timeout default is 10 minutes per stage.** Large files may exceed this — use `--timeout 20` to increase. Total wall-clock time = timeout × stages × batches.
+16. **Prompts loaded from embedded resource first, filesystem fallback second.** Modifying only `Reference/[PROMPT] 0N.md` files without syncing to `Prompts/prompts.json` means the compiled binary won't see changes. Run the sync script or rebuild after prompt edits.
+17. **Stage 3 generates globally unique IDs (`segX-NNN`) not UUIDs.** Qdrant payloads use these IDs as `point_string_id`. Do not assume UUID format when querying.
+18. **SanitizeJsonOutput escapes control chars in LLM output.** Before parsing LLM JSON responses, `SanitizeJsonOutput` (in `AgenticChunkingProcessor.cs`) now escapes literal `\n`, `\r`, and `\t` bytes inside JSON string values. LLMs sometimes emit raw newlines instead of escaped `\n` sequences (e.g., `"Vite Documentation\nbuild.modulePreload"`), causing `System.Text.Json` to throw `'0x0A' is an invalid escapable character`. The method walks the text left-to-right, tracking quote boundaries and escaping control chars only inside strings. This fix applies to both Stage 2 and Stage 3 outputs.
+19. **Output `.ragged.json` now includes a `retrieval_content` field** alongside `content`. The embed command uses `content` for embedding but passes `retrieval_content` through to Qdrant payloads. If the LLM omits `retrieval_content`, the processor generates it from doc title + section path + topic + content.
 
 ## Git Commits
 
