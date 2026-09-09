@@ -151,6 +151,42 @@ public class AgenticChunkingProcessor : IDisposable
                 PipelineLogger.WriteOutput(sourceFileName, $"STAGE2_OUTPUT_seg{seg.Id}", stage2Result);
 
                 var analysis = ParseStage2Output(stage2Result);
+
+                // Deduplicate Stage 2 chunks by source_content hash
+                if (analysis["chunks"] is JsonArray stage2Arr)
+                {
+                    var seenContent = new HashSet<string>(StringComparer.Ordinal);
+                    var deduplicatedChunks = new JsonArray();
+
+                    foreach (var chunkNode in stage2Arr.OfType<JsonObject>())
+                    {
+                        string contentKey = "";
+                        if (chunkNode.ContainsKey("source_content"))
+                        {
+                            var sc = chunkNode["source_content"];
+                            if (sc is JsonValue sv && sv.TryGetValue<string>(out var s))
+                                contentKey = s.Trim();
+                        }
+
+                        // Also check "content" field as fallback
+                        if (string.IsNullOrEmpty(contentKey) && chunkNode.ContainsKey("content"))
+                        {
+                            var c = chunkNode["content"];
+                            if (c is JsonValue cv && cv.TryGetValue<string>(out var cs))
+                                contentKey = cs.Trim();
+                        }
+
+                        if (!seenContent.Contains(contentKey) || string.IsNullOrEmpty(contentKey))
+                        {
+                            seenContent.Add(contentKey);
+                            deduplicatedChunks.Add(chunkNode.DeepClone() as JsonObject ?? new JsonObject());
+                        }
+                    }
+
+                    // Replace original with deduplicated array
+                    analysis["chunks"] = deduplicatedChunks;
+                }
+
                 semanticResults.Add((seg.Id, seg.SourceContent, analysis));
                 PipelineLogger.WriteEntry(sourceFileName, "STAGE2_SUCCESS", $"Parsed analysis for {seg.Id}");
                 Console.WriteLine("\u001b[32m✓\u001b[0m");
@@ -168,6 +204,7 @@ public class AgenticChunkingProcessor : IDisposable
         // ===== STAGE 3: Final Chunking =====
         Console.WriteLine("\n\u001b[33m  → Stage 3: RAG Chunking\u001b[0m");
         var allFinalChunks = new List<JsonObject>();
+        int stage3GlobalCounter = 0;
 
         for (int i = 0; i < semanticResults.Count; i++)
         {
@@ -210,7 +247,7 @@ public class AgenticChunkingProcessor : IDisposable
                             throw;
                         }
 
-                        var chunks = ParseStage3Output(stage3Result, sourceFileName, sr.segmentId);
+                        var chunks = ParseStage3Output(stage3Result, sourceFileName, sr.segmentId, ref stage3GlobalCounter);
                         allFinalChunks.AddRange(chunks);
 
                         if (processed % 5 == 0)
@@ -267,6 +304,11 @@ public class AgenticChunkingProcessor : IDisposable
                 wrapped["metadata"] = metadataObj.DeepClone() as JsonObject ?? new JsonObject();
             else
                 wrapped["metadata"] = new JsonObject();
+
+            if (chunkObj["retrieval_content"] is JsonNode rcNode)
+                wrapped["retrieval_content"] = rcNode.DeepClone();
+            else
+                wrapped["retrieval_content"] = JsonValue.Create("");
 
             outputObj["chunks"]!.AsArray().Add(wrapped);
         }
@@ -519,7 +561,7 @@ public class AgenticChunkingProcessor : IDisposable
         return sb.ToString();
     }
 
-    private static List<JsonObject> ParseStage3Output(string jsonText, string sourceFileName, string segmentId)
+    private static List<JsonObject> ParseStage3Output(string jsonText, string sourceFileName, string segmentId, ref int globalChunkCounter)
     {
         try
         {
@@ -546,16 +588,51 @@ public class AgenticChunkingProcessor : IDisposable
             {
                 if (chunkNode is not JsonObject chunk) continue;
 
+                globalChunkCounter++;
+
                 // Ensure the chunk has the expected shape for Chunked Data.json compatibility
                 if (!chunk.ContainsKey("content"))
                     chunk["content"] = JsonValue.Create("");
                 if (!chunk.ContainsKey("metadata"))
                     chunk["metadata"] = new JsonObject();
+                if (!chunk.ContainsKey("retrieval_content") || string.IsNullOrEmpty(chunk["retrieval_content"]?.GetValue<string>()))
+                    chunk["retrieval_content"] = JsonValue.Create("");
 
                 // Fill in any missing metadata fields from segment context
                 var meta = chunk["metadata"] as JsonObject ?? new JsonObject();
                 if (!meta.ContainsKey("source_file") && !string.IsNullOrEmpty(sourceFileName))
                     meta["source_file"] = JsonValue.Create(sourceFileName);
+
+                // Generate globally unique ID using the counter
+                string safeSegment = segmentId.Replace("seg-", "");
+                chunk["id"] = JsonValue.Create($"{safeSegment}-{globalChunkCounter:D3}");
+
+                // Generate retrieval_content if not provided by LLM
+                if (string.IsNullOrEmpty(chunk["retrieval_content"].GetValue<string>()))
+                {
+                    var content = chunk["content"]?.GetValue<string>() ?? "";
+                    var headingPath = meta["heading_path"] as JsonArray;
+                    var topic = meta["topic"]?.GetValue<string>() ?? "";
+                    var docTitle = meta["document_title"]?.GetValue<string>() ?? sourceFileName;
+
+                    string sectionPath = " / ";
+                    if (headingPath != null && headingPath.Count > 0)
+                    {
+                        var parts = new List<string>();
+                        foreach (var h in headingPath.OfType<JsonValue>())
+                            if (h.TryGetValue<string>(out var hs))
+                                parts.Add(hs);
+                        sectionPath = string.Join(" / ", parts);
+                    }
+
+                    string retrievalContent;
+                    if (string.IsNullOrEmpty(topic))
+                        retrievalContent = $"{docTitle} | {sectionPath}\n\n{content}";
+                    else
+                        retrievalContent = $"{docTitle} | {sectionPath} | {topic}\n\n{content}";
+
+                    chunk["retrieval_content"] = JsonValue.Create(retrievalContent);
+                }
 
                 chunks.Add(chunk);
             }
