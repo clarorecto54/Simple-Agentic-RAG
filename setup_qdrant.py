@@ -67,12 +67,16 @@ def create_collection(client: QdrantClient, collection_name: str, vector_size: i
       Recall within ~1-2 pp of raw float32 at ~4x throughput.
     """
 
-    vectors_config = models.VectorParams(
-        size=vector_size,
-        distance=models.Distance.COSINE,
-        datatype=models.Datatype.FLOAT32,
-        memory=models.Memory.CACHED,       # original vectors in RAM (on_disk=False)
-    )
+    NAMED_VECTOR = "jina-embeddings-v3"
+
+    vectors_config = {
+        NAMED_VECTOR: models.VectorParams(
+            size=vector_size,
+            distance=models.Distance.COSINE,
+            datatype=models.Datatype.FLOAT32,
+            memory=models.Memory.CACHED,       # original vectors in RAM (on_disk=False)
+        ),
+    }
 
     optimizers_config = models.OptimizersConfigDiff(
         default_segment_number=1,
@@ -108,7 +112,21 @@ def upsert_points(client: QdrantClient, json_path: str, collection_name: str) ->
 
     Expected schema matches `output.json`: {"chunks": [{"id", "content", "metadata", "points": [...]}]}.
     Each point entry needs an "id" and "vector".
+    Vectors are sent as named vectors using the collection's vector name.
     """
+
+    # Read the collection config to discover the named-vector key.
+    try:
+        info = client.get_collection(collection_name)
+        vec_cfg = info.config.params.vectors  # type: ignore[union-attr]
+        if isinstance(vec_cfg, dict):
+            vector_name = next(iter(vec_cfg), None)
+            if not vector_name:
+                sys.exit(f"Cannot determine named-vector key from collection config.")
+        else:
+            vector_name = ""  # legacy single-vector config — use raw array below
+    except Exception as exc:
+        sys.exit(f"Failed to read collection config: {exc}")
 
     path = Path(json_path)
     if not path.exists():
@@ -132,10 +150,21 @@ def upsert_points(client: QdrantClient, json_path: str, collection_name: str) ->
             vector = point_entry.get("vector")
             if not point_str_id or not vector:
                 continue
+
+            # Format the vector for the upsert call.
+            if isinstance(vector, dict) and vector_name:
+                # Named-vector format: {"jina-embeddings-v3": [...]}
+                upsert_vector = {vector_name: vector[vector_name]}
+            elif isinstance(vector, list):
+                # Legacy raw array — only for single-vector collections.
+                upsert_vector = vector
+            else:
+                continue
+
             all_points.append(
                 models.PointStruct(
                     id=next_id,
-                    vector=vector,
+                    vector=upsert_vector,
                     payload=payload | {"point_string_id": point_str_id},
                 )
             )

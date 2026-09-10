@@ -279,12 +279,15 @@ public class EmbeddingProcessor
     {
         var obj = new JsonObject();
         obj["id"] = JsonValue.Create(point.Id);
-        
-        // Serialize the vector as a JsonArray of floats
+
+        // Serialize the vector as a named-vector object for Qdrant.
+        const string VECTOR_NAME = "jina-embeddings-v3";
+        var vecObj = new JsonObject();
         var vecArr = new JsonArray();
         foreach (var v in (float[])point.Vector)
             vecArr.Add(v);
-        obj["vector"] = vecArr;
+        vecObj[VECTOR_NAME] = vecArr;
+        obj["vector"] = vecObj;
 
         obj["payload"] = point.Payload.DeepClone() as JsonObject ?? new JsonObject();
 
