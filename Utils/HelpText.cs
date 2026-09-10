@@ -33,8 +33,9 @@ internal static class HelpText
           output.json    Optional. Output directory for the embedded output.
 
         Options:
-          --input-dir, -d DIR   Directory to scan recursively for *.json files
-          --output-dir, -o DIR  Output directory for merged embedded.json (default: current dir)
+          --input-dir, -d DIR           Directory to scan recursively for *.json files
+          --output-dir, -o DIR          Output directory for merged embedded.json (default: current dir)
+          --vector-name, -v NAME        Named vector name for Qdrant output (default: no named vector / legacy mode)
 
         If multiple inputs are specified, a single merged output file 'embedded.json' is created
         in the output directory containing chunks from all successfully processed files.

@@ -645,6 +645,133 @@ async Task RunTests()
         failed++;
     }
 
+    // ─── Test 21: Legacy vector-name mode produces raw array ───
+    try
+    {
+        var fakeSvc = new FakeEmbeddingService(32);
+        var jsonText = "{\"chunks\":[{\"id\":\"lv-001\",\"content\":\"legacy test vector\"}]}";
+        var rootNode = JsonNode.Parse(jsonText)!;
+
+        // VectorName = null → legacy mode
+        var processor = new EmbeddingProcessor(fakeSvc, 32, vectorName: null);
+        var result = await ProcessSingleFileTestLegacy(fakeSvc, jsonText, "/tmp/test_legacy.json", processor);
+
+        // Read output and check vector format
+        var outPath = Path.Combine(Path.GetTempPath(), "test_legacy.json");
+        EmbeddingProcessor.WriteOutput(result, outPath);
+        var outJson = File.ReadAllText(outPath);
+        var outNode = JsonNode.Parse(outJson)!;
+        var chunksArr = (outNode["chunks"] as JsonArray)!;
+        var chunkObj = (JsonObject)chunksArr[0];
+        var pointObj = (JsonObject)((JsonArray)chunkObj["points"])![0];
+        var vectorVal = pointObj["vector"];
+
+        if (vectorVal is JsonObject)
+            throw new Exception("Expected raw array, got object (named vector format)");
+        if (vectorVal is not JsonArray vecArr || vecArr.Count != 32)
+            throw new Exception($"Vector should be raw array of 32 elements, got {vectorVal?.GetType().Name}");
+
+        File.Delete(outPath);
+        Console.WriteLine("[PASS] Test 21 - Legacy vector-name mode produces raw array");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 21 - Legacy mode: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 22: Named vector mode produces keyed-vector object in output JSON ───
+    try
+    {
+        var fakeSvc = new FakeEmbeddingService(32);
+        const string TEST_VECTOR_NAME = "qwen-embeddings";
+        var jsonText = $"{{\"chunks\":[{{\"id\":\"nv-001\",\"content\":\"named test vector\"}}]}}";
+
+        var processor = new EmbeddingProcessor(fakeSvc, 32, vectorName: TEST_VECTOR_NAME);
+        var result = await ProcessSingleFileTestLegacy(fakeSvc, jsonText, "/tmp/test_named.json", processor);
+
+        var outPath = Path.Combine(Path.GetTempPath(), "test_named.json");
+        EmbeddingProcessor.WriteOutput(result, outPath);
+        var outJson = File.ReadAllText(outPath);
+        var outNode = JsonNode.Parse(outJson)!;
+        var chunksArr = (outNode["chunks"] as JsonArray)!;
+        var chunkObj = (JsonObject)chunksArr[0];
+        var pointObj = (JsonObject)((JsonArray)chunkObj["points"])![0];
+        var vectorVal = pointObj["vector"];
+
+        if (vectorVal is not JsonObject vecObj)
+            throw new Exception($"Expected object, got {vectorVal?.GetType().Name}");
+        if (!vecObj.ContainsKey(TEST_VECTOR_NAME))
+            throw new Exception($"Vector object missing key '{TEST_VECTOR_NAME}'");
+        var innerArr = vecObj[TEST_VECTOR_NAME] as JsonArray;
+        if (innerArr is null || innerArr.Count != 32)
+            throw new Exception($"Inner vector should be array of 32, got {innerArr?.Count}");
+
+        File.Delete(outPath);
+        Console.WriteLine("[PASS] Test 22 - Named vector mode produces keyed vector object");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 22 - Named mode: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 23: VectorName in LlamaCppEmbeddingOptions is preserved through pipeline ───
+    try
+    {
+        var opts = new LlamaCppEmbeddingOptions
+        {
+            ServerUrl = "http://localhost:4000",
+            ModelId = "test-model",
+            ExpectedDimension = 768,
+            VectorName = "jina-embeddings-v3",
+        };
+
+        if (opts.VectorName != "jina-embeddings-v3")
+            throw new Exception($"VectorName was '{opts.VectorName}', expected 'jina-embeddings-v3'");
+
+        Console.WriteLine("[PASS] Test 23 - LlamaCppEmbeddingOptions preserves VectorName");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 23 - Options preservation: {ex.Message}");
+        failed++;
+    }
+
+    // ─── Test 24: Empty vector name treated same as null (legacy mode) ───
+    try
+    {
+        var fakeSvc = new FakeEmbeddingService(32);
+        const string jsonText = "{\"chunks\":[{\"id\":\"empty-001\",\"content\":\"empty name test\"}]}";
+
+        // Explicitly pass empty string — should be same as null → legacy mode
+        var processor = new EmbeddingProcessor(fakeSvc, 32, vectorName: "");
+        var result = await ProcessSingleFileTestLegacy(fakeSvc, jsonText, "/tmp/test_empty.json", processor);
+
+        var outPath = Path.Combine(Path.GetTempPath(), "test_empty.json");
+        EmbeddingProcessor.WriteOutput(result, outPath);
+        var outJson = File.ReadAllText(outPath);
+        var outNode = JsonNode.Parse(outJson)!;
+        var chunkObj = ((JsonObject)((outNode["chunks"] as JsonArray)![0]))!;
+        var pointObj = (JsonObject)((JsonArray)chunkObj["points"])![0];
+        var vectorVal = pointObj["vector"];
+
+        if (vectorVal is JsonObject)
+            throw new Exception("Expected raw array, got object");
+
+        File.Delete(outPath);
+        Console.WriteLine("[PASS] Test 24 - Empty vector name produces raw array (legacy mode)");
+        passed++;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FAIL] Test 24 - Empty name: {ex.Message}");
+        failed++;
+    }
+
     var sep = new string('=', 50);
     Console.WriteLine($"\n{sep}");
     Console.WriteLine($"Results: {passed} passed, {failed} failed out of {passed + failed} tests");
@@ -660,5 +787,15 @@ static async Task<ProcessResult> ProcessSingleFile(FakeEmbeddingService fakeSvc,
 {
     var rootNode = JsonNode.Parse(jsonContent)!;
     var processor = new EmbeddingProcessor(fakeSvc, fakeSvc.EmbeddingDimension);
+    return await processor.ProcessAsync(rootNode, filePath, CancellationToken.None);
+}
+
+/// <summary>
+/// Processes a single JSON string via the given processor directly (allows custom vector name).
+/// </summary>
+static async Task<ProcessResult> ProcessSingleFileTestLegacy(
+    FakeEmbeddingService fakeSvc, string jsonContent, string filePath, EmbeddingProcessor processor)
+{
+    var rootNode = JsonNode.Parse(jsonContent)!;
     return await processor.ProcessAsync(rootNode, filePath, CancellationToken.None);
 }

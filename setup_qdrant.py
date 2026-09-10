@@ -12,7 +12,7 @@ from qdrant_client import QdrantClient, models
 # Helpers — accept client directly; no module-global mutation needed.
 # ---------------------------------------------------------------------------
 
-DEFAULT_COLLECTION = "Coding Knowledge"
+DEFAULT_COLLECTION = "Stock Knowledge"
 
 
 def fetch_llama_model_info(llama_url: str) -> dict:
@@ -50,7 +50,9 @@ def fetch_llama_model_info(llama_url: str) -> dict:
     return {"id": model_id, "embedding_dim": int(dim)}
 
 
-def create_collection(client: QdrantClient, collection_name: str, vector_size: int):
+def create_collection(
+    client: QdrantClient, collection_name: str, vector_size: int, vector_name: str | None = None
+):
     """Create the collection with maximum-performance settings for a small dataset.
 
     The default config (float32 vectors + TurboQuant BITS4 rescoring) is appropriate
@@ -67,16 +69,24 @@ def create_collection(client: QdrantClient, collection_name: str, vector_size: i
       Recall within ~1-2 pp of raw float32 at ~4x throughput.
     """
 
-    NAMED_VECTOR = "jina-embeddings-v3"
-
-    vectors_config = {
-        NAMED_VECTOR: models.VectorParams(
+    if vector_name:
+        # Named vector mode — create collection with explicit named vector schema.
+        vectors_config = {
+            vector_name: models.VectorParams(
+                size=vector_size,
+                distance=models.Distance.COSINE,
+                datatype=models.Datatype.FLOAT32,
+                memory=models.Memory.CACHED,
+            ),
+        }
+    else:
+        # Legacy single-vector mode — no named vectors.
+        vectors_config = models.VectorParams(
             size=vector_size,
             distance=models.Distance.COSINE,
             datatype=models.Datatype.FLOAT32,
-            memory=models.Memory.CACHED,       # original vectors in RAM (on_disk=False)
-        ),
-    }
+            memory=models.Memory.CACHED,
+        )
 
     optimizers_config = models.OptimizersConfigDiff(
         default_segment_number=1,
@@ -257,7 +267,7 @@ def cmd_create(args: argparse.Namespace, qdrant_url: str) -> None:
     except Exception:
         pass  # doesn't exist yet — fine
 
-    create_collection(client, collection_name, verified_dim)
+    create_collection(client, collection_name, verified_dim, args.vector_name)
 
     # 3. Verify the created collection.
     verify_config(client, collection_name, verified_dim)
@@ -323,6 +333,15 @@ def main():
         help=(
             "Force the vector dimension. When --llama-url is given, this must match "
             "the reported dimension (or be omitted for auto-detection)."
+        ),
+    )
+    create_parser.add_argument(
+        "--vector-name",
+        default=None,
+        help=(
+            "Named vector name for the collection. If omitted, creates a legacy "
+            "single-vector collection with no named vectors (Qdrant will use empty-string key). "
+            "Example: --vector-name qwen-embeddings"
         ),
     )
 

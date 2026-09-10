@@ -13,6 +13,7 @@ public class EmbeddingProcessor
 {
     private readonly IEmbeddingService _embeddingService;
     private readonly int? _expectedDimension;
+    private readonly string? _vectorName;
     private int? _detectedDim;
 
     /// <summary>
@@ -27,10 +28,12 @@ public class EmbeddingProcessor
 
     public EmbeddingProcessor(
         IEmbeddingService embeddingService,
-        int? expectedDimension = null)
+        int? expectedDimension = null,
+        string? vectorName = null)
     {
         _embeddingService = embeddingService;
         _expectedDimension = expectedDimension;
+        _vectorName = vectorName;
     }
 
     /// <summary>
@@ -99,7 +102,7 @@ public class EmbeddingProcessor
                 // Attach the point to the original chunk node as a JSON array
                 var pointArray = chunkInfo.ChunkNode["points"] as JsonArray;
                 pointArray!.Clear();
-                pointArray.Add(BuildPointJson(point));
+                pointArray.Add(BuildPointJson(point, _vectorName));
 
                 chunkResults.Add(new ChunkResult(
                     chunkInfo.ChunkId, "content", true, null, point));
@@ -275,19 +278,29 @@ public class EmbeddingProcessor
         return new QdrantPoint(pointId, vector, payload);
     }
 
-    private static JsonObject BuildPointJson(QdrantPoint point)
+    private static JsonObject BuildPointJson(QdrantPoint point, string? vectorName)
     {
         var obj = new JsonObject();
         obj["id"] = JsonValue.Create(point.Id);
 
-        // Serialize the vector as a named-vector object for Qdrant.
-        const string VECTOR_NAME = "jina-embeddings-v3";
-        var vecObj = new JsonObject();
-        var vecArr = new JsonArray();
-        foreach (var v in (float[])point.Vector)
-            vecArr.Add(v);
-        vecObj[VECTOR_NAME] = vecArr;
-        obj["vector"] = vecObj;
+        if (!string.IsNullOrEmpty(vectorName))
+        {
+            // Named-vector format: {"vector-name": [...]}
+            var vecObj = new JsonObject();
+            var vecArr = new JsonArray();
+            foreach (var v in (float[])point.Vector)
+                vecArr.Add(v);
+            vecObj[vectorName] = vecArr;
+            obj["vector"] = vecObj;
+        }
+        else
+        {
+            // Legacy raw-array format: "vector": [...]
+            var vecArr = new JsonArray();
+            foreach (var v in (float[])point.Vector)
+                vecArr.Add(v);
+            obj["vector"] = vecArr;
+        }
 
         obj["payload"] = point.Payload.DeepClone() as JsonObject ?? new JsonObject();
 

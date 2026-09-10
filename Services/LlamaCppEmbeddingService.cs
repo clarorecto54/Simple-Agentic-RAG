@@ -24,6 +24,12 @@ public class LlamaCppEmbeddingOptions
     /// Expected embedding vector dimension. If 0, dimension is inferred from the first response.
     /// </summary>
     public int ExpectedDimension { get; set; } = 0;
+
+    /// <summary>
+    /// Optional named vector name. When null or empty, the output uses legacy raw-array format.
+    /// When set (e.g., "qwen-embeddings"), vectors are wrapped in an object keyed by this name.
+    /// </summary>
+    public string? VectorName { get; set; } = null;
 }
 
 /// <summary>

@@ -46,6 +46,7 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
     string? inputDir = null;
     List<string> inputFiles = new();
     string outputPath = "";
+    string? vectorName = null;
 
     int i = 0;
     for (; i < subArgs.Length; i++)
@@ -55,6 +56,16 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
             case "--help":
                 HelpText.PrintEmbedHelp();
                 return 0;
+
+            case "--vector-name":
+            case "-v":
+                if (i + 1 >= subArgs.Length)
+                {
+                    Console.Error.WriteLine("Error: --vector-name requires a vector name argument.");
+                    return 1;
+                }
+                vectorName = subArgs[++i];
+                break;
 
             case "--output-dir":
             case "-o":
@@ -155,6 +166,7 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
         ExpectedDimension = int.TryParse(
             Environment.GetEnvironmentVariable("EMBEDDING_DIMENSION"), out var dim)
             ? dim : 0, // 0 means auto-detect on first response
+        VectorName = vectorName,
     };
 
     // Batch processing for multiple files
@@ -213,7 +225,10 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
     };
 
     var embeddingService = new LlamaCppEmbeddingService(embeddingOptions, httpClient);
-    var processor = new EmbeddingProcessor(embeddingService, embeddingOptions.ExpectedDimension);
+    var processor = new EmbeddingProcessor(
+        embeddingService, 
+        embeddingOptions.ExpectedDimension,
+        embeddingOptions.VectorName);
 
     try
     {
@@ -271,7 +286,10 @@ static async Task<int> RunBatchEmbedAsync(
             string jsonText = File.ReadAllText(inputFile);
             JsonNode rootNode = JsonNode.Parse(jsonText)!;
 
-            var processor = new EmbeddingProcessor(embeddingService, embeddingOptions.ExpectedDimension);
+            var processor = new EmbeddingProcessor(
+                embeddingService, 
+                embeddingOptions.ExpectedDimension,
+                embeddingOptions.VectorName);
             ProcessResult result = await processor.ProcessAsync(rootNode, inputFile, CancellationToken.None);
 
             // Check per-chunk results for failures
