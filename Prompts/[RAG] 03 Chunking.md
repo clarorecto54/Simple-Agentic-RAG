@@ -529,7 +529,7 @@ Do not invent relationships.
 Every chunk must contain:
 
 ```json
-"content": "EXACT SOURCE MARKDOWN"
+"document": "EXACT SOURCE MARKDOWN"
 ```
 
 The content must be copied from the provided source.
@@ -609,7 +609,7 @@ Use this structure:
     {
       "id": "document-section-001",
 
-      "content": "EXACT ORIGINAL MARKDOWN",
+      "document": "EXACT ORIGINAL MARKDOWN",
 
       "metadata": {
         "source_file": "example.md",

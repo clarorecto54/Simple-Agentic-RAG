@@ -76,7 +76,7 @@ public class EmbeddingProcessor
                 {
                     Console.Error.WriteLine($"Warning: Chunk '{chunkInfo.ChunkId}' has empty or null content — skipping.");
                     chunkResults.Add(new ChunkResult(
-                        chunkInfo.ChunkId, "content", false, "Empty content"));
+                        chunkInfo.ChunkId, "document", false, "Empty content"));
                     failedChunks.Add(chunkInfo.ChunkId);
                     continue;
                 }
@@ -105,7 +105,7 @@ public class EmbeddingProcessor
                 pointArray.Add(BuildPointJson(point, _vectorName));
 
                 chunkResults.Add(new ChunkResult(
-                    chunkInfo.ChunkId, "content", true, null, point));
+                    chunkInfo.ChunkId, "document", true, null, point));
             }
             catch (Exception ex) when (!(ex is InvalidOperationException && ex.Message.StartsWith("No chunks found")))
             {
@@ -116,7 +116,7 @@ public class EmbeddingProcessor
                     : ex.Message;
 
                 chunkResults.Add(new ChunkResult(
-                    chunkInfo.ChunkId, "content", false, errorMsg));
+                    chunkInfo.ChunkId, "document", false, errorMsg));
                 failedChunks.Add(chunkInfo.ChunkId);
             }
 
@@ -215,8 +215,8 @@ public class EmbeddingProcessor
 
     private static string? ExtractContentKey(JsonObject chunk)
     {
-        // The actual content field — typically "content", but detect it
-        var candidates = new[] { "content", "text", "body", "data" };
+        // The actual document field — typically "document", but detect it
+        var candidates = new[] { "document", "text", "body", "data" };
         foreach (var candidate in candidates)
         {
             if (chunk.ContainsKey(candidate))
@@ -240,7 +240,7 @@ public class EmbeddingProcessor
 
     private static string ExtractText(ChunkInfo chunkInfo)
     {
-        var key = chunkInfo.ContentKey ?? "content";
+        var key = chunkInfo.ContentKey ?? "document";
         
         if (chunkInfo.ChunkNode[key] is JsonValue jv && 
             jv.TryGetValue<string>(out var text))

@@ -38,8 +38,8 @@ async Task RunTests()
         if (!root.TryGetProperty("chunks", out var chunks))
             throw new Exception("No 'chunks' property found");
         int count = chunks.GetArrayLength();
-        if (count != 33)
-            throw new Exception($"Expected 33 chunks, found {count}");
+        if (count != 217)
+            throw new Exception($"Expected 217 chunks, found {count}");
         Console.WriteLine($"[PASS] Test 2 - Chunk detection ({count} chunks)");
         passed++;
     }
@@ -83,12 +83,12 @@ async Task RunTests()
 
         var firstChunk = chunks[0];
         var jsonNodeObj = JsonObject.Parse(firstChunk.GetRawText())!;
-        var contentValue = jsonNodeObj["content"]?.GetValue<string>();
-        if (string.IsNullOrEmpty(contentValue))
+        var documentValue = jsonNodeObj["document"]?.GetValue<string>();
+        if (string.IsNullOrEmpty(documentValue))
             throw new Exception("Content was null or empty");
 
         var fakeSvc = new FakeEmbeddingService(1024);
-        var embedding = await fakeSvc.GenerateEmbeddingAsync(contentValue);
+        var embedding = await fakeSvc.GenerateEmbeddingAsync(documentValue);
         if (embedding.Length != 1024)
             throw new Exception($"Expected 1024 dims, got {embedding.Length}");
 
@@ -113,9 +113,9 @@ async Task RunTests()
         var chunkNode = JsonObject.Parse(firstChunk.GetRawText())!;
         chunkNode["points"] = new JsonArray();
 
-        var contentValue = chunkNode["content"]!.GetValue<string>();
+        var documentValue = chunkNode["document"]!.GetValue<string>();
         var fakeSvc = new FakeEmbeddingService(1024);
-        var vector = await fakeSvc.GenerateEmbeddingAsync(contentValue);
+        var vector = await fakeSvc.GenerateEmbeddingAsync(documentValue);
 
         // Serialize first chunk for payload
         var payloadObj = JsonObject.Parse(firstChunk.GetRawText())!;
@@ -160,8 +160,8 @@ async Task RunTests()
 
         var firstChunk = chunks[0];
         var chunkNode = JsonObject.Parse(firstChunk.GetRawText())!;
-        var contentValue = chunkNode["content"]!.GetValue<string>();
-        var vector = await fakeSvc.GenerateEmbeddingAsync(contentValue);
+        var documentValue = chunkNode["document"]!.GetValue<string>();
+        var vector = await fakeSvc.GenerateEmbeddingAsync(documentValue);
 
         if (vector.Length != 1024)
             throw new Exception($"Vector dimension {vector.Length} != expected 1024");
@@ -188,11 +188,11 @@ async Task RunTests()
         var firstChunk = chunks[0];
         var chunkNode = JsonObject.Parse(firstChunk.GetRawText())!;
         var idValue = chunkNode["id"]!.GetValue<string>();
-        var contentValue = chunkNode["content"]!.GetValue<string>();
+        var documentValue = chunkNode["document"]!.GetValue<string>();
 
         // Generate embedding twice for the same text
-        var v1 = await fakeSvc.GenerateEmbeddingAsync(contentValue);
-        var v2 = await fakeSvc.GenerateEmbeddingAsync(contentValue);
+        var v1 = await fakeSvc.GenerateEmbeddingAsync(documentValue);
+        var v2 = await fakeSvc.GenerateEmbeddingAsync(documentValue);
 
         if (v1.Length != v2.Length || !v1.SequenceEqual(v2))
             throw new Exception("Same input produced different vectors");
@@ -217,7 +217,7 @@ async Task RunTests()
         var firstChunk = chunks[0];
         var chunkNode = JsonObject.Parse(firstChunk.GetRawText())!;
         string id = chunkNode["id"]!.GetValue<string>();
-        if (id != "build-options-build-target-001")
+        if (id != "segment-1-001")
             throw new Exception($"Unexpected id: {id}");
 
         Console.WriteLine("[PASS] Test 8 - Original properties preserved");
@@ -232,7 +232,7 @@ async Task RunTests()
     // ─── Test 9: Unknown properties preserved ───
     try
     {
-        var extraJson = """{"id":"test-chunk","content":"Hello world","metadata":{"source":"test"},"customProperty":true,"deepNested":{"foo":"bar"}}""";
+        var extraJson = """{"id":"test-chunk","document":"Hello world","metadata":{"source":"test"},"customProperty":true,"deepNested":{"foo":"bar"}}""";
         var node = JsonObject.Parse(extraJson)!;
 
         // Manually build payload for Qdrant point (simulates BuildQdrantPoint logic)
@@ -267,12 +267,12 @@ async Task RunTests()
         var result = await processor.ProcessAsync(rootNode, "./test_input.json");
 
         // Verify all chunks were processed successfully
-        if (result.Results.Count != 33)
-            throw new Exception($"Expected 33 results, got {result.Results.Count}");
+        if (result.Results.Count != 217)
+            throw new Exception($"Expected 217 results, got {result.Results.Count}");
 
         int successful = result.Results.Count(r => r.Success);
-        if (successful != 33)
-            throw new Exception($"Expected all 33 chunks to succeed, only {successful} succeeded");
+        if (successful != 217)
+            throw new Exception($"Expected all 217 chunks to succeed, only {successful} succeeded");
 
         // Verify output file was written
         var outputPath = "/tmp/test_output.json";
@@ -331,9 +331,9 @@ async Task RunTests()
 
         var firstChunk = chunks[0];
         var chunkNode = JsonObject.Parse(firstChunk.GetRawText())!;
-        var contentValue = chunkNode["content"]!.GetValue<string>();
+        var documentValue = chunkNode["document"]!.GetValue<string>();
 
-        var vector = await fakeSvc.GenerateEmbeddingAsync(contentValue);
+        var vector = await fakeSvc.GenerateEmbeddingAsync(documentValue);
         var payload = JsonObject.Parse(firstChunk.GetRawText())!;
         var qdrantPoint = new QdrantPoint("test-id", vector, payload);
 
@@ -365,7 +365,7 @@ async Task RunTests()
 
         var firstChunk = chunks[0];
         var chunkNode = JsonObject.Parse(firstChunk.GetRawText())!;
-        var contentValue = chunkNode["content"]!.GetValue<string>();
+        var documentValue = chunkNode["document"]!.GetValue<string>();
 
         // Processor expects 1024, fake service returns 256
         var processor = new EmbeddingProcessor(fakeSvc, 1024);
@@ -453,15 +453,15 @@ async Task RunTests()
             throw new Exception("'chunks' key missing from output JSON");
 
         var chunksInOutput = rootObj["chunks"]!.AsArray();
-        if (chunksInOutput.Count != 33)
-            throw new Exception($"Expected 33 chunks in output, got {chunksInOutput.Count}");
+        if (chunksInOutput.Count != 217)
+            throw new Exception($"Expected 217 chunks in output, got {chunksInOutput.Count}");
 
-        // Verify each chunk has 'id', 'content', and 'points'
+        // Verify each chunk has 'id', 'document', and 'points'
         foreach (var chunkObj in chunksInOutput)
         {
             if (chunkObj is not JsonObject co) continue;
             if (!co.ContainsKey("id")) throw new Exception("Chunk missing 'id' key");
-            if (!co.ContainsKey("content")) throw new Exception("Chunk missing 'content' key");
+            if (!co.ContainsKey("document")) throw new Exception("Chunk missing 'document' key");
             if (!co.ContainsKey("points")) throw new Exception("Chunk missing 'points' key");
         }
 
@@ -508,7 +508,7 @@ async Task RunTests()
     // ─── Test 17: ExtractChunksForMerge finds chunks at root level ───
     try
     {
-        var jsonText = "{\"chunks\":[{\"id\":\"c1\",\"content\":\"hello\"},{\"id\":\"c2\",\"content\":\"world\"}]}";
+        var jsonText = "{\"chunks\":[{\"id\":\"c1\",\"document\":\"hello\"},{\"id\":\"c2\",\"document\":\"world\"}]}";
         using var doc = JsonDocument.Parse(jsonText);
         var testRoot = JsonNode.Parse(doc.RootElement.GetRawText())!;
 
@@ -536,8 +536,8 @@ async Task RunTests()
         var tempDir = "/tmp/batch_embed_test";
         Directory.CreateDirectory(tempDir);
 
-        string file1Json = "{\"chunks\":[{\"id\":\"file1-chunk-1\",\"content\":\"alpha\"},{\"id\":\"file1-chunk-2\",\"content\":\"beta\"}]}";
-        string file2Json = "{\"chunks\":[{\"id\":\"file2-chunk-1\",\"content\":\"gamma\"}]}";
+        string file1Json = "{\"chunks\":[{\"id\":\"file1-chunk-1\",\"document\":\"alpha\"},{\"id\":\"file1-chunk-2\",\"document\":\"beta\"}]}";
+        string file2Json = "{\"chunks\":[{\"id\":\"file2-chunk-1\",\"document\":\"gamma\"}]}";
 
         var fakeSvc = new FakeEmbeddingService(128);
 
@@ -567,7 +567,7 @@ async Task RunTests()
     {
         var tempDir = "/tmp/single_compat_test";
         Directory.CreateDirectory(tempDir);
-        string jsonText = "{\"chunks\":[{\"id\":\"compat-001\",\"content\":\"backward compat content\"}]}";
+        string jsonText = "{\"chunks\":[{\"id\":\"compat-001\",\"document\":\"backward compat content\"}]}";
 
         var fakeSvc = new FakeEmbeddingService(64);
         var result = await ProcessSingleFile(fakeSvc, jsonText, Path.Combine(tempDir, "test.ragged.json"));
@@ -596,8 +596,8 @@ async Task RunTests()
         Directory.CreateDirectory(tempDir);
         var outFile = Path.Combine(tempDir, "merged.json");
 
-        string file1 = "{\"chunks\":[{\"id\":\"src1-001\",\"content\":\"a\",\"metadata\":{\"source\":\"a.md\"}}]}";
-        string file2 = "{\"chunks\":[{\"id\":\"src2-001\",\"content\":\"b\",\"metadata\":{\"source\":\"b.md\"}}]}";
+        string file1 = "{\"chunks\":[{\"id\":\"src1-001\",\"document\":\"a\",\"metadata\":{\"source\":\"a.md\"}}]}";
+        string file2 = "{\"chunks\":[{\"id\":\"src2-001\",\"document\":\"b\",\"metadata\":{\"source\":\"b.md\"}}]}";
 
         var fakeSvc = new FakeEmbeddingService(32);
 
@@ -649,7 +649,7 @@ async Task RunTests()
     try
     {
         var fakeSvc = new FakeEmbeddingService(32);
-        var jsonText = "{\"chunks\":[{\"id\":\"lv-001\",\"content\":\"legacy test vector\"}]}";
+        var jsonText = "{\"chunks\":[{\"id\":\"lv-001\",\"document\":\"legacy test vector\"}]}";
         var rootNode = JsonNode.Parse(jsonText)!;
 
         // VectorName = null → legacy mode
@@ -686,7 +686,7 @@ async Task RunTests()
     {
         var fakeSvc = new FakeEmbeddingService(32);
         const string TEST_VECTOR_NAME = "qwen-embeddings";
-        var jsonText = $"{{\"chunks\":[{{\"id\":\"nv-001\",\"content\":\"named test vector\"}}]}}";
+        var jsonText = $"{{\"chunks\":[{{\"id\":\"nv-001\",\"document\":\"named test vector\"}}]}}";
 
         var processor = new EmbeddingProcessor(fakeSvc, 32, vectorName: TEST_VECTOR_NAME);
         var result = await ProcessSingleFileTestLegacy(fakeSvc, jsonText, "/tmp/test_named.json", processor);
@@ -745,7 +745,7 @@ async Task RunTests()
     try
     {
         var fakeSvc = new FakeEmbeddingService(32);
-        const string jsonText = "{\"chunks\":[{\"id\":\"empty-001\",\"content\":\"empty name test\"}]}";
+        const string jsonText = "{\"chunks\":[{\"id\":\"empty-001\",\"document\":\"empty name test\"}]}";
 
         // Explicitly pass empty string — should be same as null → legacy mode
         var processor = new EmbeddingProcessor(fakeSvc, 32, vectorName: "");

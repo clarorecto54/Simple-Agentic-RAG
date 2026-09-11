@@ -168,11 +168,11 @@ public class AgenticChunkingProcessor : IDisposable
                                 contentKey = s.Trim();
                         }
 
-                        // Also check "content" field as fallback
-                        if (string.IsNullOrEmpty(contentKey) && chunkNode.ContainsKey("content"))
+                        // Also check "document" field as fallback
+                        if (string.IsNullOrEmpty(contentKey) && chunkNode.ContainsKey("document"))
                         {
-                            var c = chunkNode["content"];
-                            if (c is JsonValue cv && cv.TryGetValue<string>(out var cs))
+                            var d = chunkNode["document"];
+                            if (d is JsonValue cv && cv.TryGetValue<string>(out var cs))
                                 contentKey = cs.Trim();
                         }
 
@@ -295,10 +295,10 @@ public class AgenticChunkingProcessor : IDisposable
             else
                 wrapped["id"] = JsonValue.Create($"{safeName}-chunk-{outputObj["chunks"]!.AsArray().Count + 1:D3}");
 
-            if (chunkObj["content"] is JsonNode contentNode)
-                wrapped["content"] = contentNode.DeepClone();
+            if (chunkObj["document"] is JsonNode documentNode)
+                wrapped["document"] = documentNode.DeepClone();
             else
-                wrapped["content"] = JsonValue.Create("");
+                wrapped["document"] = JsonValue.Create("");
 
             if (chunkObj["metadata"] is JsonObject metadataObj)
                 wrapped["metadata"] = metadataObj.DeepClone() as JsonObject ?? new JsonObject();
@@ -591,8 +591,8 @@ public class AgenticChunkingProcessor : IDisposable
                 globalChunkCounter++;
 
                 // Ensure the chunk has the expected shape for Chunked Data.json compatibility
-                if (!chunk.ContainsKey("content"))
-                    chunk["content"] = JsonValue.Create("");
+                if (!chunk.ContainsKey("document"))
+                    chunk["document"] = JsonValue.Create("");
                 if (!chunk.ContainsKey("metadata"))
                     chunk["metadata"] = new JsonObject();
                 if (!chunk.ContainsKey("retrieval_content") || string.IsNullOrEmpty(chunk["retrieval_content"]?.GetValue<string>()))
@@ -608,9 +608,9 @@ public class AgenticChunkingProcessor : IDisposable
                 chunk["id"] = JsonValue.Create($"{safeSegment}-{globalChunkCounter:D3}");
 
                 // Generate retrieval_content if not provided by LLM
-                if (string.IsNullOrEmpty(chunk["retrieval_content"].GetValue<string>()))
+                if (string.IsNullOrEmpty(chunk["document"]?.GetValue<string>() ?? ""))
                 {
-                    var content = chunk["content"]?.GetValue<string>() ?? "";
+                    var documentText = chunk["document"]?.GetValue<string>() ?? "";
                     var headingPath = meta["heading_path"] as JsonArray;
                     var topic = meta["topic"]?.GetValue<string>() ?? "";
                     var docTitle = meta["document_title"]?.GetValue<string>() ?? sourceFileName;
@@ -627,9 +627,9 @@ public class AgenticChunkingProcessor : IDisposable
 
                     string retrievalContent;
                     if (string.IsNullOrEmpty(topic))
-                        retrievalContent = $"{docTitle} | {sectionPath}\n\n{content}";
+                        retrievalContent = $"{docTitle} | {sectionPath}\n\n{documentText}";
                     else
-                        retrievalContent = $"{docTitle} | {sectionPath} | {topic}\n\n{content}";
+                        retrievalContent = $"{docTitle} | {sectionPath} | {topic}\n\n{documentText}";
 
                     chunk["retrieval_content"] = JsonValue.Create(retrievalContent);
                 }
