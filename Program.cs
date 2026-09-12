@@ -47,6 +47,7 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
     List<string> inputFiles = new();
     string outputPath = "";
     string? vectorName = null;
+    string llamaUrl = Environment.GetEnvironmentVariable("LLAMA_CPP_URL") ?? "http://localhost:4000";
 
     int i = 0;
     for (; i < subArgs.Length; i++)
@@ -56,6 +57,16 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
             case "--help":
                 HelpText.PrintEmbedHelp();
                 return 0;
+
+            case "--llama-url":
+            case "-l":
+                if (i + 1 >= subArgs.Length)
+                {
+                    Console.Error.WriteLine("Error: --llama-url requires a URL.");
+                    return 1;
+                }
+                llamaUrl = subArgs[++i];
+                break;
 
             case "--vector-name":
             case "-v":
@@ -160,8 +171,7 @@ static async Task<int> RunEmbedAsync(string[] subArgs)
     // ── Configuration ──────────────────────────────────
     var embeddingOptions = new LlamaCppEmbeddingOptions
     {
-        ServerUrl = Environment.GetEnvironmentVariable("LLAMA_CPP_URL")
-                    ?? "http://localhost:4000",
+        ServerUrl = llamaUrl,
         ModelId = Environment.GetEnvironmentVariable("LLAMA_CPP_MODEL"),
         ExpectedDimension = int.TryParse(
             Environment.GetEnvironmentVariable("EMBEDDING_DIMENSION"), out var dim)
